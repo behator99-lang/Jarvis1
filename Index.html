@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jarvis</title>
+<style>
+  body { font-family: sans-serif; background:#111; color:#eee; margin:0; display:flex; flex-direction:column; height:100vh; }
+  #chat { flex:1; overflow-y:auto; padding:12px; }
+  .msg { margin:8px 0; padding:10px; border-radius:10px; max-width:80%; }
+  .user { background:#2a5; margin-left:auto; }
+  .bot { background:#333; }
+  #bar { display:flex; padding:8px; gap:8px; }
+  #in { flex:1; padding:10px; border-radius:8px; border:none; }
+  button { padding:10px 16px; border:none; border-radius:8px; background:#2a5; color:#fff; }
+</style>
+</head>
+<body>
+<div id="chat"></div>
+<div id="bar">
+  <input id="in" placeholder="Sag etwas zu Jarvis...">
+  <button onclick="send()">Senden</button>
+</div>
+<script>
+function antwort(t) {
+  t = t.toLowerCase();
+  if (t.includes("hallo") || t.includes("hi")) return "Hallo! Wie kann ich helfen?";
+  if (t.includes("uhr")) return "Es ist " + new Date().toLocaleTimeString("de-DE");
+  if (t.includes("datum") || t.includes("tag")) return "Heute ist " + new Date().toLocaleDateString("de-DE");
+  if (t.includes("witz")) return "Warum können Geister so schlecht lügen? Man sieht direkt durch sie hindurch.";
+  return "Das kann ich noch nicht, aber ich lerne dazu.";
+}
+function add(text, cls) {
+  const d = document.createElement("div");
+  d.className = "msg " + cls;
+  d.textContent = text;
+  document.getElementById("chat").appendChild(d);
+  d.scrollIntoView();
+}
+function send() {
+  const i = document.getElementById("in");
+  if (!i.value.trim()) return;
+  add(i.value, "user");
+  add(antwort(i.value), "bot");
+  i.value = "";
+}
+document.getElementById("in").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+</script>
+</body>
+</html>
