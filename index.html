@@ -2,20 +2,69 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Jarvis">
+<meta name="theme-color" content="#050b18">
 <title>Jarvis</title>
 <style>
-  body { font-family: sans-serif; background:#111; color:#eee; margin:0; display:flex; flex-direction:column; height:100vh; }
-  #chat { flex:1; overflow-y:auto; padding:12px; }
-  .msg { margin:8px 0; padding:10px; border-radius:10px; max-width:80%; }
-  .user { background:#2a5; margin-left:auto; }
-  .bot { background:#333; }
-  #bar { display:flex; padding:8px; gap:8px; }
-  #in { flex:1; padding:10px; border-radius:8px; border:none; }
-  button { padding:10px 16px; border:none; border-radius:8px; background:#2a5; color:#fff; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; height: 100vh; display: flex; flex-direction: column;
+    font-family: -apple-system, "Segoe UI", sans-serif; color: #d8f6ff;
+    background: radial-gradient(circle at 50% 0%, #0b2a4a 0%, #050b18 60%);
+    padding-top: env(safe-area-inset-top);
+  }
+  header { text-align: center; padding: 14px 0 8px; }
+  .core {
+    width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 50%;
+    border: 3px solid #00e5ff;
+    box-shadow: 0 0 18px #00e5ff, inset 0 0 14px #00e5ff;
+    position: relative; animation: pulse 3s ease-in-out infinite;
+  }
+  .core::after {
+    content: ""; position: absolute; inset: 14px; border-radius: 50%;
+    background: #00e5ff; box-shadow: 0 0 16px #00e5ff;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 12px #00e5ff, inset 0 0 8px #00e5ff; }
+    50% { box-shadow: 0 0 28px #00e5ff, inset 0 0 18px #00e5ff; }
+  }
+  h1 { margin: 0; font-size: 18px; letter-spacing: 6px; font-weight: 300; color: #7df3ff; }
+  #chat { flex: 1; overflow-y: auto; padding: 12px 14px; }
+  .msg {
+    margin: 8px 0; padding: 11px 14px; border-radius: 16px;
+    max-width: 82%; line-height: 1.4; font-size: 15px;
+  }
+  .user {
+    background: linear-gradient(135deg, #0077b6, #00b4d8);
+    margin-left: auto; border-bottom-right-radius: 4px; color: #fff;
+  }
+  .bot {
+    background: rgba(0, 229, 255, 0.08); border: 1px solid rgba(0, 229, 255, 0.35);
+    border-bottom-left-radius: 4px;
+  }
+  #bar {
+    display: flex; gap: 8px; padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(5, 11, 24, 0.9); border-top: 1px solid rgba(0, 229, 255, 0.25);
+  }
+  #in {
+    flex: 1; padding: 12px 14px; border-radius: 22px; font-size: 16px;
+    border: 1px solid rgba(0, 229, 255, 0.4); background: #08162b; color: #d8f6ff; outline: none;
+  }
+  #in:focus { box-shadow: 0 0 8px #00e5ff; }
+  button {
+    padding: 0 20px; border: none; border-radius: 22px; font-size: 15px;
+    background: linear-gradient(135deg, #00b4d8, #00e5ff); color: #03121f; font-weight: 600;
+  }
 </style>
 </head>
 <body>
+<header>
+  <div class="core"></div>
+  <h1>J.A.R.V.I.S.</h1>
+</header>
 <div id="chat"></div>
 <div id="bar">
   <input id="in" placeholder="Sag etwas zu Jarvis...">
@@ -45,6 +94,7 @@ function send() {
   i.value = "";
 }
 document.getElementById("in").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
+add("Systeme online. Wie kann ich helfen?", "bot");
 </script>
 </body>
 </html>
