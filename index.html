@@ -23,6 +23,7 @@
     box-shadow: 0 0 18px #00e5ff, inset 0 0 14px #00e5ff;
     position: relative; animation: pulse 3s ease-in-out infinite;
   }
+  .core.busy { animation: pulse 0.8s ease-in-out infinite; }
   .core::after {
     content: ""; position: absolute; inset: 14px; border-radius: 50%;
     background: #00e5ff; box-shadow: 0 0 16px #00e5ff;
@@ -35,7 +36,7 @@
   #chat { flex: 1; overflow-y: auto; padding: 12px 14px; }
   .msg {
     margin: 8px 0; padding: 11px 14px; border-radius: 16px;
-    max-width: 82%; line-height: 1.4; font-size: 15px;
+    max-width: 82%; line-height: 1.4; font-size: 15px; white-space: pre-wrap;
   }
   .user {
     background: linear-gradient(135deg, #0077b6, #00b4d8);
@@ -58,41 +59,64 @@
     padding: 0 20px; border: none; border-radius: 22px; font-size: 15px;
     background: linear-gradient(135deg, #00b4d8, #00e5ff); color: #03121f; font-weight: 600;
   }
+  button:disabled { opacity: 0.5; }
 </style>
 </head>
 <body>
 <header>
-  <div class="core"></div>
+  <div class="core" id="core"></div>
   <h1>J.A.R.V.I.S.</h1>
 </header>
 <div id="chat"></div>
 <div id="bar">
   <input id="in" placeholder="Sag etwas zu Jarvis...">
-  <button onclick="send()">Senden</button>
+  <button id="btn" onclick="send()">Senden</button>
 </div>
 <script>
-function antwort(t) {
-  t = t.toLowerCase();
-  if (t.includes("hallo") || t.includes("hi")) return "Hallo! Wie kann ich helfen?";
-  if (t.includes("uhr")) return "Es ist " + new Date().toLocaleTimeString("de-DE");
-  if (t.includes("datum") || t.includes("tag")) return "Heute ist " + new Date().toLocaleDateString("de-DE");
-  if (t.includes("witz")) return "Warum können Geister so schlecht lügen? Man sieht direkt durch sie hindurch.";
-  return "Das kann ich noch nicht, aber ich lerne dazu.";
-}
+const API_URL = "https://jarvis-api.behator99.workers.dev/";
+const history = [];
+
 function add(text, cls) {
   const d = document.createElement("div");
   d.className = "msg " + cls;
   d.textContent = text;
   document.getElementById("chat").appendChild(d);
   d.scrollIntoView();
+  return d;
 }
-function send() {
+
+async function send() {
   const i = document.getElementById("in");
-  if (!i.value.trim()) return;
-  add(i.value, "user");
-  add(antwort(i.value), "bot");
+  const btn = document.getElementById("btn");
+  const core = document.getElementById("core");
+  const text = i.value.trim();
+  if (!text) return;
   i.value = "";
+  add(text, "user");
+  history.push({ role: "user", content: text });
+  const wait = add("denkt nach...", "bot");
+  btn.disabled = true;
+  core.classList.add("busy");
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ messages: history })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message || "API-Fehler");
+    const reply = data.content[0].text;
+    wait.textContent = reply;
+    history.push({ role: "assistant", content: reply });
+  } catch (e) {
+    history.pop();
+    wait.textContent = "Fehler: " + e.message;
+  }
+  btn.disabled = false;
+  core.classList.remove("busy");
+  wait.scrollIntoView();
 }
+
 document.getElementById("in").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
 add("Systeme online. Wie kann ich helfen?", "bot");
 </script>
