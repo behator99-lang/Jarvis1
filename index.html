@@ -43,7 +43,7 @@
     max-width: 82%; line-height: 1.4; font-size: 15px; white-space: pre-wrap;
   }
   .msg code { background: rgba(0, 229, 255, 0.18); padding: 1px 5px; border-radius: 4px; }
-  .msg img { max-width: 100%; border-radius: 10px; margin-bottom: 6px; display: block; }
+  .msg img { width: 140px; max-height: 140px; object-fit: cover; border-radius: 10px; margin-bottom: 6px; display: block; }
   .user {
     background: linear-gradient(135deg, #0077b6, #00b4d8);
     margin-left: auto; border-bottom-right-radius: 4px; color: #fff;
@@ -112,7 +112,7 @@ let history = load("jarvis_history", []);
 let facts = load("jarvis_facts", []);
 let pendingImg = null;
 
-function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 function fmt(s) {
   return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`(.+?)`/g, "<code>$1</code>");
 }
@@ -231,53 +231,4 @@ async function send() {
     if (lower.includes("was weißt du über mich") || lower.includes("was weisst du über mich")) {
       add(text, "user");
       add(facts.length ? "Das weiß ich über dich:\n- " + facts.join("\n- ") : "Bisher weiß ich nichts. Sag einfach: Merke dir ...", "bot");
-      return;
-    }
-    if (lower.startsWith("vergiss alles")) {
-      facts = [];
-      save("jarvis_facts", facts);
-      add(text, "user");
-      add("Erledigt. Mein Gedächtnis über dich ist gelöscht.", "bot");
-      return;
-    }
-  }
-
-  const img = pendingImg;
-  if (img && !text) text = "Beschreibe dieses Bild.";
-  add(text, "user", img ? img.url : null);
-  history.push(img ? { role: "user", content: text, img: img.data, hadImg: true } : { role: "user", content: text });
-  clearImg();
-  const wait = add("denkt nach...", "bot");
-  btn.disabled = true;
-  core.classList.add("busy");
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: buildMsgs(), system: buildSystem() })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error.message || "API-Fehler");
-    const reply = data.content[0].text;
-    wait.innerHTML = fmt(reply);
-    history.push({ role: "assistant", content: reply });
-  } catch (e) {
-    history.pop();
-    wait.textContent = "Fehler: " + e.message;
-  }
-  saveHistory();
-  btn.disabled = false;
-  core.classList.remove("busy");
-  wait.scrollIntoView();
-}
-
-document.getElementById("in").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
-
-if (history.length) {
-  history.forEach(m => add((m.hadImg ? "📷 " : "") + m.content, m.role === "user" ? "user" : "bot"));
-} else {
-  add("Systeme online. Wie kann ich helfen?", "bot");
-}
-</script>
-</body>
-</html>
+      
