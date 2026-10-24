@@ -16,7 +16,11 @@
     background: radial-gradient(circle at 50% 0%, #0b2a4a 0%, #050b18 60%);
     padding-top: env(safe-area-inset-top);
   }
-  header { text-align: center; padding: 14px 0 8px; }
+  header { text-align: center; padding: 14px 0 8px; position: relative; }
+  .mini {
+    position: absolute; right: 12px; top: 14px; padding: 6px 10px; font-size: 12px;
+    background: transparent; border: 1px solid rgba(0, 229, 255, 0.4); color: #7df3ff; border-radius: 14px; font-weight: 400;
+  }
   .core {
     width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 50%;
     border: 3px solid #00e5ff;
@@ -38,6 +42,7 @@
     margin: 8px 0; padding: 11px 14px; border-radius: 16px;
     max-width: 82%; line-height: 1.4; font-size: 15px; white-space: pre-wrap;
   }
+  .msg code { background: rgba(0, 229, 255, 0.18); padding: 1px 5px; border-radius: 4px; }
   .user {
     background: linear-gradient(135deg, #0077b6, #00b4d8);
     margin-left: auto; border-bottom-right-radius: 4px; color: #fff;
@@ -64,6 +69,7 @@
 </head>
 <body>
 <header>
+  <button class="mini" onclick="newChat()">Neuer Chat</button>
   <div class="core" id="core"></div>
   <h1>J.A.R.V.I.S.</h1>
 </header>
@@ -74,15 +80,44 @@
 </div>
 <script>
 const API_URL = "https://jarvis-api.behator99.workers.dev/";
-const history = [];
+const PERSONA = `Du bist Jarvis, der persönliche KI-Assistent deines Nutzers. Du sprichst Deutsch und duzt den Nutzer. Dein Ton: ruhig, souverän und höflich, mit trockenem Humor, wie ein erstklassiger Butler. Antworte kurz und präzise, außer der Nutzer will Details. Nutze bei Bedarf Listen. Wenn du etwas nicht weißt, sag es ehrlich.`;
+
+function load(key, fallback) {
+  try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch (e) { return fallback; }
+}
+function save(key, val) {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+}
+
+let history = load("jarvis_history", []);
+let facts = load("jarvis_facts", []);
+
+function esc(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
+function fmt(s) {
+  return esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>").replace(/`(.+?)`/g, "<code>$1</code>");
+}
 
 function add(text, cls) {
   const d = document.createElement("div");
   d.className = "msg " + cls;
-  d.textContent = text;
+  d.innerHTML = fmt(text);
   document.getElementById("chat").appendChild(d);
   d.scrollIntoView();
   return d;
+}
+
+function buildSystem() {
+  let s = PERSONA;
+  if (facts.length) s += "\n\nDas weißt du über den Nutzer:\n- " + facts.join("\n- ");
+  s += "\n\nAktuelles Datum und Uhrzeit: " + new Date().toLocaleString("de-DE");
+  return s;
+}
+
+function newChat() {
+  history = [];
+  save("jarvis_history", history);
+  document.getElementById("chat").innerHTML = "";
+  add("Neuer Chat gestartet. Wie kann ich helfen?", "bot");
 }
 
 async function send() {
@@ -92,33 +127,66 @@ async function send() {
   const text = i.value.trim();
   if (!text) return;
   i.value = "";
+  const lower = text.toLowerCase();
+
+  if (lower.startsWith("merke dir")) {
+    const fact = text.slice(9).replace(/^[\s:,]+/, "").trim();
+    if (fact) {
+      facts.push(fact);
+      save("jarvis_facts", facts);
+      add(text, "user");
+      add("Gemerkt: " + fact, "bot");
+      return;
+    }
+  }
+  if (lower.includes("was weißt du über mich") || lower.includes("was weisst du über mich")) {
+    add(text, "user");
+    add(facts.length ? "Das weiß ich über dich:\n- " + facts.join("\n- ") : "Bisher weiß ich nichts. Sag einfach: Merke dir ...", "bot");
+    return;
+  }
+  if (lower.startsWith("vergiss alles")) {
+    facts = [];
+    save("jarvis_facts", facts);
+    add(text, "user");
+    add("Erledigt. Mein Gedächtnis über dich ist gelöscht.", "bot");
+    return;
+  }
+
   add(text, "user");
   history.push({ role: "user", content: text });
   const wait = add("denkt nach...", "bot");
   btn.disabled = true;
   core.classList.add("busy");
   try {
+    let msgs = history.slice(-19);
+    while (msgs.length && msgs[0].role !== "user") msgs.shift();
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: history })
+      body: JSON.stringify({ messages: msgs, system: buildSystem() })
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message || "API-Fehler");
     const reply = data.content[0].text;
-    wait.textContent = reply;
+    wait.innerHTML = fmt(reply);
     history.push({ role: "assistant", content: reply });
   } catch (e) {
     history.pop();
     wait.textContent = "Fehler: " + e.message;
   }
+  save("jarvis_history", history.slice(-40));
   btn.disabled = false;
   core.classList.remove("busy");
   wait.scrollIntoView();
 }
 
 document.getElementById("in").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
-add("Systeme online. Wie kann ich helfen?", "bot");
+
+if (history.length) {
+  history.forEach(m => add(m.content, m.role === "user" ? "user" : "bot"));
+} else {
+  add("Systeme online. Wie kann ich helfen?", "bot");
+}
 </script>
 </body>
 </html>
