@@ -7,8 +7,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jarvis">
 <meta name="theme-color" content="#04100a">
+<meta name="color-scheme" content="dark">
 <title>Jarvis</title>
 <style>
+  html { background: #04100a; min-height: 100%; }
   * { box-sizing: border-box; }
   body {
     margin: 0; height: 100vh; display: flex; flex-direction: column;
@@ -118,8 +120,8 @@
   body { --ar: 143,191,159; --a: #8fbf9f; --a2: #cfe8d6; --bg0: #04100a; --bg1: #0a2418; --on: #07150e; }
   body[data-t="search"] { --ar: 127,193,224; --a: #7fc1e0; --a2: #d0e9f5; --bg0: #040d12; --bg1: #0a2433; --on: #04141d; }
   body[data-t="school"] { --ar: 178,160,227; --a: #b2a0e3; --a2: #e4dcf7; --bg0: #0a0812; --bg1: #1a1430; --on: #130d26; }
-  body[data-t="biz"] { --ar: 224,149,90; --a: #e0955a; --a2: #f5d3b5; --bg0: #120a05; --bg1: #2a1708; --on: #1d0f05; }
-  body[data-t="notes"] { --ar: 230,143,176; --a: #e68fb0; --a2: #f7d3e1; --bg0: #12060b; --bg1: #2c0f1c; --on: #240a15; }
+  body[data-t="biz"] { --ar: 95,207,192; --a: #5fcfc0; --a2: #c8f1ea; --bg0: #031412; --bg1: #0b3a34; --on: #04201c; }
+  body[data-t="notes"] { --ar: 143,158,240; --a: #8f9ef0; --a2: #d6dcfb; --bg0: #07091a; --bg1: #151a47; --on: #0c1030; }
   body[data-t] { background: radial-gradient(circle at 50% 0%, var(--bg1) 0%, var(--bg0) 60%); }
   body[data-t] h1 { color: var(--a2); }
   body[data-t] .mini, body[data-t] .x, body[data-t] button.del, body[data-t] .mic, body[data-t] .photo { border-color: rgba(var(--ar), 0.45); color: var(--a2); }
@@ -229,7 +231,7 @@
   .fld input { border-radius: 14px; background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); }
 
   /* ---- v12: Gründer-Lab ---- */
-  body[data-t="found"] { --ar: 205,208,214; --a: #c9cdd4; --a2: #f1f3f6; --bg0: #040405; --bg1: #15161a; --on: #0b0b0d; }
+  body[data-t="found"] { --ar: 196,208,226; --a: #c4d0e2; --a2: #eef2f8; --bg0: #0e121a; --bg1: #2b3547; --on: #10151e; }
   #found { flex: 1; overflow-y: auto; padding: 4px 18px 20px; min-height: 0; }
   .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.1; font-size: 10.5px; }
   .tab .ti { font-size: 17px; }
@@ -315,6 +317,53 @@
   #biz .res div:first-child b { font-size: 36px; font-weight: 300; line-height: 1.1; text-align: left; background: linear-gradient(90deg, #fff, var(--a2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
   #biz .res div:first-child span { opacity: .6; text-transform: uppercase; letter-spacing: 1px; font-size: 11px; }
   #biz .fld { padding: 2px 0; }
+
+  /* ---- v18: Märkte ---- */
+  body[data-t="mk"] { --ar: 185,214,111; --a: #b9d66f; --a2: #e6f2c0; --bg0: #0d1204; --bg1: #26300a; --on: #151d05; --bga: .36; background: radial-gradient(130% 60% at 50% 0%, rgba(var(--ar), var(--bga)) 0%, transparent 72%), var(--bg0); }
+  #mk { flex: 1; overflow-y: auto; padding: 4px 18px 20px; min-height: 0; }
+  body[data-t] .tab { font-size: 11px; }
+  .tk { display: flex; gap: 10px; overflow-x: auto; margin: 14px 0 6px; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  .tkc { flex-shrink: 0; min-width: 140px; padding: 12px 14px; border-radius: 20px; background: linear-gradient(160deg, rgba(var(--ar), .18), rgba(255,255,255,.04)); border: 1px solid rgba(var(--ar), .3); }
+  .tkc small { display: block; font-size: 11px; letter-spacing: .8px; text-transform: uppercase; opacity: .6; }
+  .tkc b { display: block; font-size: 18px; font-weight: 500; margin: 3px 0 1px; color: #fff; }
+  .tkc span { font-size: 13px; }
+  .up { color: #6fd39b; } .dn { color: #f08a8a; } .fl { opacity: .6; }
+  .mrow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 15px; }
+  .mrow small { display: block; font-size: 12px; opacity: .5; margin-top: 1px; }
+  .mrow .r { text-align: right; white-space: nowrap; }
+  .mrow .r span { display: block; font-size: 13px; margin-top: 1px; }
+  .mh { margin: 20px 0 2px; font-size: 13px; letter-spacing: .8px; text-transform: uppercase; opacity: .6; }
+  .brief { margin-top: 12px; padding: 14px 16px; border-radius: 22px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); font-size: 14px; line-height: 1.6; }
+  .brief .bh { margin: 12px 0 2px; font-size: 11px; letter-spacing: 1px; color: var(--a2); font-weight: 600; }
+  .brief .bh:first-child { margin-top: 0; }
+  .brief .ts { font-size: 11px; opacity: .5; margin-bottom: 8px; }
+  .wl { display: flex; gap: 8px; margin: 8px 0; }
+  .wl .rin { margin: 0; }
+  .wlchip { display: inline-flex; align-items: center; gap: 6px; margin: 4px 6px 4px 0; padding: 6px 6px 6px 12px; border-radius: 16px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); font-size: 13px; }
+  .wlchip button { height: 20px; width: 20px; padding: 0; border-radius: 50%; background: rgba(255,255,255,.1) !important; color: #fff !important; font-size: 11px; border: none; }
+
+  /* ---- v19: stabil, einheitlich ---- */
+  *, *::before, *::after { -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+  #bar { -webkit-backdrop-filter: blur(16px) !important; backdrop-filter: blur(16px) !important; }
+  body::before, body::after { filter: none; width: 560px; height: 560px; opacity: 1; background: radial-gradient(circle, rgba(var(--ar), .34) 0%, rgba(var(--ar), 0) 68%); }
+  body::before { top: -270px; left: -210px; }
+  body::after { background: radial-gradient(circle, rgba(var(--ar), .16) 0%, rgba(var(--ar), 0) 68%); top: auto; left: auto; bottom: -290px; right: -250px; }
+  body[data-t="search"], body[data-t="school"], body[data-t="biz"], body[data-t="found"], body[data-t="notes"], body[data-t="mk"] {
+    background: radial-gradient(130% 55% at 50% 0%, rgba(var(--ar), var(--bga)) 0%, transparent 70%), radial-gradient(120% 45% at 50% 100%, rgba(var(--ar), .14) 0%, transparent 70%), var(--bg0); }
+  body[data-t="search"] { --bga: .38; --bg0: #05121a; }
+  body[data-t="school"] { --bga: .38; --bg0: #0d0818; }
+  body[data-t="biz"] { --bga: .36; --bg0: #04171a; }
+  body[data-t="notes"] { --bga: .38; --bg0: #07091c; }
+  body[data-t="found"] { --bga: .30; --bg0: #0f131c; }
+  body[data-t="mk"] { --bga: .34; --bg0: #0f1405; }
+  .orb { box-shadow: 0 0 50px rgba(var(--ar), .45), 0 0 90px rgba(var(--ar), .2), inset -10px -14px 30px rgba(0,0,0,.35); }
+  .tab { min-width: 0; padding: 0; overflow: hidden; }
+  body[data-t] .tab { font-size: 11px; letter-spacing: 0; }
+  @media (max-width: 380px) { body[data-t] .tab { font-size: 10px; } }
+  #chat, #search, #notes, #biz, #school, #found, #mk { padding-left: max(18px, calc((100% - 680px) / 2)); padding-right: max(18px, calc((100% - 680px) / 2)); }
+  #schoolctl { padding-left: max(18px, calc((100% - 680px) / 2)); padding-right: max(18px, calc((100% - 680px) / 2)); }
+  header { padding-left: max(16px, calc((100vw - 680px) / 2)); padding-right: max(16px, calc((100vw - 680px) / 2)); }
+  #bar { margin-left: max(14px, calc((100vw - 680px) / 2)); margin-right: max(14px, calc((100vw - 680px) / 2)); }
 </style>
 </head>
 <body>
@@ -330,7 +379,7 @@
   <div id="school"></div>
 </div>
 <div id="found" style="display:none">
-  <div class="pagehead"><h2>Gründer-Lab</h2><div class="hsub">Beantworte vier Fragen. Jarvis schlägt dir Business-Ideen vor, die zu deinem Budget und deiner Zeit passen, und baut dir den Startplan.</div></div>
+  <div class="pagehead"><h2>Startup</h2><div class="hsub">Beantworte vier Fragen. Jarvis schlägt dir Business-Ideen vor, die zu deinem Budget und deiner Zeit passen, und baut dir den Startplan.</div></div>
   <div class="seg"><button class="sub on" id="fs-i" onclick="fsub('i')">Ideen</button><button class="sub" id="fs-r" onclick="fsub('r')">Reseller</button></div>
   <div id="fideas">
   <div id="fform"></div>
@@ -347,6 +396,7 @@
   </div>
   <div id="freseller" style="display:none"></div>
 </div>
+<div id="mk" style="display:none"></div>
 <div id="biz" style="display:none"><div class="pagehead"><h2>Rechner-Werkstatt</h2><div class="hsub">Tippe einen Rechner an, trage Werte ein und lass dir das Ergebnis von Jarvis erklären.</div></div><div id="calcs"></div></div>
 <div id="notes" style="display:none">
   <div class="pagehead"><h2>Notizen &amp; Aufgaben</h2><div class="hsub">Alles an einem Ort, auf allen Geräten synchron.</div></div>
@@ -368,7 +418,8 @@
   <button class="tab" id="tab-search" onclick="show('search')">Suche</button>
   <button class="tab" id="tab-school" onclick="show('school')">Schule</button>
   <button class="tab" id="tab-biz" onclick="show('biz')">BWL</button>
-  <button class="tab" id="tab-found" onclick="show('found')">Gründer</button>
+  <button class="tab" id="tab-found" onclick="show('found')">Startup</button>
+  <button class="tab" id="tab-mk" onclick="show('mk')">Märkte</button>
   <button class="tab" id="tab-notes" onclick="show('notes')">Notizen</button>
 </div>
 <script>
@@ -739,8 +790,8 @@ function newChat() {
   renderTab(cur);
 }
 
-const TITLES = { chat: "Chat", search: "Suche", school: "Schule", biz: "BWL", found: "Gründer", notes: "Notizen" };
-const PANES = { chat: "chat", search: "search", school: "schoolwrap", biz: "biz", found: "found", notes: "notes" };
+const TITLES = { chat: "Chat", search: "Suche", school: "Schule", biz: "BWL", found: "Startup", mk: "Märkte", notes: "Notizen" };
+const PANES = { chat: "chat", search: "search", school: "schoolwrap", biz: "biz", found: "found", mk: "mk", notes: "notes" };
 const PLACE = { chat: "Sag etwas zu Jarvis...", search: "Was soll ich suchen?", school: "Thema, Aufgabe oder Antwort..." };
 
 function show(t) {
@@ -752,12 +803,13 @@ function show(t) {
     document.getElementById(PANES[k]).style.display = k === t ? (k === "school" ? "flex" : "block") : "none";
     document.getElementById("tab-" + k).classList.toggle("on", k === t);
   });
-  document.getElementById("bar").style.display = (t === "notes" || t === "biz" || t === "found") ? "none" : "flex";
+  document.getElementById("bar").style.display = (t === "notes" || t === "biz" || t === "found" || t === "mk") ? "none" : "flex";
   document.querySelector(".photo").style.display = (t === "chat" || t === "school") ? "flex" : "none";
   document.getElementById("newbtn").style.visibility = tabs[t] ? "visible" : "hidden";
   document.getElementById("in").placeholder = PLACE[t] || "";
   const p = document.getElementById(t);
-  if (p) p.scrollTop = (t === "notes" || t === "biz" || t === "found") ? 0 : p.scrollHeight;
+  if (p) p.scrollTop = (t === "notes" || t === "biz" || t === "found" || t === "mk") ? 0 : p.scrollHeight;
+  if (t === "mk") mkEnter();
 }
 
 function shrink(file) {
@@ -1287,8 +1339,206 @@ async function makePlan(x, b) {
   }
 }
 
-drawForm();
-if (fideas.length) drawIdeas();
+/* ---- Märkte ---- */
+let mkc = load("jarvis_mk", null);
+let wl = load("jarvis_wl", []);
+let brief = load("jarvis_brief", null);
+let mkSub = "c";
+const STABLE = ["usdt", "usdc", "dai", "fdusd", "usde", "tusd", "usds", "pyusd", "usd1", "usdd", "busd"];
+const pfmt = p => (p >= 1 ? nf(p, 2) : p >= 0.01 ? nf(p, 4) : nf(p, 6)) + " €";
+const chg = c => '<span class="' + (c > 0.005 ? "up" : c < -0.005 ? "dn" : "fl") + '">' + (c >= 0 ? "+" : "") + nf(c, 2) + " %</span>";
+const FNG = { "Extreme Fear": "Extreme Angst", "Fear": "Angst", "Neutral": "Neutral", "Greed": "Gier", "Extreme Greed": "Extreme Gier" };
+const LEARN = [
+  ["ETF einfach erklärt", "Erkläre mir ETFs einfach: Was ist das, wie funktioniert ein Welt-ETF, was bedeutet TER und thesaurierend gegen ausschüttend?"],
+  ["Aktie oder ETF?", "Was sind die Unterschiede zwischen Einzelaktien und ETFs, und für wen passt was?"],
+  ["Risiko und Stop-Loss", "Erkläre mir Risikomanagement beim Trading: Positionsgröße, Stop-Loss und warum man nie alles auf eine Karte setzt."],
+  ["Hebel und CFDs", "Was sind Hebel und CFDs, und warum verlieren so viele Privatanleger damit Geld?"],
+  ["Krypto-Risiken", "Erkläre mir die wichtigsten Risiken bei Kryptowährungen und wie man sie als Anfänger begrenzt."],
+  ["Charts lesen", "Erkläre mir die Basics der Chartanalyse für Anfänger: Trend, Unterstützung, Widerstand und Candlesticks."]
+];
+
+function mkEnter() {
+  if (!document.getElementById("mkbody")) buildMk();
+  if (!mkc || Date.now() - mkc.t > 300000) loadCrypto();
+}
+
+function buildMk() {
+  const h = document.getElementById("mk");
+  h.innerHTML = '<div class="pagehead"><h2>Märkte</h2><div class="hsub" id="mkts">Krypto live, Aktien und ETFs per Briefing.</div></div><div class="tk" id="mktk"></div>' +
+    '<div class="seg"><button class="sub on" id="ms-c" onclick="msub(\'c\')">Krypto</button><button class="sub" id="ms-a" onclick="msub(\'a\')">Aktien & ETFs</button><button class="sub" id="ms-l" onclick="msub(\'l\')">Lernen</button></div>' +
+    '<div id="mkbody"></div><div class="disc">Keine Anlageberatung. Kurse können verzögert oder fehlerhaft sein. Kryptowährungen und Hebelprodukte bergen ein hohes Verlustrisiko, im Extremfall bis zum Totalverlust. Entscheide immer selbst und investiere nur Geld, das du entbehren kannst.</div>';
+  msub("c");
+  drawTicker();
+}
+
+function msub(k) {
+  mkSub = k;
+  ["c", "a", "l"].forEach(x => document.getElementById("ms-" + x).classList.toggle("on", x === k));
+  const b = document.getElementById("mkbody");
+  b.innerHTML = "";
+  if (k === "c") drawCrypto(b); else if (k === "a") drawStocks(b); else drawLearn(b);
+}
+
+async function loadCrypto() {
+  const ts = document.getElementById("mkts");
+  if (ts) ts.textContent = "Lade Krypto-Kurse...";
+  try {
+    const [m, g, f] = await Promise.allSettled([
+      fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false").then(r => r.json()),
+      fetch("https://api.coingecko.com/api/v3/global").then(r => r.json()),
+      fetch("https://api.alternative.me/fng/?limit=1").then(r => r.json())
+    ]);
+    if (m.status !== "fulfilled" || !Array.isArray(m.value)) throw new Error("Kursdaten nicht erreichbar");
+    mkc = { t: Date.now(), coins: m.value, g: g.status === "fulfilled" && g.value ? g.value.data : null, f: f.status === "fulfilled" && f.value && f.value.data ? f.value.data[0] : null };
+    save("jarvis_mk", mkc);
+  } catch (e) {
+    if (ts) ts.textContent = "Kurse gerade nicht erreichbar (" + e.message + "). Zeige letzten Stand.";
+  }
+  drawTicker();
+  if (mkSub === "c") msub("c");
+}
+
+function drawTicker() {
+  const h = document.getElementById("mktk");
+  const ts = document.getElementById("mkts");
+  if (!h) return;
+  if (!mkc) { h.innerHTML = ""; return; }
+  const find = sym => mkc.coins.find(c => c.symbol === sym);
+  const card = (l, v, c) => '<div class="tkc"><small>' + l + '</small><b>' + v + '</b>' + (c == null ? "" : chg(c)) + '</div>';
+  let html = "";
+  const btc = find("btc"), eth = find("eth");
+  if (btc) html += card("Bitcoin", pfmt(btc.current_price), btc.price_change_percentage_24h);
+  if (eth) html += card("Ethereum", pfmt(eth.current_price), eth.price_change_percentage_24h);
+  if (mkc.g && mkc.g.market_cap_change_percentage_24h_usd != null) html += card("Gesamtmarkt", nf(mkc.g.total_market_cap.eur / 1e12, 2) + " Bio. €", mkc.g.market_cap_change_percentage_24h_usd);
+  if (mkc.f) html += card("Angst & Gier", mkc.f.value + " / 100", null).replace("</div>", '<span class="fl">' + (FNG[mkc.f.value_classification] || mkc.f.value_classification) + "</span></div>");
+  h.innerHTML = html;
+  if (ts) ts.textContent = "Krypto-Stand: " + new Date(mkc.t).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) + " Uhr";
+}
+
+function mrow(c) {
+  return '<div class="mrow"><div>' + esc(c.name) + '<small>' + esc(String(c.symbol).toUpperCase()) + ' · Platz ' + (c.market_cap_rank || "-") + '</small></div><div class="r">' + pfmt(c.current_price) + chg(c.price_change_percentage_24h) + '</div></div>';
+}
+
+function drawCrypto(b) {
+  if (!mkc) { b.innerHTML = '<div class="empty">Lade Daten...</div>'; return; }
+  const list = mkc.coins.filter(c => c.price_change_percentage_24h != null && STABLE.indexOf(c.symbol) < 0);
+  const up = list.slice().sort((a, c) => c.price_change_percentage_24h - a.price_change_percentage_24h).slice(0, 5);
+  const dn = list.slice().sort((a, c) => a.price_change_percentage_24h - c.price_change_percentage_24h).slice(0, 5);
+  b.innerHTML = '<div class="mh">Gewinner des Tages (Top 100)</div>' + up.map(mrow).join("") + '<div class="mh">Verlierer des Tages</div>' + dn.map(mrow).join("") + '<div class="mh">Größte nach Marktwert</div>' + mkc.coins.slice(0, 10).map(mrow).join("");
+  const r = document.createElement("div");
+  r.className = "acts";
+  const mk = (l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; r.appendChild(x); };
+  mk("Warum bewegen die sich?", () => {
+    show("search");
+    document.getElementById("in").value = "Warum sind heute " + up.slice(0, 3).map(c => c.name).join(", ") + " stark gestiegen und " + dn.slice(0, 3).map(c => c.name).join(", ") + " gefallen? Nenne aktuelle Gründe mit Quellen und sag, wenn du es nicht sicher weißt.";
+    send();
+  });
+  mk("Neu laden", () => loadCrypto());
+  b.appendChild(r);
+}
+
+function renderBrief(host, o) {
+  host.innerHTML = '<div class="ts">Stand: ' + new Date(o.t).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) + " Uhr · KI-Zusammenfassung aus Websuche, Angaben ohne Gewähr</div>";
+  String(o.text).split("\n").forEach(line => {
+    const l = line.trim();
+    if (!l) return;
+    const d = document.createElement("div");
+    if (/^[A-ZÄÖÜ&\s\/]{4,}:?$/.test(l)) { d.className = "bh"; d.textContent = l.replace(":", ""); }
+    else d.innerHTML = fmt(l);
+    host.appendChild(d);
+  });
+  if (o.src && o.src.length) addSources(host, o.src);
+}
+
+async function askMarket(sys, user, host, store, btn) {
+  const core = document.getElementById("core");
+  btn.disabled = true;
+  core.classList.add("busy");
+  host.innerHTML = '<div class="th"><span class="dot"></span>Jarvis recherchiert...</div>';
+  try {
+    const data = await api({ messages: [{ role: "user", content: user }], system: sys + "\nAktuelles Datum und Uhrzeit: " + new Date().toLocaleString("de-DE"), mode: "search" });
+    if (data.error) throw new Error(data.error.message || "API-Fehler");
+    const blocks = data.content || [];
+    const text = blocks.filter(b => b.type === "text").map(b => b.text).join("").trim();
+    if (!text) throw new Error("Keine Antwort erhalten");
+    const src = [];
+    blocks.forEach(b => { if (b.type === "web_search_tool_result" && Array.isArray(b.content)) b.content.forEach(r => src.push(r)); });
+    const o = { t: Date.now(), text: text, src: src.slice(0, 8).map(r => ({ url: r.url, title: r.title })) };
+    if (store) save(store, o);
+    renderBrief(host, o);
+    return o;
+  } catch (e) {
+    host.innerHTML = '<div class="empty">Fehler: ' + esc(e.message) + '</div>';
+  } finally {
+    btn.disabled = false;
+    core.classList.remove("busy");
+  }
+}
+
+function drawStocks(b) {
+  b.innerHTML = '<div class="mh">Markt-Briefing</div><div class="hsub" style="font-size:13px;opacity:.55">Indizes, Gold, Öl, Gewinner und Verlierer, aus der Websuche zusammengefasst. Kostet drei Suchen vom Tageslimit.</div><button class="cta" id="bgo" style="margin-top:10px;height:44px">Briefing erstellen</button><div class="brief" id="bout" style="display:none"></div>' +
+    '<div class="mh">Watchlist</div><div class="hsub" style="font-size:13px;opacity:.55">Trage Aktien, ETFs oder Rohstoffe ein, zum Beispiel Apple, MSCI World oder Gold.</div><div class="wl"><input class="rin" id="wlin" placeholder="Name oder Ticker"><button class="smallbtn" id="wladd" style="margin:0;height:46px">Hinzufügen</button></div><div id="wlchips"></div><button class="smallbtn" id="wlgo" style="margin-top:6px">Kurse abfragen</button><div class="brief" id="wlout" style="display:none"></div>';
+  const bout = document.getElementById("bout");
+  if (brief) { bout.style.display = "block"; renderBrief(bout, brief); }
+  document.getElementById("bgo").onclick = async () => {
+    bout.style.display = "block";
+    const o = await askMarket("Du bist ein nüchterner Markt-Analyst für Privatanleger in Deutschland. Nutze die Websuche für die heutigen Daten. Antworte auf Deutsch, höchstens 220 Wörter. Format: Abschnittsüberschriften in Großbuchstaben auf eigener Zeile (INDIZES, ROHSTOFFE UND DEVISEN, GEWINNER, VERLIERER, HEUTE WICHTIG), darunter kurze Zeilen wie 'DAX: 18.500 (+0,4 %)'. INDIZES: DAX, S&P 500, Nasdaq, Dow Jones. ROHSTOFFE UND DEVISEN: Gold, Öl, EUR/USD. GEWINNER und VERLIERER: je 3 Aktien mit Prozent. HEUTE WICHTIG: 2 Punkte. Nenne den Zeitpunkt der Daten. Findest du einen Wert nicht, schreibe 'nicht gefunden', erfinde nichts. Keine Anlageempfehlungen.", "Erstelle das Markt-Briefing für heute.", bout, "jarvis_brief", document.getElementById("bgo"));
+    if (o) brief = o;
+  };
+  const wc = document.getElementById("wlchips");
+  const drawWl = () => {
+    wc.innerHTML = "";
+    wl.forEach((n, i) => {
+      const c = document.createElement("span");
+      c.className = "wlchip";
+      c.textContent = n + " ";
+      const x = document.createElement("button");
+      x.textContent = "✕";
+      x.onclick = () => { wl.splice(i, 1); save("jarvis_wl", wl); drawWl(); };
+      c.appendChild(x);
+      wc.appendChild(c);
+    });
+  };
+  drawWl();
+  const addW = () => {
+    const i = document.getElementById("wlin"), v = i.value.trim();
+    if (!v || wl.length >= 12) return;
+    wl.push(v);
+    save("jarvis_wl", wl);
+    i.value = "";
+    drawWl();
+  };
+  document.getElementById("wladd").onclick = addW;
+  document.getElementById("wlin").addEventListener("keydown", e => { if (e.key === "Enter") addW(); });
+  document.getElementById("wlgo").onclick = async () => {
+    if (!wl.length) return;
+    const out = document.getElementById("wlout");
+    out.style.display = "block";
+    await askMarket("Du bist ein nüchterner Markt-Assistent. Nutze die Websuche. Gib für jeden genannten Titel den aktuellen Kurs mit Währung und die Veränderung zum Vortag, jeweils eine Zeile im Format 'Name: Kurs (+/-x,x %)'. Findest du einen Wert nicht sicher, schreibe 'nicht gefunden'. Erfinde nichts. Keine Anlageempfehlung. Höchstens 120 Wörter.", "Titel: " + wl.join(", "), out, null, document.getElementById("wlgo"));
+  };
+}
+
+function drawLearn(b) {
+  b.innerHTML = '<div class="mh">Lernen, bevor du Geld einsetzt</div><div class="hsub" style="font-size:13px;opacity:.55">Jarvis erklärt dir die Grundlagen Schritt für Schritt im Lernmodus.</div>';
+  LEARN.forEach(x => {
+    const r = document.createElement("button");
+    r.className = "lrow";
+    r.style.cssText = "display:flex;justify-content:space-between;align-items:center;width:100%;height:auto;padding:15px 0;border-radius:0;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.08);color:#eef2ee;font-size:15px;font-weight:400;text-align:left";
+    r.innerHTML = "<span>" + esc(x[0]) + "</span><i style=\"font-style:normal;opacity:.4\">›</i>";
+    r.onclick = () => {
+      schoolSubject = "Wirtschaft"; schoolMode = "explain";
+      save("jarvis_subject", schoolSubject); save("jarvis_mode", schoolMode);
+      drawChips();
+      show("school");
+      document.getElementById("in").value = x[1];
+      send();
+    };
+    b.appendChild(r);
+  });
+}
+
+try { drawForm(); } catch (e) {}
+try { if (fideas.length) drawIdeas(); } catch (e) {}
 
 /* ---- Reseller (Vinted & Co.) ---- */
 let inv = load("jarvis_inv", []);
@@ -1486,18 +1736,18 @@ function drawInv() {
   });
 }
 
-buildReseller();
+try { buildReseller(); } catch (e) {}
 
-drawChips();
-buildCalcs();
-renderTab("school");
-renderTab("chat");
-renderTab("search");
-renderNotes();
+try { drawChips(); } catch (e) {}
+try { buildCalcs(); } catch (e) {}
+try { renderTab("school"); } catch (e) {}
+try { renderTab("chat"); } catch (e) {}
+try { renderTab("search"); } catch (e) {}
+try { renderNotes(); } catch (e) {}
 document.getElementById("nin").addEventListener("keydown", e => { if (e.key === "Enter") addItem(); });
-show("chat");
-updSpk();
-pullSync();
+try { show("chat"); } catch (e) {}
+try { updSpk(); } catch (e) {}
+try { pullSync(); } catch (e) {}
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pullSync(); });
 </script>
 </body>
