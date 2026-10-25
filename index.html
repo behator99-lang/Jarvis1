@@ -119,7 +119,7 @@
   body[data-t="search"] { --ar: 127,193,224; --a: #7fc1e0; --a2: #d0e9f5; --bg0: #040d12; --bg1: #0a2433; --on: #04141d; }
   body[data-t="school"] { --ar: 178,160,227; --a: #b2a0e3; --a2: #e4dcf7; --bg0: #0a0812; --bg1: #1a1430; --on: #130d26; }
   body[data-t="biz"] { --ar: 224,149,90; --a: #e0955a; --a2: #f5d3b5; --bg0: #120a05; --bg1: #2a1708; --on: #1d0f05; }
-  body[data-t="notes"] { --ar: 201,185,154; --a: #c9b99a; --a2: #eee4cf; --bg0: #0e0c08; --bg1: #231e12; --on: #17130a; }
+  body[data-t="notes"] { --ar: 230,143,176; --a: #e68fb0; --a2: #f7d3e1; --bg0: #12060b; --bg1: #2c0f1c; --on: #240a15; }
   body[data-t] { background: radial-gradient(circle at 50% 0%, var(--bg1) 0%, var(--bg0) 60%); }
   body[data-t] h1 { color: var(--a2); }
   body[data-t] .mini, body[data-t] .x, body[data-t] button.del, body[data-t] .mic, body[data-t] .photo { border-color: rgba(var(--ar), 0.45); color: var(--a2); }
@@ -167,14 +167,161 @@
   .res div { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; }
   .res div b { color: var(--a2); text-align: right; }
   .res .hint { opacity: 0.7; font-size: 13px; display: block; }
+
+  /* ---- v11: AI-Interface-Look ---- */
+  body { font-family: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif; position: relative; }
+  body::before, body::after { content: ""; position: fixed; width: 320px; height: 320px; border-radius: 50%; filter: blur(80px); pointer-events: none; z-index: -1; transition: background .4s; }
+  body::before { background: var(--a); opacity: .30; top: -120px; left: -90px; }
+  body::after { background: var(--a2); opacity: .10; bottom: 60px; right: -140px; }
+  header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px 0; text-align: left; position: relative; z-index: 2; }
+  header .mini, header .mini.spk { position: static; right: auto; left: auto; top: auto; height: 30px; padding: 0 12px; border-radius: 15px; background: rgba(255,255,255,.06) !important; border: 1px solid rgba(255,255,255,.1) !important; color: #eef2ee !important; font-size: 12px; }
+  .pill { display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 20px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+  .pill h1 { font-family: inherit; font-size: 11px; letter-spacing: 2px; font-weight: 500; margin: 0; color: var(--a2); text-transform: uppercase; }
+  body[data-t] .core, .core { width: 8px; height: 8px; margin: 0; border: none; border-radius: 50%; background: var(--a); box-shadow: 0 0 10px var(--a); animation: orbb 3s ease-in-out infinite; }
+  .core::after { display: none; }
+  body[data-t] .core.busy { animation: orbb .6s ease-in-out infinite; }
+  @keyframes orbb { 50% { transform: scale(1.07); } }
+  #chat, #search, #notes, #biz, #school { padding: 4px 18px; }
+  #schoolctl { padding: 8px 18px 4px; border-bottom: none; }
+  body[data-t] .msg, .msg { max-width: 100%; margin: 0; padding: 10px 0; border: none !important; border-radius: 0; background: transparent !important; font-size: 16px; line-height: 1.65; }
+  body[data-t] .msg.user { font-size: 15px; color: #eef2ee; opacity: .8; padding: 2px 0 2px 12px; margin: 18px 0 8px; border-left: 2px solid rgba(var(--ar), .55) !important; }
+  body[data-t] .msg.bot { color: #eef2ee; }
+  body[data-t] .msg b { color: var(--a2); font-weight: 600; }
+  .msg img { width: 120px; border-radius: 12px; }
+  .th { display: flex; align-items: center; gap: 8px; font-size: 13px; opacity: .6; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--a); box-shadow: 0 0 10px var(--a); animation: orbb 1.2s ease-in-out infinite; }
+  .acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  body[data-t] .smallbtn { height: 28px; margin: 6px 0 0; padding: 0 12px; border-radius: 14px; font-size: 12px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: var(--a2); font-weight: 400; }
+  .src { border-top: none; }
+  #bar { margin: 8px 14px 6px; padding: 6px; gap: 6px; border-radius: 30px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 10px 40px rgba(0,0,0,.4); }
+  body[data-t] #bar { border: 1px solid rgba(255,255,255,.12); }
+  body[data-t] #in { background: transparent; border: none; box-shadow: none; padding: 10px 8px; }
+  body[data-t] .photo, body[data-t] .mic, body[data-t] #btn { width: 38px; height: 38px; padding: 0; border-radius: 50%; font-size: 17px; background: rgba(255,255,255,.08); border: none; color: #eef2ee; display: flex; align-items: center; justify-content: center; }
+  body[data-t] #btn { background: linear-gradient(135deg, var(--a2), var(--a)); color: var(--on); font-size: 20px; font-weight: 600; }
+  body[data-t] .mic.rec { background: var(--a); color: var(--on); }
+  #preview { background: transparent; border: none !important; margin: 0 14px; }
+  #nav { background: transparent; border-top: none !important; padding: 0 6px calc(env(safe-area-inset-bottom) + 4px); }
+  body[data-t] .tab { height: 40px; font-size: 11px; box-shadow: none; }
+  body[data-t] .tab.on { box-shadow: none; font-weight: 600; }
+  .hero { min-height: 58vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px 0; }
+  .orb { position: relative; width: 120px; height: 120px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, var(--a2) 0%, var(--a) 30%, rgba(var(--ar), .45) 65%, var(--bg0) 100%); box-shadow: 0 0 60px rgba(var(--ar), .45), 0 0 140px rgba(var(--ar), .2), inset -10px -14px 30px rgba(0,0,0,.35); animation: orbb 5s ease-in-out infinite; }
+  body[data-t="search"] .orb::after { content: ""; position: absolute; inset: -16px; border-radius: 50%; border: 1px dashed rgba(var(--ar), .6); animation: spin 14s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  body[data-t="school"] .orb { animation: flt 5s ease-in-out infinite; }
+  @keyframes flt { 50% { transform: translateY(-10px); } }
+  .hero h2, .pagehead h2 { font-weight: 300; font-size: 26px; margin: 30px 0 6px; background: linear-gradient(90deg, #e8f1ea, var(--a), var(--a2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .pagehead h2 { margin: 16px 0 4px; font-size: 24px; }
+  .pagehead { margin-bottom: 8px; }
+  .hero .hsub, .pagehead .hsub { opacity: .55; font-size: 14px; }
+  .chips2 { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 24px; }
+  body[data-t] .c2 { height: auto; padding: 9px 14px; border-radius: 18px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #eef2ee; font-size: 13px; font-weight: 400; }
+  body[data-t] .chip { border-color: rgba(255,255,255,.12); background: rgba(255,255,255,.04); }
+  body[data-t] .chip.on { background: var(--a); border-color: var(--a); }
+  .res { padding: 14px 16px; border-radius: 20px; background: rgba(255,255,255,.05); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border: 1px solid rgba(255,255,255,.09); }
+  .res div + div { border-top: 1px solid rgba(255,255,255,.06); }
+  .res div b { color: var(--a2); font-weight: 500; }
+  .calc { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,.08); border-radius: 0; }
+  .calc > .ch { padding: 0; }
+  .calc > .cb { padding: 4px 0 14px; }
+  body[data-t] .item { background: transparent; border: none; border-bottom: 1px solid rgba(255,255,255,.08); border-radius: 0; margin: 0; padding: 12px 0; }
+  .card { border: none; border-top: 1px solid rgba(255,255,255,.12); border-bottom: 1px solid rgba(255,255,255,.12); border-radius: 0; background: transparent; }
+  .card.back { background: rgba(var(--ar), .08); }
+  .fld input { border-radius: 14px; background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); }
+
+  /* ---- v12: Gründer-Lab ---- */
+  body[data-t="found"] { --ar: 205,208,214; --a: #c9cdd4; --a2: #f1f3f6; --bg0: #040405; --bg1: #15161a; --on: #0b0b0d; }
+  #found { flex: 1; overflow-y: auto; padding: 4px 18px 20px; min-height: 0; }
+  .tab { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; line-height: 1.1; font-size: 10.5px; }
+  .tab .ti { font-size: 17px; }
+  .fq { margin: 18px 0 6px; font-size: 13px; opacity: .6; letter-spacing: .5px; text-transform: uppercase; }
+  .cta { width: 100%; height: 48px; margin-top: 20px; font-size: 16px; }
+  body[data-t="found"] .cta { border-radius: 24px; }
+  .idea { margin: 16px 0; padding: 16px; border-radius: 22px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); }
+  .idea h3 { margin: 0 0 6px; font-size: 19px; font-weight: 600; color: var(--a2); }
+  .idea p { margin: 0 0 10px; font-size: 15px; line-height: 1.55; opacity: .9; }
+  .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
+  .meta div { padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,.05); font-size: 12px; opacity: .95; }
+  .meta b { display: block; font-size: 14px; color: var(--a2); font-weight: 500; margin-top: 2px; }
+  .idea ol { margin: 6px 0 8px 18px; padding: 0; font-size: 14px; line-height: 1.55; }
+  .risk { font-size: 13px; opacity: .65; margin: 6px 0 4px; }
+  .partner { margin-top: 26px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.1); }
+  .partner h3 { font-size: 17px; margin: 14px 0 4px; color: var(--a2); font-weight: 600; }
+  .tool { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 14px; }
+  .tool small { display: block; opacity: .55; font-size: 12px; margin-top: 2px; }
+  .tool em { font-style: normal; font-size: 11px; padding: 4px 9px; border-radius: 12px; background: rgba(255,255,255,.07); opacity: .8; white-space: nowrap; }
+  .disc { margin-top: 22px; font-size: 12px; line-height: 1.5; opacity: .5; }
+
+  /* ---- v14: exakt wie die Vorschau + Reseller ---- */
+  body[data-t] .tab { font-size: 12px; height: 42px; opacity: .55; }
+  body[data-t] .tab.on { opacity: 1; font-weight: 600; box-shadow: none; }
+  header .mini, header .mini.spk { width: 34px; height: 34px; padding: 0; border-radius: 50%; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+  body::after { background: #5aa7c9; opacity: .14; }
+  .seg { display: flex; gap: 8px; margin: 10px 0 4px; }
+  .seg .sub { height: 36px; border-radius: 18px; }
+  body[data-t] .seg .sub { background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.1); color: #eef2ee; }
+  body[data-t] .seg .sub.on { background: var(--a); color: var(--on); border-color: var(--a); }
+  .rsec { margin-top: 24px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,.08); }
+  .rsec h3 { margin: 12px 0 4px; font-size: 18px; font-weight: 600; color: var(--a2); }
+  .rsec .hsub { font-size: 13px; opacity: .55; margin-bottom: 10px; }
+  .rin { width: 100%; padding: 12px 14px; border-radius: 16px; font-size: 16px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05); color: #eef2ee; outline: none; margin: 6px 0; }
+  .two { display: flex; gap: 8px; }
+  .two .rin { min-width: 0; }
+  .lf { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .lf small { display: block; font-size: 11px; letter-spacing: .5px; text-transform: uppercase; opacity: .5; margin-bottom: 3px; }
+  .lf div { font-size: 15px; line-height: 1.55; white-space: pre-wrap; }
+  .invrow { display: flex; align-items: center; gap: 8px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,.08); font-size: 14px; }
+  .invrow .nm { flex: 1; min-width: 0; }
+  .invrow small { display: block; opacity: .55; font-size: 12px; margin-top: 2px; }
+  .invrow .smallbtn { margin: 0; }
+  .sum { display: flex; gap: 8px; margin: 8px 0; }
+  .sum div { flex: 1; padding: 10px; border-radius: 14px; background: rgba(255,255,255,.05); font-size: 11px; opacity: .95; text-align: center; }
+  .sum b { display: block; font-size: 15px; color: var(--a2); margin-top: 2px; font-weight: 500; }
+
+  .ic { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; display: block; }
+  header .mini.spk .ic { width: 17px; height: 17px; }
+  body[data-t] #btn .ic { width: 20px; height: 20px; stroke-width: 2.2; }
+  body[data-t] .chip { color: #eef2ee; }
+  body[data-t] .chip.on { color: var(--on); }
+
+  /* ---- v16: Hintergrund passend zur Kugel, BWL-Kacheln, Notizen-Farbe ---- */
+  body[data-t="search"], body[data-t="school"], body[data-t="biz"], body[data-t="found"], body[data-t="notes"] { background: radial-gradient(130% 60% at 50% 0%, rgba(var(--ar), var(--bga)) 0%, transparent 72%), var(--bg0); }
+  body[data-t="search"] { --bga: .38; --bg0: #030b12; }
+  body[data-t="school"] { --bga: .38; --bg0: #09060f; }
+  body[data-t="biz"] { --bga: .36; --bg0: #0f0804; }
+  body[data-t="notes"] { --bga: .36; --bg0: #10050a; }
+  body[data-t="found"] { --bga: .18; --bg0: #040405; }
+  body[data-t] #sub .sub { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); color: #ffffff; font-weight: 500; }
+  body[data-t] #sub .sub.on { background: rgba(var(--ar), .55); border-color: rgba(var(--ar), .8); color: #ffffff; font-weight: 600; }
+  body[data-t] #nin { color: #ffffff; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+  body[data-t] .tile { height: auto; min-height: 104px; padding: 14px; border-radius: 22px; text-align: left; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start; background: linear-gradient(160deg, rgba(var(--ar), .22), rgba(255,255,255,.04)); border: 1px solid rgba(var(--ar), .35); color: #fff; font-weight: 400; }
+  .tile b { font-size: 16px; font-weight: 600; color: var(--a2); }
+  .tile span { font-size: 12px; opacity: .6; line-height: 1.4; margin-top: 18px; }
+  .tile i { font-style: normal; position: absolute; }
+  .cview { display: none; margin-top: 10px; }
+  .cview.open { display: block; }
+  .cview h3 { margin: 14px 0 4px; font-size: 22px; font-weight: 300; background: linear-gradient(90deg, #e8f1ea, var(--a), var(--a2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  body[data-t] .addrow { background: transparent; }
+  .tiles { margin-top: 18px; }
+
+  /* ---- v17: BWL als Werkbank ---- */
+  .pills { display: flex; gap: 8px; overflow-x: auto; margin: 16px 0 6px; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
+  body[data-t] .pillb { flex-shrink: 0; height: 36px; padding: 0 16px; border-radius: 18px; font-size: 14px; font-weight: 400; white-space: nowrap; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); color: #fff; }
+  body[data-t] .pillb.on { background: var(--a); border-color: var(--a); color: var(--on); font-weight: 600; }
+  .cview { margin-top: 6px; }
+  .cview > .smallbtn, .cview > h3 { display: none; }
+  #biz .res { margin: 8px 0 12px; padding: 18px 18px 12px; border-radius: 26px; background: linear-gradient(160deg, rgba(var(--ar), .22), rgba(255,255,255,.04)); border: 1px solid rgba(var(--ar), .35); }
+  #biz .res div:first-child { flex-direction: column-reverse; align-items: flex-start; gap: 2px; padding: 2px 0 12px; font-size: 13px; opacity: .95; }
+  #biz .res div:first-child b { font-size: 36px; font-weight: 300; line-height: 1.1; text-align: left; background: linear-gradient(90deg, #fff, var(--a2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #biz .res div:first-child span { opacity: .6; text-transform: uppercase; letter-spacing: 1px; font-size: 11px; }
+  #biz .fld { padding: 2px 0; }
 </style>
 </head>
 <body>
 <header>
-  <button class="mini spk" id="spk" onclick="toggleSpeak()">🔇 Stimme</button>
-  <button class="mini" id="newbtn" onclick="newChat()">Neuer Chat</button>
-  <div class="core" id="core"></div>
-  <h1>JARVIS</h1>
+  <button class="mini spk" id="spk" onclick="toggleSpeak()"></button>
+  <div class="pill"><span class="core" id="core"></span><h1 id="ttl">JARVIS</h1></div>
+  <button class="mini" id="newbtn" onclick="newChat()">＋</button>
 </header>
 <div id="chat"></div>
 <div id="search" style="display:none"></div>
@@ -182,8 +329,27 @@
   <div id="schoolctl"><div class="chips" id="subjchips"></div><div class="chips" id="modechips"></div></div>
   <div id="school"></div>
 </div>
-<div id="biz" style="display:none"><div class="bizhead">Rechner-Werkstatt. Tippe einen Rechner an, trage Werte ein und lass dir das Ergebnis von Jarvis erklären.</div><div id="calcs"></div></div>
+<div id="found" style="display:none">
+  <div class="pagehead"><h2>Gründer-Lab</h2><div class="hsub">Beantworte vier Fragen. Jarvis schlägt dir Business-Ideen vor, die zu deinem Budget und deiner Zeit passen, und baut dir den Startplan.</div></div>
+  <div class="seg"><button class="sub on" id="fs-i" onclick="fsub('i')">Ideen</button><button class="sub" id="fs-r" onclick="fsub('r')">Reseller</button></div>
+  <div id="fideas">
+  <div id="fform"></div>
+  <div id="fres"></div>
+  <div class="partner">
+    <h3>Starter-Werkzeuge <span style="font-size:11px;opacity:.5;font-weight:400">(Demo)</span></h3>
+    <div class="hsub" style="font-size:13px;opacity:.55">So könnte später das Partner-Modell aussehen: Jarvis empfiehlt passende Dienste, und bei Buchung über den Link erhält die App eine Provision. Die Links unten sind noch Platzhalter.</div>
+    <div class="tool"><div>Domain &amp; Website<small>Für Shop oder Webseite</small></div><em>Partner-Link folgt</em></div>
+    <div class="tool"><div>Zahlungen annehmen<small>Karte, PayPal, Rechnung</small></div><em>Partner-Link folgt</em></div>
+    <div class="tool"><div>Logo &amp; Design<small>Vorlagen für Social Media</small></div><em>Partner-Link folgt</em></div>
+    <div class="tool"><div>Buchhaltung<small>Rechnungen und Steuern</small></div><em>Partner-Link folgt</em></div>
+  </div>
+  <div class="disc">Hinweis: Das sind Ideen und keine Gewinn-Garantie. Prüfe vor dem Start Gewerbeanmeldung, Steuern und Verträge. Empfehlungen mit Provision müssen später klar als Werbung gekennzeichnet werden.</div>
+  </div>
+  <div id="freseller" style="display:none"></div>
+</div>
+<div id="biz" style="display:none"><div class="pagehead"><h2>Rechner-Werkstatt</h2><div class="hsub">Tippe einen Rechner an, trage Werte ein und lass dir das Ergebnis von Jarvis erklären.</div></div><div id="calcs"></div></div>
 <div id="notes" style="display:none">
+  <div class="pagehead"><h2>Notizen &amp; Aufgaben</h2><div class="hsub">Alles an einem Ort, auf allen Geräten synchron.</div></div>
   <div id="sub"><button class="sub on" id="sub-n" onclick="subTab('n')">Notizen</button><button class="sub" id="sub-t" onclick="subTab('t')">Aufgaben</button></div>
   <div id="nlist"></div>
   <div id="tlist" style="display:none"></div>
@@ -191,18 +357,19 @@
 </div>
 <div id="preview"><img id="pimg"><button class="x" onclick="clearImg()">✕</button></div>
 <div id="bar">
-  <label class="photo" for="file">📷</label>
+  <label class="photo" for="file"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></label>
   <input type="file" id="file" accept="image/*" style="display:none">
   <input id="in" placeholder="Sag etwas zu Jarvis...">
-  <button class="mic" id="mic" onclick="toggleMic()">🎤</button>
-  <button id="btn" onclick="send()">Senden</button>
+  <button class="mic" id="mic" onclick="toggleMic()"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+  <button id="btn" onclick="send()"><svg class="ic" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
 </div>
 <div id="nav">
-  <button class="tab on" id="tab-chat" onclick="show('chat')">💬 Chat</button>
-  <button class="tab" id="tab-search" onclick="show('search')">🔎 Suche</button>
-  <button class="tab" id="tab-school" onclick="show('school')">🎓 Schule</button>
-  <button class="tab" id="tab-biz" onclick="show('biz')">📊 BWL</button>
-  <button class="tab" id="tab-notes" onclick="show('notes')">📝 Notizen</button>
+  <button class="tab on" id="tab-chat" onclick="show('chat')">Chat</button>
+  <button class="tab" id="tab-search" onclick="show('search')">Suche</button>
+  <button class="tab" id="tab-school" onclick="show('school')">Schule</button>
+  <button class="tab" id="tab-biz" onclick="show('biz')">BWL</button>
+  <button class="tab" id="tab-found" onclick="show('found')">Gründer</button>
+  <button class="tab" id="tab-notes" onclick="show('notes')">Notizen</button>
 </div>
 <script>
 const API_URL = "https://jarvis-api.behator99.workers.dev/";
@@ -346,7 +513,7 @@ let rec = null;
 let recOn = false;
 
 function updSpk() {
-  document.getElementById("spk").textContent = speakOn ? "🔊 Stimme" : "🔇 Stimme";
+  document.getElementById("spk").innerHTML = speakOn ? '<svg class="ic" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/></svg>' : '<svg class="ic" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9z"/><path d="M17 9l5 6M22 9l-5 6"/></svg>';
 }
 
 function toggleSpeak() {
@@ -357,8 +524,8 @@ function toggleSpeak() {
   else if (window.speechSynthesis) speechSynthesis.cancel();
 }
 
-function speak(text) {
-  if (!speakOn || !window.speechSynthesis) return;
+function speak(text, force) {
+  if ((!speakOn && !force) || !window.speechSynthesis) return;
   speechSynthesis.cancel();
   const clean = String(text).replace(/\*\*/g, "").replace(/`/g, "").replace(/https?:\/\/\S+/g, "");
   const u = new SpeechSynthesisUtterance(clean);
@@ -403,6 +570,7 @@ function fmt(s) {
 
 function add(text, cls, imgUrl, pid) {
   const pane = document.getElementById(pid || cur);
+  pane.querySelectorAll(".hero").forEach(h => h.remove());
   const d = document.createElement("div");
   d.className = "msg " + cls;
   if (imgUrl) {
@@ -438,7 +606,7 @@ function addSources(el, list) {
 }
 
 const SUBJECTS = ["Mathe", "Wirtschaft", "Deutsch", "Englisch", "Geschichte", "Bio", "Chemie", "Physik", "Informatik", "Frei"];
-const MODES = { explain: "💡 Erklären", quiz: "❓ Quiz", cards: "🃏 Karten", plan: "📅 Lernplan", talk: "🎤 Referat" };
+const MODES = { explain: "Erklären", quiz: "Quiz", cards: "Karten", plan: "Lernplan", talk: "Referat" };
 let schoolSubject = load("jarvis_subject", "Mathe");
 let schoolMode = load("jarvis_mode", "explain");
 let useNotes = load("jarvis_usenotes", false) === true;
@@ -488,11 +656,80 @@ function saveHistory(t) {
   save(T.key, T.h.slice(-40).map(m => ({ role: m.role, content: m.content, hadImg: m.hadImg || false })));
 }
 
+function greetWord() { const h = new Date().getHours(); return h < 11 ? "Guten Morgen" : h < 18 ? "Guten Tag" : "Guten Abend"; }
+const HERO = {
+  chat: { sub: "Wobei kann ich dir helfen?", chips: [
+    { l: "📝 Notiz speichern", fill: "Notiz: " }, { l: "✅ Aufgabe anlegen", fill: "Aufgabe: " },
+    { l: "🧠 Was weißt du über mich?", fill: "Was weißt du über mich?", auto: true }, { l: "💡 Erkläre mir…", fill: "Erkläre mir " }] },
+  search: { sub: "Was soll ich für dich nachschlagen?", chips: [
+    { l: "📰 Nachrichten heute", fill: "Was sind heute die wichtigsten Nachrichten?", auto: true }, { l: "🌦️ Wetter", fill: "Wetter in " },
+    { l: "💶 Preise vergleichen", fill: "Preise vergleichen: " }, { l: "📈 Aktuelle Zahlen", fill: "Aktuelle Zahlen zu " }] },
+  school: { sub: "Was lernen wir heute?", chips: [
+    { l: "❓ Quiz starten", mode: "quiz", fill: "Quiz zu " }, { l: "🃏 Karteikarten", mode: "cards", fill: "Karteikarten zu " },
+    { l: "📅 Lernplan", mode: "plan", fill: "Lernplan für " }, { l: "🎤 Referat", mode: "talk", fill: "Referat über " }] }
+};
+function makeHero(t) {
+  const H = HERO[t];
+  const d = document.createElement("div");
+  d.className = "hero";
+  d.innerHTML = '<div class="orb"></div><h2>' + greetWord() + ', Laurin</h2><div class="hsub">' + H.sub + '</div>';
+  const c = document.createElement("div");
+  c.className = "chips2";
+  H.chips.forEach(x => {
+    const b = document.createElement("button");
+    b.className = "c2";
+    b.textContent = x.l.replace(/^\S+\s/, "");
+    b.onclick = () => {
+      if (x.mode) { schoolMode = x.mode; save("jarvis_mode", x.mode); drawChips(); }
+      const i = document.getElementById("in");
+      i.value = x.fill;
+      i.focus();
+      if (x.auto) send();
+    };
+    c.appendChild(b);
+  });
+  d.appendChild(c);
+  return d;
+}
+
+function addWait(text, cls) {
+  const d = add(text, cls);
+  d.innerHTML = '<span class="th"><span class="dot"></span>' + esc(text) + '</span>';
+  return d;
+}
+
+function addActions(el, text, t) {
+  const row = document.createElement("div");
+  row.className = "acts";
+  const mk = (l, fn) => { const b = document.createElement("button"); b.className = "smallbtn"; b.textContent = l; b.onclick = () => fn(b); row.appendChild(b); };
+  mk("Nochmal", () => redo(t, el));
+  mk("In Notizen", b => { notes.unshift({ text: text }); saveData(); renderNotes(); b.textContent = "✓ Gespeichert"; b.disabled = true; });
+  mk("Vorlesen", () => speak(text, true));
+  el.appendChild(row);
+}
+
+function redo(t, el) {
+  const T = tabs[t], pane = document.getElementById(t);
+  if (pane.lastElementChild !== el) return;
+  let i = T.h.length - 1;
+  while (i >= 0 && T.h[i].role !== "user") i--;
+  if (i < 0) return;
+  const u = T.h[i].content;
+  T.h.splice(i);
+  const prev = el.previousElementSibling;
+  el.remove();
+  if (prev) prev.remove();
+  saveHistory(t);
+  document.getElementById("in").value = u;
+  send();
+}
+
 function renderTab(t) {
-  document.getElementById(t).innerHTML = "";
+  const pane = document.getElementById(t);
+  pane.innerHTML = "";
   const T = tabs[t];
   if (T.h.length) T.h.forEach(m => add((m.hadImg ? "📷 " : "") + m.content, m.role === "user" ? "user" : "bot", null, t));
-  else add(T.greet, "bot", null, t);
+  else pane.appendChild(makeHero(t));
 }
 
 function newChat() {
@@ -502,23 +739,25 @@ function newChat() {
   renderTab(cur);
 }
 
-const PANES = { chat: "chat", search: "search", school: "schoolwrap", biz: "biz", notes: "notes" };
+const TITLES = { chat: "Chat", search: "Suche", school: "Schule", biz: "BWL", found: "Gründer", notes: "Notizen" };
+const PANES = { chat: "chat", search: "search", school: "schoolwrap", biz: "biz", found: "found", notes: "notes" };
 const PLACE = { chat: "Sag etwas zu Jarvis...", search: "Was soll ich suchen?", school: "Thema, Aufgabe oder Antwort..." };
 
 function show(t) {
   cur = t;
   clearImg();
   document.body.dataset.t = t;
+  document.getElementById("ttl").textContent = "JARVIS · " + TITLES[t];
   Object.keys(PANES).forEach(k => {
     document.getElementById(PANES[k]).style.display = k === t ? (k === "school" ? "flex" : "block") : "none";
     document.getElementById("tab-" + k).classList.toggle("on", k === t);
   });
-  document.getElementById("bar").style.display = (t === "notes" || t === "biz") ? "none" : "flex";
+  document.getElementById("bar").style.display = (t === "notes" || t === "biz" || t === "found") ? "none" : "flex";
   document.querySelector(".photo").style.display = (t === "chat" || t === "school") ? "flex" : "none";
   document.getElementById("newbtn").style.visibility = tabs[t] ? "visible" : "hidden";
   document.getElementById("in").placeholder = PLACE[t] || "";
   const p = document.getElementById(t);
-  if (p) p.scrollTop = p.scrollHeight;
+  if (p) p.scrollTop = (t === "notes" || t === "biz" || t === "found") ? 0 : p.scrollHeight;
 }
 
 function shrink(file) {
@@ -614,7 +853,7 @@ async function send() {
   add(text, "user", img ? img.url : null);
   T.h.push(img ? { role: "user", content: text, img: img.data, hadImg: true } : { role: "user", content: text });
   clearImg();
-  const wait = add(t === "search" ? "sucht..." : t === "school" ? "überlegt..." : "denkt nach...", "bot");
+  const wait = addWait(t === "search" ? "sucht..." : t === "school" ? "überlegt..." : "denkt nach...", "bot");
   btn.disabled = true;
   core.classList.add("busy");
   try {
@@ -636,7 +875,7 @@ async function send() {
     const results = [];
     blocks.forEach(b => { if (b.type === "web_search_tool_result" && Array.isArray(b.content)) b.content.forEach(r => results.push(r)); });
     addSources(wait, results);
-    if (t === "school") addSaveBtn(wait, reply);
+    addActions(wait, reply, t);
     T.h.push({ role: "assistant", content: reply });
   } catch (e) {
     T.h.pop();
@@ -678,7 +917,7 @@ function drawChips() {
   });
   const n = document.createElement("button");
   n.className = "chip" + (useNotes ? " on" : "");
-  n.textContent = "📎 Notizen";
+  n.textContent = "Notizen nutzen";
   n.onclick = () => { useNotes = !useNotes; save("jarvis_usenotes", useNotes); drawChips(); };
   mc.appendChild(n);
 }
@@ -773,7 +1012,7 @@ const CALCS = [
     calc: v => {
       const db = v.preis - v.var;
       if (db <= 0) return [["Hinweis", "Der Preis muss über den variablen Kosten liegen."]];
-      const bep = v.fix / db, o = [["Deckungsbeitrag pro Stück", eur(db)], ["Deckungsbeitragsquote", pct(db / v.preis * 100)], ["Break-even-Menge", nf(Math.ceil(bep), 0) + " Stück"], ["Break-even-Umsatz", eur(bep * v.preis)]];
+      const bep = v.fix / db, o = [["Break-even-Menge", nf(Math.ceil(bep), 0) + " Stück"], ["Break-even-Umsatz", eur(bep * v.preis)], ["Deckungsbeitrag pro Stück", eur(db)], ["Deckungsbeitragsquote", pct(db / v.preis * 100)]];
       if (v.ziel > 0) o.push(["Menge für Wunschgewinn", nf(Math.ceil((v.fix + v.ziel) / db), 0) + " Stück"]);
       return o;
     } },
@@ -832,17 +1071,32 @@ const CALCS = [
 function buildCalcs() {
   const host = document.getElementById("calcs");
   host.innerHTML = "";
+  const grid = document.createElement("div");
+  grid.className = "pills";
+  host.appendChild(grid);
+  const DESC = { bep: "Ab wann lohnt es sich?", kalk: "Vom Einkauf zum Verkaufspreis", zins: "Wie wächst dein Geld?", kredit: "Monatsrate und Zinskosten", marge: "Gewinn, Aufschlag und MwSt", kenn: "Rendite und Liquidität" };
+  const head = document.querySelector("#biz .pagehead");
   CALCS.forEach(c => {
     const card = document.createElement("div");
-    card.className = "calc";
-    const h = document.createElement("button");
-    h.className = "ch";
-    h.textContent = c.title;
-    h.onclick = () => {
-      const was = card.classList.contains("open");
-      document.querySelectorAll(".calc").forEach(x => x.classList.remove("open"));
-      if (!was) card.classList.add("open");
+    card.className = "cview";
+    const nm = c.title.replace(/^\S+\s/, "");
+    const tile = document.createElement("button");
+    tile.className = "pillb" + (c === CALCS[0] ? " on" : "");
+    tile.textContent = nm;
+    if (c === CALCS[0]) card.classList.add("open");
+    tile.onclick = () => {
+      grid.querySelectorAll(".pillb").forEach(x => x.classList.remove("on"));
+      host.querySelectorAll(".cview").forEach(x => x.classList.remove("open"));
+      tile.classList.add("on");
+      card.classList.add("open");
     };
+    grid.appendChild(tile);
+    const back = document.createElement("button");
+    back.className = "smallbtn";
+    back.textContent = "‹ Alle Rechner";
+
+    const h = document.createElement("h3");
+    h.textContent = nm;
     const body = document.createElement("div");
     body.className = "cb";
     const inputs = {};
@@ -862,14 +1116,14 @@ function buildCalcs() {
     });
     const res = document.createElement("div");
     res.className = "res";
-    body.appendChild(res);
+    body.insertBefore(res, body.firstChild);
     const actions = document.createElement("div");
     const ex = document.createElement("button");
     ex.className = "smallbtn";
-    ex.textContent = "🤖 Erklär mir das";
+    ex.textContent = "Erklär mir das";
     const sv = document.createElement("button");
     sv.className = "smallbtn";
-    sv.textContent = "📝 Speichern";
+    sv.textContent = "Speichern";
     actions.appendChild(ex); actions.appendChild(sv);
     body.appendChild(actions);
     let lastTxt = "";
@@ -908,11 +1162,331 @@ function buildCalcs() {
       saveData(); renderNotes();
       sv.textContent = "✓ Gespeichert";
     };
-    card.appendChild(h); card.appendChild(body);
+    card.appendChild(back); card.appendChild(h); card.appendChild(body);
     host.appendChild(card);
     upd();
   });
 }
+
+
+/* ---- Gründer-Lab ---- */
+const FQ = [
+  { k: "kap", q: "Startkapital", multi: false, o: ["unter 100 €", "100 – 500 €", "500 – 2.000 €", "über 2.000 €"] },
+  { k: "zeit", q: "Zeit pro Woche", multi: false, o: ["bis 5 Std.", "5 – 10 Std.", "10 – 20 Std.", "Vollzeit"] },
+  { k: "int", q: "Was liegt dir? (mehrere möglich)", multi: true, o: ["Social Media", "Basteln / Handwerk", "Schreiben / Design", "Technik / Code", "Verkaufen / Handel", "Nachhilfe / Coaching", "Sport / Fitness", "Zahlen / Analyse"] },
+  { k: "ziel", q: "Dein Ziel", multi: false, o: ["Nebenverdienst", "Vollzeit-Einkommen", "Erst mal ausprobieren"] }
+];
+let fsel = load("jarvis_fsel", { kap: "100 – 500 €", zeit: "10 – 20 Std.", int: [], ziel: "Nebenverdienst" });
+let fideas = load("jarvis_ideas", []);
+
+function fJson(txt, open, close) {
+  const a = txt.indexOf(open), b = txt.lastIndexOf(close);
+  if (a < 0 || b < a) throw new Error("Antwort nicht lesbar, bitte nochmal versuchen");
+  return JSON.parse(txt.slice(a, b + 1));
+}
+async function fAsk(sys, user) {
+  const data = await api({ messages: [{ role: "user", content: user }], system: sys, mode: "chat" });
+  if (data.error) throw new Error(data.error.message || "API-Fehler");
+  return (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+}
+
+function drawForm() {
+  const host = document.getElementById("fform");
+  host.innerHTML = "";
+  FQ.forEach(q => {
+    const l = document.createElement("div");
+    l.className = "fq";
+    l.textContent = q.q;
+    host.appendChild(l);
+    const row = document.createElement("div");
+    row.className = "chips";
+    row.style.flexWrap = "wrap";
+    q.o.forEach(o => {
+      const on = q.multi ? fsel[q.k].indexOf(o) >= 0 : fsel[q.k] === o;
+      const b = document.createElement("button");
+      b.className = "chip" + (on ? " on" : "");
+      b.textContent = o;
+      b.onclick = () => {
+        if (q.multi) { const i = fsel[q.k].indexOf(o); if (i >= 0) fsel[q.k].splice(i, 1); else fsel[q.k].push(o); }
+        else fsel[q.k] = o;
+        save("jarvis_fsel", fsel);
+        drawForm();
+      };
+      row.appendChild(b);
+    });
+    host.appendChild(row);
+  });
+  const go = document.createElement("button");
+  go.className = "cta";
+  go.id = "fgo";
+  go.textContent = fideas.length ? "Neue Ideen finden" : "Ideen finden";
+  go.onclick = findIdeas;
+  host.appendChild(go);
+}
+
+async function findIdeas() {
+  const go = document.getElementById("fgo"), core = document.getElementById("core"), res = document.getElementById("fres");
+  go.disabled = true;
+  core.classList.add("busy");
+  res.innerHTML = '<div class="th" style="margin-top:18px"><span class="dot"></span>Jarvis denkt über Ideen nach...</div>';
+  try {
+    const sys = "Du bist ein ehrlicher Gründer-Coach für Anfänger in Deutschland. Keine Wunder-Versprechen, keine Schnell-reich-Ideen. Antworte AUSSCHLIESSLICH mit einem JSON-Array aus genau 3 Objekten: {\"name\":\"kurzer Name\",\"desc\":\"höchstens 25 Wörter\",\"start\":\"Startkosten in Euro\",\"euro\":\"Zeit bis zum ersten Euro\",\"pot\":\"realistischer Verdienst pro Monat\",\"level\":\"Leicht, Mittel oder Schwer\",\"steps\":[\"Schritt 1\",\"Schritt 2\",\"Schritt 3\"],\"risk\":\"größtes Risiko in einem Satz\"}. Alles sehr kompakt. Die drei Ideen sollen sich deutlich unterscheiden und zu Budget, Zeit und Stärken passen.";
+    const user = "Startkapital: " + fsel.kap + "\nZeit pro Woche: " + fsel.zeit + "\nStärken: " + (fsel.int.join(", ") || "keine Angabe") + "\nZiel: " + fsel.ziel + "\nHeute ist " + new Date().toLocaleDateString("de-DE") + ".";
+    const arr = fJson(await fAsk(sys, user), "[", "]").filter(x => x && x.name);
+    if (!arr.length) throw new Error("Keine Ideen erhalten");
+    fideas = arr.slice(0, 3);
+    save("jarvis_ideas", fideas);
+    drawIdeas();
+    drawForm();
+  } catch (e) {
+    res.innerHTML = '<div class="empty">Fehler: ' + esc(e.message) + '</div>';
+  }
+  go.disabled = false;
+  core.classList.remove("busy");
+}
+
+function drawIdeas() {
+  const host = document.getElementById("fres");
+  host.innerHTML = "";
+  fideas.forEach(x => {
+    const c = document.createElement("div");
+    c.className = "idea";
+    const steps = (x.steps || []).map(t => "<li>" + esc(t) + "</li>").join("");
+    c.innerHTML = "<h3>" + esc(x.name) + "</h3><p>" + esc(x.desc) + "</p>" +
+      '<div class="meta"><div>Start<b>' + esc(x.start) + '</b></div><div>Erster Euro<b>' + esc(x.euro) + '</b></div><div>Potenzial<b>' + esc(x.pot) + '</b></div><div>Level<b>' + esc(x.level) + '</b></div></div>' +
+      "<div class=\"fq\" style=\"margin:8px 0 2px\">Erste Schritte</div><ol>" + steps + "</ol><div class=\"risk\">Risiko: " + esc(x.risk) + "</div>";
+    const row = document.createElement("div");
+    row.className = "acts";
+    const mk = (l, fn) => { const b = document.createElement("button"); b.className = "smallbtn"; b.textContent = l; b.onclick = () => fn(b); row.appendChild(b); };
+    mk("30-Tage-Plan", b => makePlan(x, b));
+    mk("Besprechen", () => {
+      show("chat");
+      document.getElementById("in").value = "Ich überlege, mit dieser Idee zu starten: " + x.name + " (" + x.desc + "). Stell mir die wichtigsten Fragen und sag mir ehrlich, wo die Stolpersteine sind.";
+      send();
+    });
+    mk("Merken", b => { notes.unshift({ text: "Business-Idee: " + x.name + "\n" + x.desc + "\nStart: " + x.start + ", erster Euro: " + x.euro + ", Potenzial: " + x.pot }); saveData(); renderNotes(); b.textContent = "Gemerkt"; b.disabled = true; });
+    c.appendChild(row);
+    host.appendChild(c);
+  });
+}
+
+async function makePlan(x, b) {
+  b.textContent = "plant...";
+  b.disabled = true;
+  try {
+    const sys = "Du bist ein Gründer-Coach. Erstelle einen konkreten 30-Tage-Startplan als JSON-Array aus genau 8 kurzen Strings, jeder beginnt mit dem Zeitraum, zum Beispiel \"Tag 1-2: Name festlegen und Zielgruppe notieren\". Zeit pro Woche: " + fsel.zeit + ", Startkapital: " + fsel.kap + ". Antworte ausschließlich mit dem JSON-Array.";
+    const arr = fJson(await fAsk(sys, "Idee: " + x.name + " - " + x.desc), "[", "]").filter(t => typeof t === "string");
+    if (!arr.length) throw new Error("kein Plan");
+    arr.forEach(t => todos.push({ text: x.name + " | " + t, done: false }));
+    saveData();
+    renderNotes();
+    b.textContent = "✓ " + arr.length + " Aufgaben angelegt";
+  } catch (e) {
+    b.textContent = "Fehler, nochmal";
+    b.disabled = false;
+  }
+}
+
+drawForm();
+if (fideas.length) drawIdeas();
+
+/* ---- Reseller (Vinted & Co.) ---- */
+let inv = load("jarvis_inv", []);
+let rImg = null;
+const ST = ["Eingekauft", "Online", "Verkauft"];
+
+function fsub(k) {
+  document.getElementById("fideas").style.display = k === "i" ? "block" : "none";
+  document.getElementById("freseller").style.display = k === "r" ? "block" : "none";
+  document.getElementById("fs-i").classList.toggle("on", k === "i");
+  document.getElementById("fs-r").classList.toggle("on", k === "r");
+}
+
+function copyTxt(t, b) {
+  const done = () => { const o = b.textContent; b.textContent = "Kopiert"; setTimeout(() => { b.textContent = o; }, 1200); };
+  try { navigator.clipboard.writeText(t).then(done, done); } catch (e) { done(); }
+}
+
+function buildReseller() {
+  const host = document.getElementById("freseller");
+  host.innerHTML = `
+  <div class="rsec" style="border-top:none">
+    <h3>Anzeige aus Foto</h3>
+    <div class="hsub">Foto machen, Jarvis schreibt Titel, Beschreibung und schlägt eine Preisspanne vor. Preise sind Schätzungen, prüfe sie immer selbst.</div>
+    <div class="two"><label class="photo" for="rfile" style="width:46px;height:46px;flex-shrink:0;display:flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid rgba(255,255,255,.15);font-size:20px"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></label>
+    <input type="file" id="rfile" accept="image/*" style="display:none">
+    <input class="rin" id="rinfo" placeholder="Größe, Zustand, Einkaufspreis..." style="margin:0"></div>
+    <div id="rprev" class="hsub" style="margin-top:8px"></div>
+    <button class="cta" id="rgo" style="margin-top:10px">Anzeige erstellen</button>
+    <div id="rout"></div>
+  </div>
+  <div class="rsec">
+    <h3>Gewinnrechner</h3>
+    <div class="hsub">Was bleibt nach Einkauf, Versand und Gebühren übrig?</div>
+    <div id="rcalc"></div>
+  </div>
+  <div class="rsec">
+    <h3>Lager</h3>
+    <div class="hsub">Behalte den Überblick über alles, was du eingekauft hast.</div>
+    <div id="rsum"></div>
+    <input class="rin" id="inm" placeholder="Artikel, zum Beispiel Nike Hoodie M">
+    <div class="two"><input class="rin" id="iek" inputmode="decimal" placeholder="Einkauf €"><input class="rin" id="ivk" inputmode="decimal" placeholder="Ziel-Preis €"></div>
+    <button class="cta" id="iadd" style="margin-top:8px;height:42px">Hinzufügen</button>
+    <div id="rinv"></div>
+  </div>
+  <div class="rsec">
+    <h3>Preis-Check und Beratung</h3>
+    <div class="hsub">Die Websuche kann Preise für gebrauchte Artikel schätzen. Vinted selbst kann sie nicht live lesen.</div>
+    <input class="rin" id="rq" placeholder="Artikel, zum Beispiel Carhartt Jacke L">
+    <div class="acts"><button class="smallbtn" id="rpc">Preis-Check (Websuche)</button><button class="smallbtn" id="rco">Was kann ich flippen?</button></div>
+  </div>
+  <div class="disc">Hinweis: Verkaufe nur Originale, Fälschungen sind verboten. Wer regelmäßig und mit Gewinnabsicht verkauft, kann steuerpflichtig oder gewerblich sein. Plattformen melden Verkäufer ab bestimmten Grenzen an das Finanzamt (Faustregel: 30 Verkäufe oder 2.000 € im Jahr). Prüfe die aktuellen Regeln und frag bei Unsicherheit eine Steuerberatung.</div>`;
+
+  document.getElementById("rfile").addEventListener("change", async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    try { rImg = await shrink(f); document.getElementById("rprev").textContent = "Foto ausgewählt. Optional unten Infos ergänzen."; }
+    catch (err) { document.getElementById("rprev").textContent = "Foto konnte nicht gelesen werden."; }
+    e.target.value = "";
+  });
+  document.getElementById("rgo").onclick = makeListing;
+  document.getElementById("iadd").onclick = addInv;
+  document.getElementById("rpc").onclick = () => {
+    const q = document.getElementById("rq").value.trim();
+    if (!q) return;
+    show("search");
+    document.getElementById("in").value = "Zu welchem Preis wird \"" + q + "\" gebraucht in Deutschland aktuell verkauft (Vinted, eBay Kleinanzeigen, eBay)? Gib eine realistische Spanne, nenne die Quellen und sag ehrlich, wie sicher die Schätzung ist.";
+    send();
+  };
+  document.getElementById("rco").onclick = () => {
+    show("chat");
+    document.getElementById("in").value = "Ich möchte auf Vinted anfangen, Kleidung weiterzuverkaufen (Reseller). Mein Budget: " + fsel.kap + ", Zeit: " + fsel.zeit + ". Erkläre mir ehrlich, was gut flippbar ist, wo ich günstig einkaufe, worauf ich bei Preisen und Fotos achten muss und wo die Fallen sind.";
+    send();
+  };
+  buildRCalc();
+  drawInv();
+}
+
+async function makeListing() {
+  const btn = document.getElementById("rgo"), out = document.getElementById("rout"), core = document.getElementById("core");
+  const info = document.getElementById("rinfo").value.trim();
+  if (!rImg && !info) { out.innerHTML = '<div class="empty">Wähle ein Foto oder schreibe, was du verkaufen willst.</div>'; return; }
+  btn.disabled = true;
+  core.classList.add("busy");
+  out.innerHTML = '<div class="th" style="margin-top:14px"><span class="dot"></span>Jarvis schreibt deine Anzeige...</div>';
+  try {
+    const sys = "Du hilfst Vinted-Verkäufern in Deutschland. Erkenne Artikel und Marke nur, wenn sie sichtbar oder genannt sind, sonst schreibe 'unsicher'. Erfinde keine Maße. Antworte AUSSCHLIESSLICH mit einem JSON-Objekt: {\"title\":\"Titel, höchstens 60 Zeichen, Marke Artikel Größe\",\"desc\":\"Beschreibung in 3 bis 5 kurzen Sätzen, Unbekanntes als [Platzhalter in eckigen Klammern]\",\"brand\":\"Marke oder unsicher\",\"cat\":\"Kategorie\",\"cond\":\"Zustand\",\"low\":Zahl,\"high\":Zahl,\"tips\":[\"Tipp 1\",\"Tipp 2\"]}. low und high sind eine grobe Preisschätzung in Euro für gebraucht.";
+    const content = [];
+    if (rImg) content.push({ type: "image", source: { type: "base64", media_type: "image/jpeg", data: rImg.data } });
+    content.push({ type: "text", text: "Infos vom Verkäufer: " + (info || "keine") });
+    const data = await api({ messages: [{ role: "user", content: content }], system: sys, mode: "chat" });
+    if (data.error) throw new Error(data.error.message || "API-Fehler");
+    const txt = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+    const o = fJson(txt, "{", "}");
+    const full = o.title + "\n\n" + o.desc;
+    out.innerHTML = "";
+    const add1 = (k, v) => { const d = document.createElement("div"); d.className = "lf"; d.innerHTML = "<small>" + k + "</small><div></div>"; d.lastChild.textContent = v; out.appendChild(d); };
+    add1("Titel", o.title);
+    add1("Beschreibung", o.desc);
+    add1("Marke · Kategorie · Zustand", [o.brand, o.cat, o.cond].join(" · "));
+    if (ok(Number(o.low)) && ok(Number(o.high))) add1("Preisidee (Schätzung)", nf(Number(o.low), 0) + " bis " + nf(Number(o.high), 0) + " €");
+    if (o.tips && o.tips.length) add1("Tipps", o.tips.map(t => "• " + t).join("\n"));
+    const row = document.createElement("div");
+    row.className = "acts";
+    const mk = (l, fn) => { const b = document.createElement("button"); b.className = "smallbtn"; b.textContent = l; b.onclick = () => fn(b); row.appendChild(b); };
+    mk("Titel kopieren", b => copyTxt(o.title, b));
+    mk("Text kopieren", b => copyTxt(o.desc, b));
+    mk("Ins Lager", b => { document.getElementById("inm").value = o.title; document.getElementById("ivk").value = ok(Number(o.high)) ? String(Math.round((Number(o.low) + Number(o.high)) / 2)) : ""; b.textContent = "Unten ergänzen"; });
+    out.appendChild(row);
+  } catch (e) {
+    out.innerHTML = '<div class="empty">Fehler: ' + esc(e.message) + '</div>';
+  }
+  btn.disabled = false;
+  core.classList.remove("busy");
+}
+
+function buildRCalc() {
+  const host = document.getElementById("rcalc");
+  const F = [["ek", "Einkaufspreis (€)", ""], ["vk", "Verkaufspreis (€)", ""], ["vs", "Versand, den du zahlst (€)", "0"], ["gb", "Plattformgebühr (%)", "0"], ["so", "Sonstige Kosten (€)", "0"], ["zg", "Wunschgewinn (€)", ""]];
+  const inp = {};
+  F.forEach(f => {
+    const w = document.createElement("div");
+    w.className = "fld";
+    w.innerHTML = "<label>" + f[1] + "</label>";
+    const i = document.createElement("input");
+    i.type = "text"; i.setAttribute("inputmode", "decimal"); i.value = f[2];
+    i.addEventListener("input", upd);
+    inp[f[0]] = i;
+    w.appendChild(i);
+    host.appendChild(w);
+  });
+  const res = document.createElement("div");
+  res.className = "res";
+  host.appendChild(res);
+  function upd() {
+    const g = k => { const v = pn(inp[k].value); return ok(v) ? v : 0; };
+    const ek = g("ek"), vk = g("vk"), vs = g("vs"), gb = g("gb"), so = g("so"), zg = g("zg");
+    res.innerHTML = "";
+    if (!ek && !vk) { res.innerHTML = '<span class="hint">Trage Einkauf und Verkauf ein.</span>'; return; }
+    const net = vk * (1 - gb / 100) - ek - vs - so;
+    const rows = [["Gewinn", eur(net)]];
+    if (vk > 0) rows.push(["Marge vom Verkauf", pct(net / vk * 100)]);
+    if (ek > 0) rows.push(["Rendite auf Einkauf", pct(net / ek * 100)]);
+    if (gb < 100) rows.push(["Mindestpreis ohne Verlust", eur((ek + vs + so) / (1 - gb / 100))]);
+    if (zg > 0 && gb < 100) rows.push(["Preis für Wunschgewinn", eur((ek + vs + so + zg) / (1 - gb / 100))]);
+    rows.forEach(r => { const d = document.createElement("div"); d.innerHTML = "<span>" + esc(r[0]) + "</span><b>" + esc(r[1]) + "</b>"; res.appendChild(d); });
+  }
+  upd();
+}
+
+function addInv() {
+  const n = document.getElementById("inm").value.trim();
+  if (!n) return;
+  const ek = pn(document.getElementById("iek").value), vk = pn(document.getElementById("ivk").value);
+  inv.unshift({ n: n, ek: ok(ek) ? ek : 0, vk: ok(vk) ? vk : 0, st: 0, sold: 0 });
+  save("jarvis_inv", inv);
+  ["inm", "iek", "ivk"].forEach(id => { document.getElementById(id).value = ""; });
+  drawInv();
+}
+
+function drawInv() {
+  const list = document.getElementById("rinv"), sum = document.getElementById("rsum");
+  list.innerHTML = "";
+  let bound = 0, profit = 0, revenue = 0;
+  inv.forEach(x => { if (x.st < 2) bound += x.ek; else { profit += x.sold - x.ek; revenue += x.sold; } });
+  sum.innerHTML = '<div class="sum"><div>Gebundenes Kapital<b>' + eur(bound) + '</b></div><div>Gewinn bisher<b>' + eur(profit) + '</b></div><div>Verkauft<b>' + inv.filter(x => x.st === 2).length + ' Stück</b></div></div>';
+  if (!inv.length) { list.innerHTML = '<div class="empty">Noch nichts im Lager.</div>'; return; }
+  inv.forEach((x, i) => {
+    const r = document.createElement("div");
+    r.className = "invrow";
+    const nm = document.createElement("div");
+    nm.className = "nm";
+    nm.textContent = x.n;
+    const sm = document.createElement("small");
+    sm.textContent = "Einkauf " + eur(x.ek) + (x.st === 2 ? " · verkauft für " + eur(x.sold) : (x.vk ? " · Ziel " + eur(x.vk) : ""));
+    nm.appendChild(sm);
+    const st = document.createElement("button");
+    st.className = "smallbtn";
+    st.textContent = ST[x.st];
+    st.onclick = () => {
+      if (x.st === 1) {
+        const v = pn(prompt("Verkauft für wie viel Euro?", x.vk ? String(x.vk) : "") || "");
+        if (!ok(v)) return;
+        x.sold = v; x.st = 2;
+      } else x.st = (x.st + 1) % 3;
+      save("jarvis_inv", inv);
+      drawInv();
+    };
+    const del = document.createElement("button");
+    del.className = "smallbtn";
+    del.textContent = "✕";
+    del.onclick = () => { inv.splice(i, 1); save("jarvis_inv", inv); drawInv(); };
+    r.appendChild(nm); r.appendChild(st); r.appendChild(del);
+    list.appendChild(r);
+  });
+}
+
+buildReseller();
 
 drawChips();
 buildCalcs();
