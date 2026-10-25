@@ -6,110 +6,117 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jarvis">
-<meta name="theme-color" content="#050b18">
+<meta name="theme-color" content="#04100a">
 <title>Jarvis</title>
 <style>
   * { box-sizing: border-box; }
   body {
     margin: 0; height: 100vh; display: flex; flex-direction: column;
-    font-family: -apple-system, "Segoe UI", sans-serif; color: #d8f6ff;
-    background: radial-gradient(circle at 50% 0%, #0b2a4a 0%, #050b18 60%);
+    font-family: -apple-system, "Segoe UI", sans-serif; color: #e8f1ea;
+    background: radial-gradient(circle at 50% 0%, #0a2418 0%, #04100a 60%);
     padding-top: env(safe-area-inset-top);
   }
   header { text-align: center; padding: 14px 0 8px; position: relative; }
   .mini {
     position: absolute; right: 12px; top: 14px; padding: 6px 10px; font-size: 12px;
-    background: transparent; border: 1px solid rgba(0, 229, 255, 0.4); color: #7df3ff; border-radius: 14px; font-weight: 400;
+    background: transparent; border: 1px solid rgba(143, 191, 159, 0.4); color: #cfe8d6; border-radius: 14px; font-weight: 400;
   }
   .core {
     width: 56px; height: 56px; margin: 0 auto 8px; border-radius: 50%;
-    border: 3px solid #00e5ff;
-    box-shadow: 0 0 18px #00e5ff, inset 0 0 14px #00e5ff;
+    border: 3px solid #8fbf9f;
+    box-shadow: 0 0 18px #8fbf9f, inset 0 0 14px #8fbf9f;
     position: relative; animation: pulse 3s ease-in-out infinite;
   }
   .core.busy { animation: pulse 0.8s ease-in-out infinite; }
   .core::after {
     content: ""; position: absolute; inset: 14px; border-radius: 50%;
-    background: #00e5ff; box-shadow: 0 0 16px #00e5ff;
+    background: #8fbf9f; box-shadow: 0 0 16px #8fbf9f;
   }
   @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 12px #00e5ff, inset 0 0 8px #00e5ff; }
-    50% { box-shadow: 0 0 28px #00e5ff, inset 0 0 18px #00e5ff; }
+    0%, 100% { box-shadow: 0 0 12px #8fbf9f, inset 0 0 8px #8fbf9f; }
+    50% { box-shadow: 0 0 28px #8fbf9f, inset 0 0 18px #8fbf9f; }
   }
-  h1 { margin: 0; font-size: 18px; letter-spacing: 6px; font-weight: 300; color: #7df3ff; }
+  h1 { margin: 0; font-size: 18px; letter-spacing: 6px; font-weight: 300; color: #cfe8d6; }
   #chat, #search, #notes { flex: 1; overflow-y: auto; padding: 12px 14px; }
   .msg {
     margin: 8px 0; padding: 11px 14px; border-radius: 16px;
     max-width: 82%; line-height: 1.4; font-size: 15px; white-space: pre-wrap;
   }
-  .msg code { background: rgba(0, 229, 255, 0.18); padding: 1px 5px; border-radius: 4px; }
+  .msg code { background: rgba(143, 191, 159, 0.18); padding: 1px 5px; border-radius: 4px; }
   .msg img { width: 140px; max-height: 140px; object-fit: cover; border-radius: 10px; margin-bottom: 6px; display: block; }
-  .src { margin-top: 8px; padding-top: 4px; border-top: 1px solid rgba(0, 229, 255, 0.3); }
-  .src a { display: block; margin-top: 4px; font-size: 12px; color: #7df3ff; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .src { margin-top: 8px; padding-top: 4px; border-top: 1px solid rgba(143, 191, 159, 0.3); }
+  .src a { display: block; margin-top: 4px; font-size: 12px; color: #cfe8d6; text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .user {
-    background: linear-gradient(135deg, #0077b6, #00b4d8);
+    background: linear-gradient(135deg, #4f7f68, #6fa58a);
     margin-left: auto; border-bottom-right-radius: 4px; color: #fff;
   }
   .bot {
-    background: rgba(0, 229, 255, 0.08); border: 1px solid rgba(0, 229, 255, 0.35);
+    background: rgba(143, 191, 159, 0.08); border: 1px solid rgba(143, 191, 159, 0.35);
     border-bottom-left-radius: 4px;
   }
   #preview {
     display: none; align-items: center; padding: 6px 14px;
-    background: rgba(5, 11, 24, 0.9); border-top: 1px solid rgba(0, 229, 255, 0.25);
+    background: rgba(3, 12, 8, 0.9); border-top: 1px solid rgba(143, 191, 159, 0.25);
   }
   #preview img { height: 56px; border-radius: 8px; }
   .x {
     margin-left: 10px; padding: 4px 10px; font-size: 14px;
-    background: transparent; border: 1px solid rgba(0, 229, 255, 0.4); color: #7df3ff; font-weight: 400;
+    background: transparent; border: 1px solid rgba(143, 191, 159, 0.4); color: #cfe8d6; font-weight: 400;
   }
   #bar {
     display: flex; gap: 8px; padding: 10px 12px;
-    background: rgba(5, 11, 24, 0.9); border-top: 1px solid rgba(0, 229, 255, 0.25);
+    background: rgba(3, 12, 8, 0.9); border-top: 1px solid rgba(143, 191, 159, 0.25);
     align-items: center;
   }
   .photo {
     width: 44px; height: 44px; display: flex; align-items: center; justify-content: center;
-    border-radius: 50%; border: 1px solid rgba(0, 229, 255, 0.5); font-size: 20px; flex-shrink: 0;
+    border-radius: 50%; border: 1px solid rgba(143, 191, 159, 0.5); font-size: 20px; flex-shrink: 0;
   }
   #in {
     flex: 1; padding: 12px 14px; border-radius: 22px; font-size: 16px; min-width: 0;
-    border: 1px solid rgba(0, 229, 255, 0.4); background: #08162b; color: #d8f6ff; outline: none;
+    border: 1px solid rgba(143, 191, 159, 0.4); background: #081a12; color: #e8f1ea; outline: none;
   }
-  #in:focus { box-shadow: 0 0 8px #00e5ff; }
+  #in:focus { box-shadow: 0 0 8px #8fbf9f; }
   button {
     padding: 0 20px; border: none; border-radius: 22px; font-size: 15px; height: 44px;
-    background: linear-gradient(135deg, #00b4d8, #00e5ff); color: #03121f; font-weight: 600;
+    background: linear-gradient(135deg, #6fa58a, #8fbf9f); color: #07150e; font-weight: 600;
   }
   button.mini, button.x { height: auto; }
   button:disabled { opacity: 0.5; }
   #nav {
-    display: flex; background: rgba(5, 11, 24, 0.97);
-    border-top: 1px solid rgba(0, 229, 255, 0.25); padding-bottom: env(safe-area-inset-bottom);
+    display: flex; background: rgba(3, 12, 8, 0.97);
+    border-top: 1px solid rgba(143, 191, 159, 0.25); padding-bottom: env(safe-area-inset-bottom);
   }
   .tab {
     flex: 1; height: 50px; padding: 0; border-radius: 0; background: transparent;
-    color: #6fa8b8; font-size: 13px; font-weight: 400;
+    color: #7f9a88; font-size: 13px; font-weight: 400;
   }
-  .tab.on { color: #00e5ff; font-weight: 600; box-shadow: inset 0 2px 0 #00e5ff; }
+  .tab.on { color: #8fbf9f; font-weight: 600; box-shadow: inset 0 2px 0 #8fbf9f; }
   #sub { display: flex; gap: 8px; margin-bottom: 6px; }
-  .sub { flex: 1; height: 36px; padding: 0; font-size: 14px; background: transparent; color: #6fa8b8; border: 1px solid rgba(0, 229, 255, 0.3); font-weight: 400; }
-  .sub.on { color: #03121f; background: linear-gradient(135deg, #00b4d8, #00e5ff); font-weight: 600; }
-  .item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin: 8px 0; border-radius: 12px; background: rgba(0, 229, 255, 0.08); border: 1px solid rgba(0, 229, 255, 0.35); }
+  .sub { flex: 1; height: 36px; padding: 0; font-size: 14px; background: transparent; color: #7f9a88; border: 1px solid rgba(143, 191, 159, 0.3); font-weight: 400; }
+  .sub.on { color: #07150e; background: linear-gradient(135deg, #6fa58a, #8fbf9f); font-weight: 600; }
+  .item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin: 8px 0; border-radius: 12px; background: rgba(143, 191, 159, 0.08); border: 1px solid rgba(143, 191, 159, 0.35); }
   .item span { flex: 1; word-break: break-word; white-space: pre-wrap; font-size: 15px; }
   .item.done span { text-decoration: line-through; opacity: 0.5; }
-  .item input { width: 20px; height: 20px; accent-color: #00e5ff; }
-  button.del { height: auto; padding: 2px 8px; background: transparent; color: #7df3ff; border: 1px solid rgba(0, 229, 255, 0.3); font-weight: 400; }
+  .item input { width: 20px; height: 20px; accent-color: #8fbf9f; }
+  button.del { height: auto; padding: 2px 8px; background: transparent; color: #cfe8d6; border: 1px solid rgba(143, 191, 159, 0.3); font-weight: 400; }
   .empty { opacity: 0.6; padding: 10px 4px; font-size: 14px; }
-  .addrow { display: flex; gap: 8px; position: sticky; bottom: 0; padding: 8px 0; background: #050b18; }
-  #nin { flex: 1; min-width: 0; padding: 12px 14px; border-radius: 22px; font-size: 16px; border: 1px solid rgba(0, 229, 255, 0.4); background: #08162b; color: #d8f6ff; outline: none; }
+  .addrow { display: flex; gap: 8px; position: sticky; bottom: 0; padding: 8px 0; background: #04100a; }
+  #nin { flex: 1; min-width: 0; padding: 12px 14px; border-radius: 22px; font-size: 16px; border: 1px solid rgba(143, 191, 159, 0.4); background: #081a12; color: #e8f1ea; outline: none; }
+  .core { width: 52px; height: 52px; border: 1px solid #8fbf9f; box-shadow: 0 0 0 6px rgba(143, 191, 159, 0.10), 0 0 0 7px rgba(143, 191, 159, 0.35); animation: breathe 5s ease-in-out infinite; }
+  .core.busy { animation: breathe 1.2s ease-in-out infinite; }
+  .core::after { inset: 19px; box-shadow: 0 0 14px #8fbf9f; }
+  @keyframes breathe { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.08); opacity: 1; } }
+  h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: 10px; font-size: 17px; }
+  .user { background: linear-gradient(135deg, #6fa58a, #a9d4b8); color: #07150e; }
+  .msg { border-radius: 14px; }
 </style>
 </head>
 <body>
 <header>
   <button class="mini" onclick="newChat()">Neuer Chat</button>
   <div class="core" id="core"></div>
-  <h1>J.A.R.V.I.S.</h1>
+  <h1>JARVIS</h1>
 </header>
 <div id="chat"></div>
 <div id="search" style="display:none"></div>
