@@ -113,17 +113,76 @@
   .mic { width: 44px; height: 44px; padding: 0; flex-shrink: 0; font-size: 20px; background: transparent; border: 1px solid rgba(143, 191, 159, 0.5); color: #cfe8d6; }
   .mic.rec { background: #8fbf9f; color: #07150e; animation: breathe 1s ease-in-out infinite; }
   .mini.spk { right: auto; left: 12px; }
+
+  /* ---- v9: Farbwelten pro Bereich ---- */
+  body { --ar: 143,191,159; --a: #8fbf9f; --a2: #cfe8d6; --bg0: #04100a; --bg1: #0a2418; --on: #07150e; }
+  body[data-t="search"] { --ar: 127,193,224; --a: #7fc1e0; --a2: #d0e9f5; --bg0: #040d12; --bg1: #0a2433; --on: #04141d; }
+  body[data-t="school"] { --ar: 178,160,227; --a: #b2a0e3; --a2: #e4dcf7; --bg0: #0a0812; --bg1: #1a1430; --on: #130d26; }
+  body[data-t="biz"] { --ar: 224,149,90; --a: #e0955a; --a2: #f5d3b5; --bg0: #120a05; --bg1: #2a1708; --on: #1d0f05; }
+  body[data-t="notes"] { --ar: 201,185,154; --a: #c9b99a; --a2: #eee4cf; --bg0: #0e0c08; --bg1: #231e12; --on: #17130a; }
+  body[data-t] { background: radial-gradient(circle at 50% 0%, var(--bg1) 0%, var(--bg0) 60%); }
+  body[data-t] h1 { color: var(--a2); }
+  body[data-t] .mini, body[data-t] .x, body[data-t] button.del, body[data-t] .mic, body[data-t] .photo { border-color: rgba(var(--ar), 0.45); color: var(--a2); }
+  body[data-t] .core { border-color: var(--a); box-shadow: 0 0 0 6px rgba(var(--ar), 0.10), 0 0 0 7px rgba(var(--ar), 0.35); }
+  body[data-t] .core::after { background: var(--a); box-shadow: 0 0 14px var(--a); }
+  body[data-t] .user { background: linear-gradient(135deg, rgba(var(--ar), 0.75), var(--a2)); color: var(--on); }
+  body[data-t] .bot, body[data-t] .item { background: rgba(var(--ar), 0.08); border-color: rgba(var(--ar), 0.35); }
+  body[data-t] .msg code { background: rgba(var(--ar), 0.18); }
+  body[data-t] button { background: linear-gradient(135deg, rgba(var(--ar), 0.8), var(--a)); color: var(--on); }
+  body[data-t] button.mini, body[data-t] button.x, body[data-t] button.del, body[data-t] button.mic, body[data-t] .tab, body[data-t] .sub, body[data-t] .chip { background: transparent; }
+  body[data-t] .mic.rec, body[data-t] .sub.on, body[data-t] .chip.on { background: var(--a); color: var(--on); }
+  body[data-t] #bar, body[data-t] #preview, body[data-t] #nav { border-color: rgba(var(--ar), 0.25); }
+  body[data-t] #in, body[data-t] #nin { border-color: rgba(var(--ar), 0.4); background: rgba(255,255,255,0.04); color: #eef2ee; }
+  body[data-t] #in:focus { box-shadow: 0 0 8px var(--a); }
+  body[data-t] .tab { color: #8a8f8c; }
+  body[data-t] .tab.on { color: var(--a); box-shadow: inset 0 2px 0 var(--a); }
+  body[data-t] .addrow { background: var(--bg0); }
+  body[data-t] .src a { color: var(--a2); }
+  body[data-t] .sub { border-color: rgba(var(--ar), 0.3); }
+  .tab { font-size: 11px; }
+  #chat, #search, #notes, #biz, #school { flex: 1; overflow-y: auto; padding: 12px 14px; min-height: 0; }
+  #schoolwrap { flex: 1; min-height: 0; display: none; flex-direction: column; }
+  #schoolctl { padding: 8px 14px 4px; border-bottom: 1px solid rgba(var(--ar), 0.18); }
+  .chips { display: flex; gap: 6px; overflow-x: auto; padding: 3px 0; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+  .chip { flex-shrink: 0; height: 30px; padding: 0 12px; font-size: 13px; font-weight: 400; border: 1px solid rgba(var(--ar), 0.4); color: var(--a2); border-radius: 15px; }
+  .chip.on { font-weight: 600; }
+  .smallbtn { height: 28px; padding: 0 12px; font-size: 12px; margin-top: 8px; margin-right: 6px; font-weight: 400; background: transparent; border: 1px solid rgba(var(--ar), 0.45); color: var(--a2); }
+  .msg.deckmsg { max-width: 100%; }
+  .card { margin: 10px 0; min-height: 130px; padding: 14px; border-radius: 16px; border: 1px solid rgba(var(--ar), 0.5); background: rgba(var(--ar), 0.10); display: flex; flex-direction: column; justify-content: center; text-align: center; font-size: 17px; line-height: 1.4; }
+  .card small { opacity: 0.6; font-size: 11px; margin-bottom: 8px; }
+  .card.back { background: rgba(var(--ar), 0.22); }
+  .dkrow { display: flex; gap: 8px; }
+  .dkrow button { flex: 1; height: 38px; font-size: 14px; }
+  .dkhint, .dkdone { opacity: 0.7; font-size: 12px; text-align: center; }
+  .dkdone { font-size: 16px; opacity: 1; padding: 10px 0; }
+  .bizhead { opacity: 0.75; font-size: 14px; margin-bottom: 10px; }
+  .calc { margin: 10px 0; border-radius: 14px; border: 1px solid rgba(var(--ar), 0.35); background: rgba(var(--ar), 0.06); overflow: hidden; }
+  .calc > .ch { width: 100%; height: 52px; border-radius: 0; text-align: left; padding: 0 16px; font-size: 16px; background: transparent !important; color: var(--a2) !important; font-weight: 600; }
+  .calc > .cb { display: none; padding: 4px 14px 14px; }
+  .calc.open > .cb { display: block; }
+  .fld { display: flex; align-items: center; gap: 8px; margin: 8px 0; font-size: 14px; }
+  .fld label { flex: 1; opacity: 0.85; }
+  .fld input { width: 120px; padding: 10px 12px; border-radius: 12px; font-size: 16px; text-align: right; border: 1px solid rgba(var(--ar), 0.4); background: rgba(255,255,255,0.05); color: #eef2ee; outline: none; }
+  .res { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: rgba(var(--ar), 0.14); font-size: 15px; }
+  .res div { display: flex; justify-content: space-between; gap: 10px; padding: 3px 0; }
+  .res div b { color: var(--a2); text-align: right; }
+  .res .hint { opacity: 0.7; font-size: 13px; display: block; }
 </style>
 </head>
 <body>
 <header>
   <button class="mini spk" id="spk" onclick="toggleSpeak()">🔇 Stimme</button>
-  <button class="mini" onclick="newChat()">Neuer Chat</button>
+  <button class="mini" id="newbtn" onclick="newChat()">Neuer Chat</button>
   <div class="core" id="core"></div>
   <h1>JARVIS</h1>
 </header>
 <div id="chat"></div>
 <div id="search" style="display:none"></div>
+<div id="schoolwrap">
+  <div id="schoolctl"><div class="chips" id="subjchips"></div><div class="chips" id="modechips"></div></div>
+  <div id="school"></div>
+</div>
+<div id="biz" style="display:none"><div class="bizhead">Rechner-Werkstatt. Tippe einen Rechner an, trage Werte ein und lass dir das Ergebnis von Jarvis erklären.</div><div id="calcs"></div></div>
 <div id="notes" style="display:none">
   <div id="sub"><button class="sub on" id="sub-n" onclick="subTab('n')">Notizen</button><button class="sub" id="sub-t" onclick="subTab('t')">Aufgaben</button></div>
   <div id="nlist"></div>
@@ -141,6 +200,8 @@
 <div id="nav">
   <button class="tab on" id="tab-chat" onclick="show('chat')">💬 Chat</button>
   <button class="tab" id="tab-search" onclick="show('search')">🔎 Suche</button>
+  <button class="tab" id="tab-school" onclick="show('school')">🎓 Schule</button>
+  <button class="tab" id="tab-biz" onclick="show('biz')">📊 BWL</button>
   <button class="tab" id="tab-notes" onclick="show('notes')">📝 Notizen</button>
 </div>
 <script>
@@ -158,7 +219,8 @@ function save(key, val) {
 let facts = load("jarvis_facts", []);
 const tabs = {
   chat: { key: "jarvis_history", h: load("jarvis_history", []), greet: "Systeme online. Wie kann ich helfen?" },
-  search: { key: "jarvis_search", h: load("jarvis_search", []), greet: "Suchmodus bereit. Was soll ich im Web nachschlagen?" }
+  search: { key: "jarvis_search", h: load("jarvis_search", []), greet: "Suchmodus bereit. Was soll ich im Web nachschlagen?" },
+  school: { key: "jarvis_school", h: load("jarvis_school", []), greet: "Lernmodus bereit. Wähle oben Fach und Modus, dann schreib mir dein Thema oder schick mir ein Foto deiner Aufgabe. Ich erkläre dir den Weg, statt nur die Lösung zu nennen." }
 };
 let cur = "chat";
 let pendingImg = null;
@@ -375,8 +437,26 @@ function addSources(el, list) {
   el.appendChild(box);
 }
 
+const SUBJECTS = ["Mathe", "Wirtschaft", "Deutsch", "Englisch", "Geschichte", "Bio", "Chemie", "Physik", "Informatik", "Frei"];
+const MODES = { explain: "💡 Erklären", quiz: "❓ Quiz", cards: "🃏 Karten", plan: "📅 Lernplan", talk: "🎤 Referat" };
+let schoolSubject = load("jarvis_subject", "Mathe");
+let schoolMode = load("jarvis_mode", "explain");
+let useNotes = load("jarvis_usenotes", false) === true;
+
+function notesText() { return notes.map(n => "- " + n.text).join("\n").slice(0, 6000); }
+
+function schoolSystem() {
+  let s = "Du bist Jarvis im Lernmodus, ein geduldiger, motivierender Nachhilfelehrer. Du sprichst Deutsch und duzt den Nutzer. Fach: " + schoolSubject + ". Grundregel: Du hilfst beim Verstehen und gibst nicht einfach nur die fertige Lösung ab. Bei Aufgaben lässt du den Nutzer zuerst den nächsten Schritt versuchen, gibst gestufte Hinweise und zeigst die volle Lösung erst, wenn er es ausdrücklich verlangt oder nach zwei Versuchen nicht weiterkommt. Rechne sauber und prüfe Zwischenergebnisse. Kurze Absätze, keine Tabellen. Schreibe Formeln als Klartext, zum Beispiel 3x + 2 = 11. Wenn der Nutzer ein Foto schickt, lies die Aufgabe daraus ab und fasse sie kurz zusammen, bevor du hilfst.";
+  if (schoolMode === "explain") s += "\n\nModus Erklären: Erkläre das Thema in einfachen Worten mit einem Alltagsbeispiel und stelle am Ende genau eine Kontrollfrage.";
+  if (schoolMode === "quiz") s += "\n\nModus Quiz: Stelle immer nur EINE Frage und warte auf die Antwort. Bewerte sie knapp mit Begründung, dann kommt die nächste Frage, die Schwierigkeit steigt langsam. Nach 5 Fragen gibst du eine Auswertung mit Punkten und sagst, was wiederholt werden sollte. Nennt der Nutzer nur ein Thema, starte direkt mit Frage 1.";
+  if (schoolMode === "plan") s += "\n\nModus Lernplan: Frage knapp nach Prüfungstermin, Themen und verfügbarer Zeit pro Tag, falls das noch fehlt. Erstelle dann einen realistischen Plan Tag für Tag mit Wiederholungen und Pausen.";
+  if (schoolMode === "talk") s += "\n\nModus Referat: Führe Schritt für Schritt: erst Thema eingrenzen, dann Gliederung, dann Stichpunkte je Abschnitt, dann Einstieg und Schluss. Schreibe nicht das ganze Referat aus, biete Formulierungshilfen an und frage am Ende, ob du ihn zum Vortrag abfragen sollst.";
+  if (useNotes && notes.length) s += "\n\nLernmaterial des Nutzers (seine Notizen), nutze es als Grundlage:\n" + notesText();
+  return s;
+}
+
 function buildSystem(t) {
-  let s = t === "search" ? SEARCH_PERSONA : PERSONA;
+  let s = t === "search" ? SEARCH_PERSONA : t === "school" ? schoolSystem() : PERSONA;
   if (t === "chat" && facts.length) s += "\n\nDas weißt du über den Nutzer:\n- " + facts.join("\n- ");
   if (t === "chat") {
     const open = todos.filter(x => !x.done).map(x => x.text);
@@ -422,18 +502,23 @@ function newChat() {
   renderTab(cur);
 }
 
+const PANES = { chat: "chat", search: "search", school: "schoolwrap", biz: "biz", notes: "notes" };
+const PLACE = { chat: "Sag etwas zu Jarvis...", search: "Was soll ich suchen?", school: "Thema, Aufgabe oder Antwort..." };
+
 function show(t) {
   cur = t;
   clearImg();
-  ["chat", "search", "notes"].forEach(k => {
-    document.getElementById(k).style.display = k === t ? "block" : "none";
+  document.body.dataset.t = t;
+  Object.keys(PANES).forEach(k => {
+    document.getElementById(PANES[k]).style.display = k === t ? (k === "school" ? "flex" : "block") : "none";
     document.getElementById("tab-" + k).classList.toggle("on", k === t);
   });
-  document.getElementById("bar").style.display = t === "notes" ? "none" : "flex";
-  document.querySelector(".photo").style.display = t === "chat" ? "flex" : "none";
-  document.getElementById("in").placeholder = t === "search" ? "Was soll ich suchen?" : "Sag etwas zu Jarvis...";
+  document.getElementById("bar").style.display = (t === "notes" || t === "biz") ? "none" : "flex";
+  document.querySelector(".photo").style.display = (t === "chat" || t === "school") ? "flex" : "none";
+  document.getElementById("newbtn").style.visibility = tabs[t] ? "visible" : "hidden";
+  document.getElementById("in").placeholder = PLACE[t] || "";
   const p = document.getElementById(t);
-  p.scrollTop = p.scrollHeight;
+  if (p) p.scrollTop = p.scrollHeight;
 }
 
 function shrink(file) {
@@ -482,7 +567,7 @@ async function send() {
   const btn = document.getElementById("btn");
   const core = document.getElementById("core");
   let text = i.value.trim();
-  const img = t === "chat" ? pendingImg : null;
+  const img = (t === "chat" || t === "school") ? pendingImg : null;
   if (!text && !img) return;
   i.value = "";
   const lower = text.toLowerCase();
@@ -524,11 +609,12 @@ async function send() {
     }
   }
 
-  if (img && !text) text = "Beschreibe dieses Bild.";
+  if (t === "school" && schoolMode === "cards" && !img) { add(text, "user"); await makeCards(text); return; }
+  if (img && !text) text = t === "school" ? "Hilf mir bei der Aufgabe auf dem Foto." : "Beschreibe dieses Bild.";
   add(text, "user", img ? img.url : null);
   T.h.push(img ? { role: "user", content: text, img: img.data, hadImg: true } : { role: "user", content: text });
   clearImg();
-  const wait = add(t === "search" ? "sucht..." : "denkt nach...", "bot");
+  const wait = add(t === "search" ? "sucht..." : t === "school" ? "überlegt..." : "denkt nach...", "bot");
   btn.disabled = true;
   core.classList.add("busy");
   try {
@@ -550,6 +636,7 @@ async function send() {
     const results = [];
     blocks.forEach(b => { if (b.type === "web_search_tool_result" && Array.isArray(b.content)) b.content.forEach(r => results.push(r)); });
     addSources(wait, results);
+    if (t === "school") addSaveBtn(wait, reply);
     T.h.push({ role: "assistant", content: reply });
   } catch (e) {
     T.h.pop();
@@ -563,6 +650,273 @@ async function send() {
 
 document.getElementById("in").addEventListener("keydown", e => { if (e.key === "Enter") send(); });
 
+
+function addSaveBtn(el, text) {
+  const b = document.createElement("button");
+  b.className = "smallbtn";
+  b.textContent = "📝 In Notizen";
+  b.onclick = () => { notes.unshift({ text: text }); saveData(); renderNotes(); b.textContent = "✓ Gespeichert"; b.disabled = true; };
+  el.appendChild(b);
+}
+
+function drawChips() {
+  const sc = document.getElementById("subjchips"), mc = document.getElementById("modechips");
+  sc.innerHTML = ""; mc.innerHTML = "";
+  SUBJECTS.forEach(s => {
+    const b = document.createElement("button");
+    b.className = "chip" + (s === schoolSubject ? " on" : "");
+    b.textContent = s;
+    b.onclick = () => { schoolSubject = s; save("jarvis_subject", s); drawChips(); };
+    sc.appendChild(b);
+  });
+  Object.keys(MODES).forEach(k => {
+    const b = document.createElement("button");
+    b.className = "chip" + (k === schoolMode ? " on" : "");
+    b.textContent = MODES[k];
+    b.onclick = () => { schoolMode = k; save("jarvis_mode", k); drawChips(); };
+    mc.appendChild(b);
+  });
+  const n = document.createElement("button");
+  n.className = "chip" + (useNotes ? " on" : "");
+  n.textContent = "📎 Notizen";
+  n.onclick = () => { useNotes = !useNotes; save("jarvis_usenotes", useNotes); drawChips(); };
+  mc.appendChild(n);
+}
+
+async function makeCards(topic) {
+  const btn = document.getElementById("btn"), core = document.getElementById("core");
+  const wait = add("erstellt Karteikarten...", "bot");
+  btn.disabled = true;
+  core.classList.add("busy");
+  try {
+    let srcTxt = "";
+    if (useNotes && notes.length) srcTxt = "\n\nNutze dieses Material:\n" + notesText();
+    const sys = "Du erstellst Lernkarten auf Deutsch für das Fach " + schoolSubject + ". Antworte AUSSCHLIESSLICH mit einem JSON-Array aus 8 Objekten der Form {\"q\":\"Frage\",\"a\":\"kurze Antwort\"}. Kein Text davor oder danach, keine Code-Blöcke. Fragen präzise, Antworten höchstens zwei Sätze.";
+    const data = await api({ messages: [{ role: "user", content: "Thema: " + topic + srcTxt }], system: sys, mode: "chat" });
+    if (data.error) throw new Error(data.error.message || "API-Fehler");
+    const txt = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+    const cards = JSON.parse(txt.slice(txt.indexOf("["), txt.lastIndexOf("]") + 1)).filter(c => c && c.q && c.a);
+    if (!cards.length) throw new Error("Keine Karten erhalten");
+    wait.classList.add("deckmsg");
+    wait.innerHTML = "<b>" + cards.length + " Karteikarten</b> zu: " + esc(topic);
+    renderDeck(cards, wait);
+  } catch (e) {
+    wait.textContent = "Fehler: " + e.message + " (nochmal versuchen)";
+  }
+  btn.disabled = false;
+  core.classList.remove("busy");
+}
+
+function renderDeck(cards, host) {
+  let list = cards, i = 0, known = 0, flipped = false, again = [];
+  const box = document.createElement("div");
+  host.appendChild(box);
+  function draw() {
+    box.innerHTML = "";
+    if (i >= list.length) {
+      const d = document.createElement("div");
+      d.className = "dkdone";
+      d.textContent = "Durch! " + known + " von " + list.length + " gewusst.";
+      box.appendChild(d);
+      if (again.length) {
+        const r = document.createElement("button");
+        r.className = "smallbtn";
+        r.textContent = "↻ Nur die " + again.length + " offenen";
+        r.onclick = () => { list = again; again = []; i = 0; known = 0; flipped = false; draw(); };
+        box.appendChild(r);
+      }
+      return;
+    }
+    const c = list[i];
+    const f = document.createElement("div");
+    f.className = "card" + (flipped ? " back" : "");
+    f.innerHTML = "<small>" + (i + 1) + " / " + list.length + (flipped ? " · Antwort" : " · Frage") + "</small><div>" + esc(flipped ? c.a : c.q) + "</div>";
+    f.onclick = () => { flipped = !flipped; draw(); };
+    box.appendChild(f);
+    if (flipped) {
+      const row = document.createElement("div");
+      row.className = "dkrow";
+      const y = document.createElement("button");
+      y.textContent = "✓ Gewusst";
+      y.onclick = () => { known++; i++; flipped = false; draw(); };
+      const n = document.createElement("button");
+      n.textContent = "↻ Nochmal";
+      n.onclick = () => { again.push(c); i++; flipped = false; draw(); };
+      row.appendChild(y); row.appendChild(n);
+      box.appendChild(row);
+    } else {
+      const h = document.createElement("div");
+      h.className = "dkhint";
+      h.textContent = "Tippe die Karte zum Umdrehen";
+      box.appendChild(h);
+    }
+  }
+  draw();
+}
+
+/* ---- BWL-Rechner ---- */
+function pn(s) {
+  s = String(s == null ? "" : s).trim().replace(/\s/g, "");
+  if (!s) return NaN;
+  if (s.indexOf(",") >= 0) s = s.replace(/\./g, "").replace(",", ".");
+  else if ((s.match(/\./g) || []).length > 1) s = s.replace(/\./g, "");
+  return parseFloat(s);
+}
+const nf = (n, d) => n.toLocaleString("de-DE", { minimumFractionDigits: d, maximumFractionDigits: d });
+const eur = n => nf(n, 2) + " €";
+const pct = n => nf(n, 2) + " %";
+const ok = n => typeof n === "number" && isFinite(n);
+
+const CALCS = [
+  { id: "bep", title: "📈 Break-even", need: ["fix", "preis", "var"],
+    fields: [["fix", "Fixkosten gesamt (€)", ""], ["preis", "Verkaufspreis pro Stück (€)", ""], ["var", "Variable Kosten pro Stück (€)", ""], ["ziel", "Wunschgewinn (€, optional)", ""]],
+    calc: v => {
+      const db = v.preis - v.var;
+      if (db <= 0) return [["Hinweis", "Der Preis muss über den variablen Kosten liegen."]];
+      const bep = v.fix / db, o = [["Deckungsbeitrag pro Stück", eur(db)], ["Deckungsbeitragsquote", pct(db / v.preis * 100)], ["Break-even-Menge", nf(Math.ceil(bep), 0) + " Stück"], ["Break-even-Umsatz", eur(bep * v.preis)]];
+      if (v.ziel > 0) o.push(["Menge für Wunschgewinn", nf(Math.ceil((v.fix + v.ziel) / db), 0) + " Stück"]);
+      return o;
+    } },
+  { id: "kalk", title: "🏷️ Preiskalkulation (Handel)", need: ["ek"],
+    fields: [["ek", "Listeneinkaufspreis netto (€)", ""], ["lr", "Lieferantenrabatt (%)", "0"], ["ls", "Lieferantenskonto (%)", "0"], ["bz", "Bezugskosten (€)", "0"], ["hk", "Handlungskosten (%)", "0"], ["g", "Gewinnzuschlag (%)", "0"], ["ks", "Kundenskonto (%)", "0"], ["vp", "Vertreterprovision (%)", "0"], ["kr", "Kundenrabatt (%)", "0"], ["ust", "Umsatzsteuer (%)", "19"]],
+    calc: v => {
+      const z = v.ek * (1 - v.lr / 100), bar = z * (1 - v.ls / 100), bez = bar + v.bz, sk = bez * (1 + v.hk / 100), bvp = sk * (1 + v.g / 100);
+      const d1 = 1 - (v.ks + v.vp) / 100, d2 = 1 - v.kr / 100;
+      if (d1 <= 0 || d2 <= 0) return [["Hinweis", "Skonto, Provision und Rabatt ergeben zusammen 100 % oder mehr."]];
+      const zvp = bvp / d1, lvp = zvp / d2;
+      return [["Zieleinkaufspreis", eur(z)], ["Bareinkaufspreis", eur(bar)], ["Bezugspreis", eur(bez)], ["Selbstkosten", eur(sk)], ["Barverkaufspreis", eur(bvp)], ["Zielverkaufspreis", eur(zvp)], ["Listenverkaufspreis netto", eur(lvp)], ["Listenverkaufspreis brutto", eur(lvp * (1 + v.ust / 100))]];
+    } },
+  { id: "zins", title: "💰 Zinseszins & Sparen", need: ["z", "j"],
+    fields: [["k0", "Startkapital (€)", "0"], ["rate", "Sparrate pro Monat (€)", "0"], ["z", "Zins pro Jahr (%)", ""], ["j", "Laufzeit (Jahre)", ""]],
+    calc: v => {
+      const im = Math.pow(1 + v.z / 100, 1 / 12) - 1, n = Math.round(v.j * 12);
+      let bal = v.k0;
+      for (let m = 0; m < n; m++) bal = bal * (1 + im) + v.rate;
+      const ein = v.k0 + v.rate * n, o = [["Endkapital", eur(bal)], ["Einzahlungen", eur(ein)], ["Zinsertrag", eur(bal - ein)]];
+      if (v.z > 0) o.push(["Verdopplung (72er-Regel)", "ca. " + nf(72 / v.z, 1) + " Jahre"]);
+      return o;
+    } },
+  { id: "kredit", title: "🏦 Kredit (Annuität)", need: ["b", "z", "j"],
+    fields: [["b", "Kreditbetrag (€)", ""], ["z", "Zins pro Jahr (%)", ""], ["j", "Laufzeit (Jahre)", ""]],
+    calc: v => {
+      const r = v.z / 100 / 12, n = Math.round(v.j * 12);
+      if (n <= 0) return [["Hinweis", "Laufzeit muss größer als 0 sein."]];
+      const rate = r === 0 ? v.b / n : v.b * r / (1 - Math.pow(1 + r, -n)), ges = rate * n;
+      return [["Monatliche Rate", eur(rate)], ["Zinsen gesamt", eur(ges - v.b)], ["Gesamtkosten", eur(ges)], ["Zinsanteil", pct((ges - v.b) / ges * 100)]];
+    } },
+  { id: "marge", title: "🧮 Marge, Aufschlag & MwSt", need: [],
+    fields: [["ek", "Einkaufspreis netto (€)", ""], ["vk", "Verkaufspreis netto (€)", ""], ["satz", "Umsatzsteuer (%)", "19"]],
+    calc: v => {
+      const o = [];
+      if (ok(v.ek) && ok(v.vk) && v.ek > 0 && v.vk > 0) {
+        o.push(["Gewinn pro Stück", eur(v.vk - v.ek)], ["Marge (vom Verkaufspreis)", pct((v.vk - v.ek) / v.vk * 100)], ["Aufschlag (auf Einkauf)", pct((v.vk - v.ek) / v.ek * 100)]);
+      }
+      if (ok(v.vk) && v.vk > 0) o.push(["Verkaufspreis brutto", eur(v.vk * (1 + v.satz / 100))], ["Enthaltene MwSt", eur(v.vk * v.satz / 100)]);
+      return o;
+    } },
+  { id: "kenn", title: "📊 Kennzahlen", need: [],
+    fields: [["gewinn", "Jahresgewinn (€)", ""], ["umsatz", "Umsatz (€)", ""], ["ek", "Eigenkapital (€)", ""], ["gk", "Gesamtkapital (€)", ""], ["um", "Umlaufvermögen (€)", ""], ["liq", "Flüssige Mittel (€)", ""], ["kv", "Kurzfristige Verbindlichkeiten (€)", ""]],
+    calc: v => {
+      const o = [];
+      if (ok(v.gewinn) && ok(v.umsatz) && v.umsatz) o.push(["Umsatzrendite", pct(v.gewinn / v.umsatz * 100)]);
+      if (ok(v.gewinn) && ok(v.ek) && v.ek) o.push(["Eigenkapitalrendite", pct(v.gewinn / v.ek * 100)]);
+      if (ok(v.gewinn) && ok(v.gk) && v.gk) o.push(["Gesamtkapitalrendite", pct(v.gewinn / v.gk * 100)]);
+      if (ok(v.ek) && ok(v.gk) && v.gk) o.push(["Eigenkapitalquote", pct(v.ek / v.gk * 100)]);
+      if (ok(v.ek) && ok(v.gk) && v.ek) o.push(["Verschuldungsgrad", pct((v.gk - v.ek) / v.ek * 100)]);
+      if (ok(v.liq) && ok(v.kv) && v.kv) o.push(["Liquidität 1. Grades", pct(v.liq / v.kv * 100)]);
+      if (ok(v.um) && ok(v.kv) && v.kv) o.push(["Liquidität 3. Grades", pct(v.um / v.kv * 100)]);
+      return o;
+    } }
+];
+
+function buildCalcs() {
+  const host = document.getElementById("calcs");
+  host.innerHTML = "";
+  CALCS.forEach(c => {
+    const card = document.createElement("div");
+    card.className = "calc";
+    const h = document.createElement("button");
+    h.className = "ch";
+    h.textContent = c.title;
+    h.onclick = () => {
+      const was = card.classList.contains("open");
+      document.querySelectorAll(".calc").forEach(x => x.classList.remove("open"));
+      if (!was) card.classList.add("open");
+    };
+    const body = document.createElement("div");
+    body.className = "cb";
+    const inputs = {};
+    c.fields.forEach(f => {
+      const w = document.createElement("div");
+      w.className = "fld";
+      const l = document.createElement("label");
+      l.textContent = f[1];
+      const i = document.createElement("input");
+      i.type = "text";
+      i.setAttribute("inputmode", "decimal");
+      i.value = f[2];
+      i.addEventListener("input", upd);
+      inputs[f[0]] = i;
+      w.appendChild(l); w.appendChild(i);
+      body.appendChild(w);
+    });
+    const res = document.createElement("div");
+    res.className = "res";
+    body.appendChild(res);
+    const actions = document.createElement("div");
+    const ex = document.createElement("button");
+    ex.className = "smallbtn";
+    ex.textContent = "🤖 Erklär mir das";
+    const sv = document.createElement("button");
+    sv.className = "smallbtn";
+    sv.textContent = "📝 Speichern";
+    actions.appendChild(ex); actions.appendChild(sv);
+    body.appendChild(actions);
+    let lastTxt = "";
+    function upd() {
+      const v = {};
+      c.fields.forEach(f => { v[f[0]] = pn(inputs[f[0]].value); });
+      const empty = c.need.some(k => !ok(v[k]));
+      const w = {};
+      Object.keys(v).forEach(k => { w[k] = ok(v[k]) ? v[k] : (c.need.indexOf(k) >= 0 ? NaN : (c.id === "marge" || c.id === "kenn" ? NaN : 0)); });
+      res.innerHTML = "";
+      lastTxt = "";
+      if (empty) { res.innerHTML = '<span class="hint">Trage die Pflichtwerte ein, dann erscheint das Ergebnis.</span>'; return; }
+      let out = [];
+      try { out = c.calc(w); } catch (e) {}
+      if (!out.length) { res.innerHTML = '<span class="hint">Trage mehr Werte ein.</span>'; return; }
+      out.forEach(r => {
+        const d = document.createElement("div");
+        d.innerHTML = "<span>" + esc(r[0]) + "</span><b>" + esc(r[1]) + "</b>";
+        res.appendChild(d);
+      });
+      const ins = c.fields.filter(f => ok(v[f[0]])).map(f => f[1] + ": " + inputs[f[0]].value).join("; ");
+      lastTxt = c.title.replace(/^\S+\s/, "") + "\nEingaben: " + ins + "\nErgebnis: " + out.map(r => r[0] + " " + r[1]).join("; ");
+    }
+    ex.onclick = () => {
+      if (!lastTxt) return;
+      schoolSubject = "Wirtschaft"; schoolMode = "explain";
+      save("jarvis_subject", schoolSubject); save("jarvis_mode", schoolMode);
+      drawChips();
+      show("school");
+      document.getElementById("in").value = "Ich habe mit dem Rechner gerechnet:\n" + lastTxt + "\nErkläre mir verständlich, wie dieses Ergebnis zustande kommt (Formel, Schritt für Schritt) und was es für ein Unternehmen bedeutet.";
+      send();
+    };
+    sv.onclick = () => {
+      if (!lastTxt) return;
+      notes.unshift({ text: lastTxt });
+      saveData(); renderNotes();
+      sv.textContent = "✓ Gespeichert";
+    };
+    card.appendChild(h); card.appendChild(body);
+    host.appendChild(card);
+    upd();
+  });
+}
+
+drawChips();
+buildCalcs();
+renderTab("school");
 renderTab("chat");
 renderTab("search");
 renderNotes();
