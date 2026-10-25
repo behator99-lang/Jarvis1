@@ -161,6 +161,16 @@ let notes = load("jarvis_notes", []);
 let todos = load("jarvis_todos", []);
 let sub = "n";
 
+function getCode() {
+  let c = "";
+  try { c = localStorage.getItem("jarvis_code") || ""; } catch (e) {}
+  if (!c) {
+    c = (prompt("Zugangscode eingeben:") || "").trim();
+    try { localStorage.setItem("jarvis_code", c); } catch (e) {}
+  }
+  return c;
+}
+
 function row(text, done, onDel, onTog) {
   const d = document.createElement("div");
   d.className = "item" + (done ? " done" : "");
@@ -413,9 +423,13 @@ async function send() {
   try {
     const res = await fetch(API_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-Jarvis-Code": getCode() },
       body: JSON.stringify({ messages: buildMsgs(T.h), system: buildSystem(t), mode: t === "search" ? "search" : "chat" })
     });
+    if (res.status === 401) {
+      try { localStorage.removeItem("jarvis_code"); } catch (e) {}
+      throw new Error("Zugangscode falsch. Sende die Nachricht nochmal und gib den Code neu ein.");
+    }
     const data = await res.json();
     if (data.error) throw new Error(data.error.message || "API-Fehler");
     const blocks = data.content || [];
