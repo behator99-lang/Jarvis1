@@ -160,6 +160,57 @@ let pendingImg = null;
 let notes = load("jarvis_notes", []);
 let todos = load("jarvis_todos", []);
 let sub = "n";
+let updated = Number(load("jarvis_updated", 0)) || 0;
+let syncTimer = null;
+
+function saveData() {
+  save("jarvis_notes", notes);
+  save("jarvis_todos", todos);
+  save("jarvis_facts", facts);
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushSync, 800);
+}
+
+async function api(body) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Jarvis-Code": getCode() },
+    body: JSON.stringify(body)
+  });
+  if (res.status === 401) {
+    try { localStorage.removeItem("jarvis_code"); } catch (e) {}
+    throw new Error("Zugangscode falsch");
+  }
+  return res.json();
+}
+
+async function pushSync() {
+  updated = Date.now();
+  save("jarvis_updated", updated);
+  try { await api({ action: "sync_set", data: { notes, todos, facts, updated } }); } catch (e) {}
+}
+
+async function pullSync() {
+  try {
+    const r = await api({ action: "sync_get" });
+    const d = r && r.data;
+    if (!d) {
+      if (notes.length || todos.length || facts.length) pushSync();
+      return;
+    }
+    if (d.updated > updated) {
+      notes = d.notes || [];
+      todos = d.todos || [];
+      facts = d.facts || [];
+      updated = d.updated;
+      save("jarvis_notes", notes);
+      save("jarvis_todos", todos);
+      save("jarvis_facts", facts);
+      save("jarvis_updated", updated);
+      renderNotes();
+    }
+  } catch (e) {}
+}
 
 function getCode() {
   let c = "";
@@ -198,10 +249,10 @@ function renderNotes() {
   tl.innerHTML = "";
   if (!notes.length) nl.innerHTML = '<div class="empty">Noch keine Notizen.</div>';
   if (!todos.length) tl.innerHTML = '<div class="empty">Keine Aufgaben. Alles erledigt.</div>';
-  notes.forEach((n, i) => nl.appendChild(row(n.text, false, () => { notes.splice(i, 1); save("jarvis_notes", notes); renderNotes(); })));
+  notes.forEach((n, i) => nl.appendChild(row(n.text, false, () => { notes.splice(i, 1); saveData(); renderNotes(); })));
   todos.forEach((x, i) => tl.appendChild(row(x.text, x.done,
-    () => { todos.splice(i, 1); save("jarvis_todos", todos); renderNotes(); },
-    () => { x.done = !x.done; save("jarvis_todos", todos); renderNotes(); })));
+    () => { todos.splice(i, 1); saveData(); renderNotes(); },
+    () => { x.done = !x.done; saveData(); renderNotes(); })));
 }
 
 function subTab(k) {
@@ -217,8 +268,8 @@ function addItem() {
   const i = document.getElementById("nin"), v = i.value.trim();
   if (!v) return;
   if (sub === "n") notes.unshift({ text: v }); else todos.push({ text: v, done: false });
-  save("jarvis_notes", notes);
-  save("jarvis_todos", todos);
+  saveData();
+  saveData();
   i.value = "";
   renderNotes();
 }
@@ -382,8 +433,8 @@ async function send() {
       const isNote = nm[1].toLowerCase() === "notiz";
       const v = nm[2].trim();
       if (isNote) notes.unshift({ text: v }); else todos.push({ text: v, done: false });
-      save("jarvis_notes", notes);
-      save("jarvis_todos", todos);
+      saveData();
+      saveData();
       renderNotes();
       add(text, "user");
       add((isNote ? "Notiz" : "Aufgabe") + " gespeichert: " + v, "bot");
@@ -393,7 +444,7 @@ async function send() {
       const fact = text.slice(9).replace(/^[\s:,]+/, "").trim();
       if (fact) {
         facts.push(fact);
-        save("jarvis_facts", facts);
+        saveData();
         add(text, "user");
         add("Gemerkt: " + fact, "bot");
         return;
@@ -406,7 +457,7 @@ async function send() {
     }
     if (lower.startsWith("vergiss alles")) {
       facts = [];
-      save("jarvis_facts", facts);
+      saveData();
       add(text, "user");
       add("Erledigt. Mein Gedächtnis über dich ist gelöscht.", "bot");
       return;
@@ -456,6 +507,8 @@ renderTab("search");
 renderNotes();
 document.getElementById("nin").addEventListener("keydown", e => { if (e.key === "Enter") addItem(); });
 show("chat");
+pullSync();
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pullSync(); });
 </script>
 </body>
 </html>
