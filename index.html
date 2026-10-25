@@ -110,10 +110,14 @@
   h1 { font-family: Georgia, "Times New Roman", serif; font-weight: 400; letter-spacing: 10px; font-size: 17px; }
   .user { background: linear-gradient(135deg, #6fa58a, #a9d4b8); color: #07150e; }
   .msg { border-radius: 14px; }
+  .mic { width: 44px; height: 44px; padding: 0; flex-shrink: 0; font-size: 20px; background: transparent; border: 1px solid rgba(143, 191, 159, 0.5); color: #cfe8d6; }
+  .mic.rec { background: #8fbf9f; color: #07150e; animation: breathe 1s ease-in-out infinite; }
+  .mini.spk { right: auto; left: 12px; }
 </style>
 </head>
 <body>
 <header>
+  <button class="mini spk" id="spk" onclick="toggleSpeak()">🔇 Stimme</button>
   <button class="mini" onclick="newChat()">Neuer Chat</button>
   <div class="core" id="core"></div>
   <h1>JARVIS</h1>
@@ -131,6 +135,7 @@
   <label class="photo" for="file">📷</label>
   <input type="file" id="file" accept="image/*" style="display:none">
   <input id="in" placeholder="Sag etwas zu Jarvis...">
+  <button class="mic" id="mic" onclick="toggleMic()">🎤</button>
   <button id="btn" onclick="send()">Senden</button>
 </div>
 <div id="nav">
@@ -272,6 +277,61 @@ function addItem() {
   saveData();
   i.value = "";
   renderNotes();
+}
+
+let speakOn = load("jarvis_speak", false) === true;
+let rec = null;
+let recOn = false;
+
+function updSpk() {
+  document.getElementById("spk").textContent = speakOn ? "🔊 Stimme" : "🔇 Stimme";
+}
+
+function toggleSpeak() {
+  speakOn = !speakOn;
+  save("jarvis_speak", speakOn);
+  updSpk();
+  if (speakOn) speak("Stimme aktiviert.");
+  else if (window.speechSynthesis) speechSynthesis.cancel();
+}
+
+function speak(text) {
+  if (!speakOn || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const clean = String(text).replace(/\*\*/g, "").replace(/`/g, "").replace(/https?:\/\/\S+/g, "");
+  const u = new SpeechSynthesisUtterance(clean);
+  u.lang = "de-DE";
+  const v = speechSynthesis.getVoices().find(x => x.lang && x.lang.indexOf("de") === 0);
+  if (v) u.voice = v;
+  speechSynthesis.speak(u);
+}
+
+function toggleMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) {
+    alert("Spracheingabe wird in diesem Browser nicht unterstützt. Nutze das Mikrofon-Symbol auf der Tastatur.");
+    return;
+  }
+  const mic = document.getElementById("mic");
+  if (recOn && rec) { rec.stop(); return; }
+  rec = new SR();
+  rec.lang = "de-DE";
+  rec.interimResults = true;
+  rec.continuous = false;
+  const inp = document.getElementById("in");
+  rec.onstart = () => { recOn = true; mic.classList.add("rec"); };
+  rec.onresult = e => {
+    let t = "";
+    for (let k = 0; k < e.results.length; k++) t += e.results[k][0].transcript;
+    inp.value = t;
+  };
+  rec.onerror = () => { recOn = false; mic.classList.remove("rec"); };
+  rec.onend = () => {
+    recOn = false;
+    mic.classList.remove("rec");
+    if (inp.value.trim()) send();
+  };
+  try { rec.start(); } catch (e) {}
 }
 
 function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
@@ -486,6 +546,7 @@ async function send() {
     const blocks = data.content || [];
     const reply = blocks.filter(b => b.type === "text").map(b => b.text).join("") || "Keine Antwort erhalten (Grund: " + (data.stop_reason || "unbekannt") + ").";
     wait.innerHTML = fmt(reply);
+    speak(reply);
     const results = [];
     blocks.forEach(b => { if (b.type === "web_search_tool_result" && Array.isArray(b.content)) b.content.forEach(r => results.push(r)); });
     addSources(wait, results);
@@ -507,6 +568,7 @@ renderTab("search");
 renderNotes();
 document.getElementById("nin").addEventListener("keydown", e => { if (e.key === "Enter") addItem(); });
 show("chat");
+updSpk();
 pullSync();
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pullSync(); });
 </script>
