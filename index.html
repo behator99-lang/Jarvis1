@@ -104,6 +104,16 @@
   .item input { width: 20px; height: 20px; accent-color: #8fbf9f; }
   button.del { height: auto; padding: 2px 8px; background: transparent; color: #cfe8d6; border: 1px solid rgba(143, 191, 159, 0.3); font-weight: 400; }
   .empty { opacity: 0.6; padding: 10px 4px; font-size: 14px; }
+  #nsr { width: 100%; padding: 11px 14px; margin: 6px 0 4px; border-radius: 22px; font-size: 16px; border: 1px solid rgba(var(--ar, 143,191,159), 0.35); background: rgba(255,255,255,.05); color: #e8f1ea; outline: none; }
+  #ndue { flex: 0 0 auto; width: 128px; padding: 8px 8px; border-radius: 22px; font-size: 14px; border: 1px solid rgba(var(--ar, 143,191,159), 0.4); background: rgba(255,255,255,.05); color: #e8f1ea; outline: none; }
+  .item .tg { font-size: 11px; padding: 2px 8px; border-radius: 99px; background: rgba(var(--ar, 143,191,159), .18); color: var(--a2, #cfe8d6); white-space: nowrap; }
+  .item .tg.late { background: rgba(230,100,90,.2); color: #f2a8a0; }
+  .item .pin-on { color: var(--a, #8fbf9f); }
+  .tcard { margin: 22px auto 0; max-width: 420px; text-align: left; padding: 14px 16px; border-radius: 22px; background: rgba(255,255,255,.045); border: 1px solid rgba(var(--ar), .25); }
+  .tcard h3 { margin: 0 0 8px; font-size: 13px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--a2); opacity: .8; }
+  .tcard .tr { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid rgba(255,255,255,.07); font-size: 14px; cursor: pointer; }
+  .tcard .tr:first-of-type { border-top: none; }
+  .tcard .tr span:last-child { opacity: .6; white-space: nowrap; text-align: right; }
   .addrow { display: flex; gap: 8px; position: sticky; bottom: 0; padding: 8px 0; background: #04100a; }
   #nin { flex: 1; min-width: 0; padding: 12px 14px; border-radius: 22px; font-size: 16px; border: 1px solid rgba(143, 191, 159, 0.4); background: #081a12; color: #e8f1ea; outline: none; }
   .core { width: 52px; height: 52px; border: 1px solid #8fbf9f; box-shadow: 0 0 0 6px rgba(143, 191, 159, 0.10), 0 0 0 7px rgba(143, 191, 159, 0.35); animation: breathe 5s ease-in-out infinite; }
@@ -444,9 +454,10 @@
   <div class="acts" style="margin:0 0 4px"><button class="smallbtn" id="setbtn" onclick="toggleSet()" style="margin-top:0">Einstellungen</button></div>
   <div id="setbox" style="display:none"></div>
   <div id="sub"><button class="sub on" id="sub-n" onclick="subTab('n')">Notizen</button><button class="sub" id="sub-t" onclick="subTab('t')">Aufgaben</button></div>
+  <input id="nsr" placeholder="Suchen..." autocomplete="off">
   <div id="nlist"></div>
   <div id="tlist" style="display:none"></div>
-  <div class="addrow"><input id="nin" placeholder="Neue Notiz..."><button onclick="addItem()">+</button></div>
+  <div class="addrow"><input id="nin" placeholder="Neue Notiz..."><input type="date" id="ndue" style="display:none" title="Fällig am"><button onclick="addItem()">+</button></div>
 </div>
 <div id="preview"><img id="pimg"><button class="x" onclick="clearImg()">✕</button></div>
 <div id="bar">
@@ -614,16 +625,77 @@ function row(text, done, onDel, onTog) {
   return d;
 }
 
+let nq = "";
+const fd = d => d.slice(8, 10) + "." + d.slice(5, 7) + ".";
+function dueLab(d) {
+  if (!d) return null;
+  const t = dkey(new Date()), m = dkey(new Date(Date.now() + 86400000));
+  if (d < t) return ["überfällig · " + fd(d), 1];
+  return [d === t ? "heute" : d === m ? "morgen" : fd(d), 0];
+}
 function renderNotes() {
   const nl = document.getElementById("nlist"), tl = document.getElementById("tlist");
   nl.innerHTML = "";
   tl.innerHTML = "";
+  const q = nq.trim().toLowerCase();
+  const hit = x => !q || String(x.text).toLowerCase().indexOf(q) >= 0;
+  const nIdx = notes.map((n, i) => i).filter(i => hit(notes[i])).sort((x, y) => (notes[y].pin ? 1 : 0) - (notes[x].pin ? 1 : 0) || x - y);
   if (!notes.length) nl.innerHTML = '<div class="empty">Noch keine Notizen.</div>';
+  else if (!nIdx.length) nl.innerHTML = '<div class="empty">Nichts gefunden.</div>';
+  nIdx.forEach(i => {
+    const n = notes[i];
+    const r = row(n.text, false, () => { notes.splice(i, 1); saveData(); renderNotes(); });
+    const sp = r.querySelector("span");
+    sp.style.cursor = "pointer";
+    sp.onclick = () => { let v = null; try { v = prompt("Notiz bearbeiten", n.text); } catch (e) {} if (v !== null && v.trim()) { n.text = v.trim(); saveData(); renderNotes(); } };
+    const pb = document.createElement("button");
+    pb.className = "del" + (n.pin ? " pin-on" : "");
+    pb.textContent = n.pin ? "★" : "☆";
+    pb.onclick = () => { n.pin = !n.pin; saveData(); renderNotes(); };
+    r.insertBefore(pb, r.querySelector(".del:last-child"));
+    nl.appendChild(r);
+  });
+  const tIdx = todos.map((n, i) => i).filter(i => hit(todos[i])).sort((x, y) => {
+    const a = todos[x], b = todos[y];
+    if (!!a.done !== !!b.done) return a.done ? 1 : -1;
+    if (a.due && b.due && a.due !== b.due) return a.due < b.due ? -1 : 1;
+    if (!!a.due !== !!b.due) return a.due ? -1 : 1;
+    return x - y;
+  });
   if (!todos.length) tl.innerHTML = '<div class="empty">Keine Aufgaben. Alles erledigt.</div>';
-  notes.forEach((n, i) => nl.appendChild(row(n.text, false, () => { notes.splice(i, 1); saveData(); renderNotes(); })));
-  todos.forEach((x, i) => tl.appendChild(row(x.text, x.done,
-    () => { todos.splice(i, 1); saveData(); renderNotes(); },
-    () => { x.done = !x.done; saveData(); renderNotes(); })));
+  else if (!tIdx.length) tl.innerHTML = '<div class="empty">Nichts gefunden.</div>';
+  tIdx.forEach(i => {
+    const x = todos[i];
+    const r = row(x.text, x.done, () => { todos.splice(i, 1); saveData(); renderNotes(); }, () => { x.done = !x.done; saveData(); renderNotes(); });
+    const sp = r.querySelector("span");
+    sp.style.cursor = "pointer";
+    sp.onclick = () => { let v = null; try { v = prompt("Aufgabe bearbeiten", x.text); } catch (e) {} if (v !== null && v.trim()) { x.text = v.trim(); saveData(); renderNotes(); } };
+    const dl = dueLab(x.due);
+    if (dl && !x.done) {
+      const tg = document.createElement("span");
+      tg.className = "tg" + (dl[1] ? " late" : "");
+      tg.style.flex = "0 0 auto";
+      tg.textContent = dl[0];
+      r.insertBefore(tg, r.querySelector(".del"));
+      const cb = document.createElement("button");
+      cb.className = "del";
+      cb.textContent = "Kalender";
+      cb.onclick = () => { const d0 = new Date(x.due + "T09:00:00"); cb.textContent = addToCal({ title: x.text, start: d0, allDay: true }) ? "✓ Datei" : "Fehler"; };
+      r.insertBefore(cb, r.querySelector(".del:last-child"));
+    }
+    tl.appendChild(r);
+  });
+  if (todos.some(x => x.done)) {
+    const c = document.createElement("div");
+    c.className = "acts";
+    const b = document.createElement("button");
+    b.className = "smallbtn";
+    b.textContent = "Erledigte löschen";
+    b.onclick = () => { todos = todos.filter(x => !x.done); saveData(); renderNotes(); };
+    c.appendChild(b);
+    tl.appendChild(c);
+  }
+  try { fillToday(); } catch (e) {}
 }
 
 function subTab(k) {
@@ -633,15 +705,17 @@ function subTab(k) {
   document.getElementById("sub-n").classList.toggle("on", k === "n");
   document.getElementById("sub-t").classList.toggle("on", k === "t");
   document.getElementById("nin").placeholder = k === "n" ? "Neue Notiz..." : "Neue Aufgabe...";
+  document.getElementById("ndue").style.display = k === "t" ? "block" : "none";
 }
 
 function addItem() {
   const i = document.getElementById("nin"), v = i.value.trim();
   if (!v) return;
-  if (sub === "n") notes.unshift({ text: v }); else todos.push({ text: v, done: false });
-  saveData();
+  const du = document.getElementById("ndue");
+  if (sub === "n") notes.unshift({ text: v }); else { const t = { text: v, done: false }; if (du && du.value) t.due = du.value; todos.push(t); }
   saveData();
   i.value = "";
+  if (du) du.value = "";
   renderNotes();
 }
 
@@ -840,7 +914,29 @@ function makeHero(t) {
     c.appendChild(b);
   });
   d.appendChild(c);
+  if (t === "chat") { const tc = document.createElement("div"); tc.className = "tcard"; tc.id = "todaycard"; d.appendChild(tc); setTimeout(() => { try { fillToday(); } catch (e) {} }, 0); }
   return d;
+}
+
+function fillToday() {
+  const h = document.getElementById("todaycard");
+  if (!h) return;
+  const rows = [];
+  const tdy = dkey(new Date());
+  if (calUrl && calC && calC.items) {
+    calC.items.filter(x => x.s.slice(0, 10) === tdy).slice(0, 3).forEach(x => rows.push([x.t, calTime(x), () => { show("ev"); evsub("c"); }]));
+  }
+  const open = todos.filter(x => !x.done).sort((a, b) => (a.due || "9") < (b.due || "9") ? -1 : 1).slice(0, 3);
+  open.forEach(x => { const dl = dueLab(x.due); rows.push([x.text, dl ? dl[0] : "Aufgabe", () => { show("notes"); subTab("t"); }]); });
+  try {
+    const ix = mq && mq.idx && mq.idx.items && mq.idx.items.filter(x => x.s === "^GDAXI")[0];
+    if (ix) rows.push(["DAX " + nf(ix.p, 0), ix.c == null ? "" : (ix.c >= 0 ? "+" : "") + nf(ix.c, 2) + " %", () => show("mk")]);
+  } catch (e) {}
+  const nowc = lst.days[tdy] || 0, st = streak();
+  if (nowc || st) rows.push(["Karteikarten", nowc + " / " + DAYGOAL + " · Serie " + st, () => { show("school"); }]);
+  h.innerHTML = "<h3>Heute</h3>";
+  if (!rows.length) { const e = document.createElement("div"); e.className = "tr"; e.style.cursor = "default"; e.innerHTML = "<span>Nichts geplant. Verbinde den Kalender oder lege Aufgaben an.</span>"; h.appendChild(e); return; }
+  rows.forEach(r => { const e = document.createElement("div"); e.className = "tr"; e.innerHTML = "<span></span><span></span>"; e.children[0].textContent = r[0]; e.children[1].textContent = r[1]; e.onclick = r[2]; h.appendChild(e); });
 }
 
 function addWait(text, cls) {
@@ -927,6 +1023,7 @@ function show(t) {
   const p = document.getElementById(t);
   if (p) p.scrollTop = (t === "notes" || t === "biz" || t === "found" || t === "mk" || t === "ev") ? 0 : p.scrollHeight;
   if (t === "mk") mkEnter();
+  if (t === "chat") { try { fillToday(); } catch (e) {} }
 }
 
 function shrink(file) {
@@ -2214,7 +2311,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v35</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v38</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -2565,6 +2662,7 @@ try { renderTab("school"); } catch (e) {}
 try { renderTab("chat"); } catch (e) {}
 try { renderTab("search"); } catch (e) {}
 try { renderNotes(); } catch (e) {}
+document.getElementById("nsr").addEventListener("input", e => { nq = e.target.value; renderNotes(); });
 document.getElementById("nin").addEventListener("keydown", e => { if (e.key === "Enter") addItem(); });
 try { show("chat"); } catch (e) {}
 try { updSpk(); } catch (e) {}
@@ -2906,6 +3004,7 @@ async function calRefresh(force) {
     calErr = "";
   } catch (e) { calErr = e.message; }
   try { drawCal(); } catch (e) {}
+  try { fillToday(); } catch (e) {}
 }
 function drawCal() {
   const host = document.getElementById("ev-c");
