@@ -527,14 +527,24 @@ async function api(body) {
   try {
     if (body && typeof body.system === "string") {
       const ex = profCtx();
-      if (ex && body.system.length + ex.length < 3950) body.system += ex;
+      if (ex && body.system.length + ex.length < 11500) body.system += ex;
     }
   } catch (e) {}
-  const res = await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", "X-Jarvis-Code": getCode() },
-    body: JSON.stringify(body)
-  });
+  const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const tm = ctl ? setTimeout(() => ctl.abort(), 90000) : null;
+  let res;
+  try {
+    res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Jarvis-Code": getCode() },
+      body: JSON.stringify(body),
+      signal: ctl ? ctl.signal : undefined
+    });
+  } catch (e) {
+    if (tm) clearTimeout(tm);
+    throw new Error(e && e.name === "AbortError" ? "Zeitüberschreitung, bitte nochmal versuchen" : "Keine Verbindung (" + ((e && e.message) || "Netzwerk") + ")");
+  }
+  if (tm) clearTimeout(tm);
   if (res.status === 401) {
     try { localStorage.removeItem("jarvis_code"); } catch (e) {}
     throw new Error("Zugangscode falsch");
@@ -770,6 +780,7 @@ function buildSystem(t) {
     const open = todos.filter(x => !x.done).map(x => x.text);
     if (open.length) s += "\n\nOffene Aufgaben des Nutzers:\n- " + open.join("\n- ");
   }
+  if (t === "chat" || t === "school") { const c = calCtx(); if (c) s += c; }
   s += "\n\nAktuelles Datum und Uhrzeit: " + new Date().toLocaleString("de-DE");
   return s;
 }
@@ -1018,7 +1029,7 @@ async function send() {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Jarvis-Code": getCode() },
-      body: JSON.stringify({ messages: buildMsgs(T.h), system: buildSystem(t) + (function () { try { var e = profCtx(), b = buildSystem(t); return e && b.length + e.length < 3950 ? e : ""; } catch (x) { return ""; } })(), mode: t === "search" ? "search" : "chat" })
+      body: JSON.stringify({ messages: buildMsgs(T.h), system: buildSystem(t) + (function () { try { var e = profCtx(), b = buildSystem(t); return e && b.length + e.length < 11500 ? e : ""; } catch (x) { return ""; } })(), mode: t === "search" ? "search" : "chat" })
     });
     if (res.status === 401) {
       try { localStorage.removeItem("jarvis_code"); } catch (e) {}
@@ -2203,7 +2214,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v31</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v34</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -2567,7 +2578,10 @@ let evI = load("jarvis_evi", []);
 let evT = load("jarvis_evt", "Wochenende");
 let evRes = load("jarvis_evres", null);
 let evSub = "e";
-const EVI = ["Konzerte", "Flohmärkte", "Messen", "Gründer & Business", "Sport", "Kultur & Kunst", "Feste & Märkte", "Workshops", "Familie & Kinder"];
+let evClubs = load("jarvis_clubs", "");
+let evAge = load("jarvis_evage", "");
+const evMinor = () => !!(prof && prof.age === "unter 16");
+const EVI = ["Party & Clubs", "Konzerte", "Flohmärkte", "Messen", "Gründer & Business", "Sport", "Kultur & Kunst", "Feste & Märkte", "Workshops", "Familie & Kinder"];
 const EVT = ["Heute", "Wochenende", "7 Tage", "Dieser Monat"];
 
 function icsTxt(e) {
@@ -2614,17 +2628,21 @@ function evRange() {
 
 function buildEv() {
   const h = document.getElementById("ev");
-  h.innerHTML = '<div class="pagehead"><h2>Events</h2><div class="hsub">Was in deiner Nähe los ist, und Termine direkt in deinen Kalender.</div></div>' +
-    '<div class="seg"><button class="sub on" id="es-e" onclick="evsub(\'e\')">In deiner Nähe</button><button class="sub" id="es-t" onclick="evsub(\'t\')">Termin anlegen</button></div>' +
-    '<div id="ev-e"></div><div id="ev-t" style="display:none"></div>' +
+  h.innerHTML = '<div class="pagehead"><h2>Events</h2><div class="hsub">Was in deiner Nähe los ist, dein Kalender und neue Termine.</div></div>' +
+    '<div class="seg"><button class="sub on" id="es-e" onclick="evsub(\'e\')">In deiner Nähe</button><button class="sub" id="es-c" onclick="evsub(\'c\')">Kalender</button><button class="sub" id="es-t" onclick="evsub(\'t\')">Termin</button></div>' +
+    '<div id="ev-e"></div><div id="ev-c" style="display:none"></div><div id="ev-t" style="display:none"></div>' +
     '<div class="disc">Die Treffer stammen aus einer Websuche und können unvollständig oder veraltet sein. Prüfe Datum, Ort und Preis beim Veranstalter, bevor du losgehst.</div>';
   drawEvE();
   drawEvT();
+  drawCal();
 }
 function evsub(k) {
   evSub = k;
   document.getElementById("ev-e").style.display = k === "e" ? "block" : "none";
   document.getElementById("ev-t").style.display = k === "t" ? "block" : "none";
+  document.getElementById("ev-c").style.display = k === "c" ? "block" : "none";
+  document.getElementById("es-c").classList.toggle("on", k === "c");
+  if (k === "c" && calUrl) calRefresh(false);
   document.getElementById("es-e").classList.toggle("on", k === "e");
   document.getElementById("es-t").classList.toggle("on", k === "t");
 }
@@ -2671,8 +2689,39 @@ function drawEvE() {
   host.appendChild(two);
   lbl(host, "Was interessiert dich? (mehrere möglich)");
   chipRow(host, EVI, o => evI.indexOf(o) >= 0, o => { const i = evI.indexOf(o); if (i >= 0) evI.splice(i, 1); else evI.push(o); save("jarvis_evi", evI); drawEvE(); });
+  if (evI.indexOf("Party & Clubs") >= 0) {
+    if (evMinor()) {
+      const n = document.createElement("div");
+      n.className = "hsub"; n.style.cssText = "font-size:13px;margin:0 0 10px;color:var(--a)";
+      n.textContent = "Clubpartys sind erst ab 16 erlaubt. Jarvis sucht für dich stattdessen Jugendveranstaltungen wie Jugenddisco oder Schulfeste.";
+      host.appendChild(n);
+    } else {
+      lbl(host, "Party-Alter");
+      chipRow(host, ["ab 16", "ab 18", "egal"], o => (evAge || (prof && prof.age === "16–24" ? "ab 16" : "egal")) === o, o => { evAge = o; save("jarvis_evage", o); drawEvE(); });
+      lbl(host, "Clubs oder Veranstalter, die du kennst (optional)");
+      const ci = document.createElement("input");
+      ci.className = "rin"; ci.placeholder = "z. B. Name eines Clubs, durch Komma getrennt"; ci.value = evClubs;
+      ci.oninput = () => { evClubs = ci.value.trim().slice(0, 150); save("jarvis_clubs", evClubs); };
+      host.appendChild(ci);
+      const ig = document.createElement("div");
+      ig.className = "hsub"; ig.style.cssText = "font-size:12px;opacity:.6;margin:2px 0 8px";
+      ig.textContent = "Instagram kann Jarvis nicht direkt lesen. Mach einen Screenshot vom Flyer oder der Story und lies ihn unten mit „Flyer lesen“ ein.";
+      host.appendChild(ig);
+    }
+  }
   lbl(host, "Wann?");
   chipRow(host, EVT, o => evT === o, o => { evT = o; save("jarvis_evt", evT); drawEvE(); });
+  const fl = document.createElement("div");
+  fl.style.cssText = "margin:8px 0 0";
+  const flb = document.createElement("label");
+  flb.className = "smallbtn"; flb.textContent = "Flyer lesen (Foto oder Screenshot)";
+  flb.style.cssText = "display:inline-flex;align-items:center;height:36px;padding:0 16px;border-radius:18px;font-size:13px";
+  const fi = document.createElement("input");
+  fi.type = "file"; fi.accept = "image/*"; fi.style.display = "none";
+  const flo = document.createElement("div");
+  fi.onchange = e => { if (e.target.files[0]) readFlyer(e.target.files[0], flo, flb); e.target.value = ""; };
+  flb.appendChild(fi); fl.appendChild(flb); fl.appendChild(flo);
+  host.appendChild(fl);
   const go = document.createElement("button");
   go.className = "cta"; go.id = "evgo"; go.textContent = "Events suchen";
   go.onclick = findEvents;
@@ -2689,13 +2738,23 @@ function drawEvE() {
 
 async function findEvents() {
   const go = document.getElementById("evgo"), res = document.getElementById("evres"), core = document.getElementById("core");
-  if (!evCity) { res.innerHTML = '<div class="empty">Gib zuerst eine Stadt ein oder tippe auf „Standort“.</div>'; return; }
+  if (!evCity) { res.innerHTML = '<div class="empty">Gib zuerst eine Stadt ein oder tippe auf „Standort“.</div>'; res.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
   go.disabled = true;
+  go.textContent = "Suche läuft...";
   core.classList.add("busy");
-  res.innerHTML = '<div class="th" style="margin-top:18px"><span class="dot"></span>Jarvis sucht Events in ' + esc(evCity) + '...</div>';
+  res.innerHTML = '<div class="th" style="margin-top:18px"><span class="dot"></span>Jarvis sucht Events in ' + esc(evCity) + '... das kann bis zu 30 Sekunden dauern.</div>';
+  res.scrollIntoView({ behavior: "smooth", block: "center" });
   try {
     const rg = evRange();
-    const sys = "Du suchst mit der Websuche echte Veranstaltungen. Ort: " + evCity + " und Umgebung (bis etwa 30 km). Zeitraum: " + rg[0] + " bis " + rg[1] + ". Interessen: " + (evI.join(", ") || "alles Interessante") + ". Nimm nur Veranstaltungen, die du in den Suchergebnissen gefunden hast und die im Zeitraum liegen; erfinde nichts. Passe die Auswahl an das Alter im Nutzerprofil an. Antworte AUSSCHLIESSLICH mit einem JSON-Array aus höchstens 6 Objekten: {\"t\":\"Titel\",\"d\":\"Datum und Uhrzeit lesbar, zum Beispiel Sa 31.10., 19 Uhr\",\"iso\":\"YYYY-MM-DDTHH:MM Startzeit oder leer\",\"o\":\"Ort\",\"w\":\"höchstens 15 Wörter, worum es geht\",\"u\":\"URL der Quelle aus den Suchergebnissen oder leer\"}. Keine Anführungszeichen innerhalb der Texte. Wenn du nichts findest: [].";
+    let party = "";
+    if (evI.indexOf("Party & Clubs") >= 0) {
+      if (evMinor()) party = " Der Nutzer ist unter 16: keine Club- oder Alkoholpartys, nur Jugendveranstaltungen (Jugenddisco, Schulfeste, Jugendzentrum).";
+      else {
+        const ag = evAge || (prof && prof.age === "16–24" ? "ab 16" : "egal");
+        party = " Suche auch Club- und Party-Veranstaltungen (Quellen zum Beispiel Club-Webseiten, Eventim, Ticketmaster, Resident Advisor, Partyguide, Facebook-Events; Instagram nur, wenn es in den Suchergebnissen steht). Mindestalter: " + ag + (ag === "ab 16" ? " (nur Veranstaltungen, bei denen 16-Jährige laut Ankündigung hinein dürfen)" : "") + ". Nenne das Mindestalter im Feld w, falls bekannt, und sage ehrlich, wenn es nicht angegeben ist." + (evClubs ? " Suche gezielt nach aktuellen Terminen dieser Orte: " + evClubs + "." : "");
+      }
+    }
+    const sys = "Du suchst mit der Websuche echte Veranstaltungen. Ort: " + evCity + " und Umgebung (bis etwa 30 km). Zeitraum: " + rg[0] + " bis " + rg[1] + ". Interessen: " + (evI.join(", ") || "alles Interessante") + ". Nimm nur Veranstaltungen, die du in den Suchergebnissen gefunden hast und die im Zeitraum liegen; erfinde nichts. Passe die Auswahl an das Alter im Nutzerprofil an."+ party + " Antworte AUSSCHLIESSLICH mit einem JSON-Array aus höchstens 6 Objekten: {\"t\":\"Titel\",\"d\":\"Datum und Uhrzeit lesbar, zum Beispiel Sa 31.10., 19 Uhr\",\"iso\":\"YYYY-MM-DDTHH:MM Startzeit oder leer\",\"o\":\"Ort\",\"w\":\"höchstens 15 Wörter, worum es geht\",\"u\":\"URL der Quelle aus den Suchergebnissen oder leer\"}. Keine Anführungszeichen innerhalb der Texte. Wenn du nichts findest: [].";
     const data = await api({ messages: [{ role: "user", content: "Heute ist " + new Date().toLocaleDateString("de-DE") + ". Suche Events." }], system: sys, mode: "search" });
     if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || "API-Fehler"));
     const txt = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
@@ -2704,35 +2763,61 @@ async function findEvents() {
     evRes = { t: Date.now(), city: evCity, items: arr.slice(0, 6) };
     save("jarvis_evres", evRes);
     drawEvRes(evRes);
+    res.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (e) {
     res.innerHTML = '<div class="empty">Fehler: ' + esc(e.message) + ". Tippe nochmal auf „Events suchen“.</div>";
   }
   go.disabled = false;
+  go.textContent = "Events suchen";
   core.classList.remove("busy");
+}
+
+function evCard(x) {
+  const c = document.createElement("div");
+  c.className = "evc";
+  c.innerHTML = "<h3>" + esc(x.t) + '</h3><div class="d">' + esc(x.d || "") + '</div><div class="o">' + esc(x.o || "") + "</div>" + (x.w ? "<p>" + esc(x.w) + "</p>" : "");
+  const row = document.createElement("div");
+  row.className = "acts";
+  const mk = (l, fn) => { const b = document.createElement("button"); b.className = "smallbtn"; b.textContent = l; b.onclick = () => fn(b); row.appendChild(b); };
+  const st = x.iso ? new Date(x.iso) : null;
+  if (st && !isNaN(st)) mk("In Kalender", b => { b.textContent = addToCal({ title: x.t, start: st, mins: 120, place: x.o, desc: x.w, alarm: 60 }) ? "✓ Datei erstellt" : "Fehler"; });
+  mk("Merken", b => { notes.unshift({ text: "Event: " + x.t + "\n" + (x.d || "") + (x.o ? ", " + x.o : "") + (x.u ? "\n" + x.u : "") }); saveData(); renderNotes(); b.textContent = "✓ Gemerkt"; b.disabled = true; });
+  if (x.u && /^https?:\/\//.test(x.u)) {
+    const a = document.createElement("a");
+    a.className = "smallbtn"; a.textContent = "Quelle"; a.href = x.u; a.target = "_blank"; a.rel = "noopener";
+    row.appendChild(a);
+  }
+  c.appendChild(row);
+  return c;
 }
 
 function drawEvRes(r) {
   const host = document.getElementById("evres");
   host.innerHTML = "";
   if (!r.items.length) { host.innerHTML = '<div class="empty">Nichts Passendes gefunden. Versuche einen größeren Zeitraum oder weniger Filter.</div>'; return; }
-  r.items.forEach(x => {
-    const c = document.createElement("div");
-    c.className = "evc";
-    c.innerHTML = "<h3>" + esc(x.t) + '</h3><div class="d">' + esc(x.d || "") + '</div><div class="o">' + esc(x.o || "") + "</div>" + (x.w ? "<p>" + esc(x.w) + "</p>" : "");
-    const row = document.createElement("div");
-    row.className = "acts";
-    const mk = (l, fn) => { const b = document.createElement("button"); b.className = "smallbtn"; b.textContent = l; b.onclick = () => fn(b); row.appendChild(b); };
-    const st = x.iso ? new Date(x.iso) : null;
-    if (st && !isNaN(st)) mk("In Kalender", b => { b.textContent = addToCal({ title: x.t, start: st, mins: 120, place: x.o, desc: x.w, alarm: 60 }) ? "✓ Datei erstellt" : "Fehler"; });
-    mk("Merken", b => { notes.unshift({ text: "Event: " + x.t + "\n" + (x.d || "") + (x.o ? ", " + x.o : "") + (x.u ? "\n" + x.u : "") }); saveData(); renderNotes(); b.textContent = "✓ Gemerkt"; b.disabled = true; });
-    if (x.u && /^https?:\/\//.test(x.u)) {
-      const a = document.createElement("a");
-      a.className = "smallbtn"; a.textContent = "Quelle"; a.href = x.u; a.target = "_blank"; a.rel = "noopener";
-      row.appendChild(a);
-    }
-    c.appendChild(row);
-    host.appendChild(c);
-  });
+  r.items.forEach(x => host.appendChild(evCard(x)));
+}
+
+async function readFlyer(file, out, btn) {
+  btn.disabled = true;
+  out.innerHTML = '<div class="th" style="margin-top:12px"><span class="dot"></span>Jarvis liest den Flyer...</div>';
+  out.scrollIntoView({ behavior: "smooth", block: "center" });
+  try {
+    const img = await shrink(file);
+    const sys = "Du liest Veranstaltungs-Flyer, Screenshots und Instagram-Stories. Antworte AUSSCHLIESSLICH mit einem JSON-Objekt: {\"t\":\"Titel\",\"d\":\"Datum und Uhrzeit lesbar\",\"iso\":\"YYYY-MM-DDTHH:MM Startzeit oder leer\",\"o\":\"Ort oder Club\",\"w\":\"höchstens 15 Wörter inklusive Mindestalter und Eintritt, wenn lesbar\",\"u\":\"\"}. Steht kein Jahr auf dem Bild, nimm das nächste passende Datum ab heute (" + new Date().toLocaleDateString("de-DE") + "). Erfinde nichts; was nicht lesbar ist, bleibt leer. Keine Anführungszeichen innerhalb der Texte. Ist es keine Veranstaltung, antworte {\"t\":\"\"}.";
+    const data = await api({ messages: [{ role: "user", content: [{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: img.data } }, { type: "text", text: "Lies diesen Flyer." }] }], system: sys, mode: "chat" });
+    if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || "API-Fehler"));
+    const txt = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("");
+    const o = fJson(txt, "{", "}");
+    if (!o || !o.t) throw new Error("Auf dem Bild habe ich keine Veranstaltung erkannt");
+    out.innerHTML = "";
+    const note = document.createElement("div");
+    note.className = "hsub"; note.style.cssText = "font-size:12px;opacity:.6;margin-top:10px";
+    note.textContent = "Bitte Datum und Uhrzeit kurz mit dem Flyer vergleichen.";
+    out.appendChild(note);
+    out.appendChild(evCard(o));
+  } catch (e) { out.innerHTML = '<div class="empty">Fehler: ' + esc(e.message) + "</div>"; }
+  btn.disabled = false;
 }
 
 function drawEvT() {
@@ -2776,7 +2861,104 @@ function drawEvT() {
   host.appendChild(go);
   host.appendChild(msg);
 }
+
+
+/* ---- Kalender lesen (iCloud-Link) ---- */
+let calUrl = load("jarvis_calurl", "");
+let calC = load("jarvis_calc", null);
+let calErr = "";
+const WD = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+function calDay(k) {
+  const d = new Date(k + "T12:00:00"), t = dkey(new Date()), m = dkey(new Date(Date.now() + 86400000));
+  const lab = WD[d.getDay()] + " " + String(d.getDate()).padStart(2, "0") + "." + String(d.getMonth() + 1).padStart(2, "0") + ".";
+  return k === t ? "Heute · " + lab : k === m ? "Morgen · " + lab : lab;
+}
+function calTime(x) {
+  if (x.a) return "ganztägig";
+  const a = x.s.slice(11), b = x.e.slice(11);
+  return x.s.slice(0, 10) === x.e.slice(0, 10) && b ? a + "–" + b : a;
+}
+function calCtx() {
+  try {
+    if (!calUrl || !calC || !calC.items) return "";
+    const lim = dkey(new Date(Date.now() + 7 * 86400000)), tdy = dkey(new Date());
+    const L = calC.items.filter(x => x.s.slice(0, 10) >= tdy && x.s.slice(0, 10) <= lim).slice(0, 15).map(x => "- " + calDay(x.s.slice(0, 10)) + " " + calTime(x) + " " + x.t + (x.l ? " (" + x.l + ")" : ""));
+    return L.length ? "\n\nTermine des Nutzers in den nächsten 7 Tagen (aus seinem Kalender, nutze sie für Planung und freie Zeiten):\n" + L.join("\n") : "\n\nIm Kalender des Nutzers stehen in den nächsten 7 Tagen keine Termine.";
+  } catch (e) { return ""; }
+}
+async function calRefresh(force) {
+  if (!calUrl) return;
+  if (!force && calC && Date.now() - calC.t < 600000) return;
+  try {
+    const d = await api({ action: "cal", url: calUrl });
+    if (d.error) throw new Error(typeof d.error === "string" ? d.error : d.error.message);
+    calC = { t: Date.now(), items: d.items || [] };
+    save("jarvis_calc", calC);
+    calErr = "";
+  } catch (e) { calErr = e.message; }
+  try { drawCal(); } catch (e) {}
+}
+function drawCal() {
+  const host = document.getElementById("ev-c");
+  if (!host) return;
+  host.innerHTML = "";
+  if (!calUrl) {
+    host.innerHTML = '<div class="evc"><h3>Apple Kalender verbinden</h3><p>So geht es auf dem iPhone oder iPad:</p><p>1. Öffne die Kalender-App und tippe unten auf „Kalender“.<br>2. Tippe beim gewünschten Kalender auf das ⓘ.<br>3. Schalte „Öffentlicher Kalender“ ein.<br>4. Tippe auf „Link teilen“ und dann auf „Kopieren“.<br>5. Füge den Link hier ein.</p><p style="color:var(--a)">Wichtig: Jeder, der diesen Link hat, kann den Kalender lesen. Gib ihn nicht weiter. Am besten legst du einen eigenen Kalender nur für Dinge an, die Jarvis sehen darf.</p></div>';
+    const inp = document.createElement("input");
+    inp.className = "rin"; inp.placeholder = "Kalender-Link einfügen"; host.appendChild(inp);
+    const go = document.createElement("button");
+    go.className = "cta"; go.textContent = "Verbinden";
+    const msg = document.createElement("div");
+    msg.className = "hsub"; msg.style.cssText = "font-size:13px;margin-top:10px;text-align:center";
+    go.onclick = async () => {
+      const v = inp.value.trim();
+      if (!v) { msg.textContent = "Bitte den Link einfügen."; return; }
+      go.disabled = true; msg.textContent = "Prüfe den Link...";
+      try {
+        const d = await api({ action: "cal", url: v });
+        if (d.error) throw new Error(typeof d.error === "string" ? d.error : d.error.message);
+        calUrl = v; save("jarvis_calurl", v);
+        calC = { t: Date.now(), items: d.items || [] }; save("jarvis_calc", calC);
+        drawCal();
+      } catch (e) { msg.textContent = "Fehler: " + e.message; go.disabled = false; }
+    };
+    host.appendChild(go); host.appendChild(msg);
+    return;
+  }
+  const top = document.createElement("div");
+  top.className = "acts"; top.style.margin = "8px 0";
+  const mk = (l, fn) => { const b = document.createElement("button"); b.className = "smallbtn"; b.textContent = l; b.onclick = () => fn(b); top.appendChild(b); };
+  mk("Aktualisieren", async b => { b.textContent = "lädt..."; await calRefresh(true); });
+  mk("Trennen", () => { calUrl = ""; calC = null; save("jarvis_calurl", ""); save("jarvis_calc", null); drawCal(); });
+  host.appendChild(top);
+  if (calErr) { const e = document.createElement("div"); e.className = "empty"; e.textContent = "Fehler: " + calErr; host.appendChild(e); }
+  lbl(host, "Frag Jarvis");
+  chipRow(host, ["Was steht heute an?", "Wann habe ich Zeit zum Lernen?", "Plane meine Woche"], () => false, o => {
+    show("chat");
+    document.getElementById("in").value = o === "Plane meine Woche" ? "Schau auf meinen Kalender und mach mir einen Vorschlag, wie ich meine Woche mit Lernen, Aufgaben und Pausen plane." : o === "Was steht heute an?" ? "Was steht heute in meinem Kalender und in meinen Aufgaben an?" : "Wann habe ich diese Woche freie Zeit zum Lernen? Nenne mir konkrete Zeitfenster.";
+    send();
+  });
+  const items = (calC && calC.items) || [];
+  const tdy = dkey(new Date()), lim = dkey(new Date(Date.now() + 7 * 86400000));
+  const list = items.filter(x => x.s.slice(0, 10) >= tdy && x.s.slice(0, 10) <= lim);
+  if (!list.length) { const e = document.createElement("div"); e.className = "empty"; e.textContent = "Keine Termine in den nächsten 7 Tagen."; host.appendChild(e); return; }
+  let last = "";
+  list.forEach(x => {
+    const k = x.s.slice(0, 10);
+    if (k !== last) { last = k; const h = document.createElement("div"); h.className = "fq"; h.style.marginTop = "16px"; h.textContent = calDay(k); host.appendChild(h); }
+    const c = document.createElement("div");
+    c.className = "evc"; c.style.margin = "6px 0"; c.style.padding = "12px 14px";
+    c.innerHTML = '<div class="d">' + esc(calTime(x)) + "</div><h3 style=\"font-size:15px;margin:0\">" + esc(x.t) + "</h3>" + (x.l ? '<div class="o">' + esc(x.l) + "</div>" : "");
+    host.appendChild(c);
+  });
+  const u = document.createElement("div");
+  u.className = "hsub"; u.style.cssText = "font-size:12px;opacity:.5;margin-top:12px;text-align:center";
+  u.textContent = "Stand: " + new Date(calC.t).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) + " Uhr. Jarvis sieht diese Termine im Chat und in Schule.";
+  host.appendChild(u);
+}
 try { buildEv(); } catch (e) {}
+try { if (calUrl) calRefresh(false); } catch (e) {}
+document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { try { calRefresh(false); } catch (e) {} } });
 
 /* ---- Einstiegsfragen ---- */
 const OQ = [
