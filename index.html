@@ -314,6 +314,11 @@
   .tile b { font-size: 16px; font-weight: 600; color: var(--a2); }
   .tile span { font-size: 12px; opacity: .6; line-height: 1.4; margin-top: 18px; }
   .tile i { font-style: normal; position: absolute; }
+  .cinfo { display: none; font-size: 13.5px; line-height: 1.5; padding: 10px 14px; margin: 0 0 10px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(var(--ar), .25); }
+  .cinfo p { margin: 6px 0; }
+  .cinfo b { color: var(--a2); font-weight: 600; }
+  .csum { font-size: 14px; color: var(--a2); padding: 8px 4px 4px; line-height: 1.45; }
+  .csum:empty { display: none; }
   .cview { display: none; margin-top: 10px; }
   .cview.open { display: block; }
   .cview h3 { margin: 14px 0 4px; font-size: 22px; font-weight: 300; background: linear-gradient(90deg, #e8f1ea, var(--a), var(--a2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -894,7 +899,7 @@ const HERO = {
     { l: "📰 Nachrichten heute", fill: "Was sind heute die wichtigsten Nachrichten?", auto: true }, { l: "🌦️ Wetter", fill: "Wetter in " },
     { l: "💶 Preise vergleichen", fill: "Preise vergleichen: " }, { l: "📈 Aktuelle Zahlen", fill: "Aktuelle Zahlen zu " }] },
   school: { sub: "Was lernen wir heute?", chips: [
-    { l: "❓ Quiz starten", mode: "quiz", fill: "Quiz zu " }, { l: "🃏 Karteikarten", mode: "cards", fill: "Karteikarten zu " },
+    { l: "❓ Quiz starten", mode: "quiz", fill: "Quiz zu " }, { l: "🃏 Karteikarten", mode: "cards", fill: "Karteikarten zu " }, { l: "📷 Foto zu Karten", mode: "cards", pick: true },
     { l: "📅 Lernplan", mode: "plan", fill: "Lernplan für " }, { l: "🎤 Referat", mode: "talk", fill: "Referat über " }] }
 };
 function makeHero(t) {
@@ -910,6 +915,7 @@ function makeHero(t) {
     b.textContent = x.l.replace(/^\S+\s/, "");
     b.onclick = () => {
       if (x.mode) { schoolMode = x.mode; save("jarvis_mode", x.mode); drawChips(); }
+      if (x.pick) { try { document.getElementById("file").click(); } catch (e) {} return; }
       const i = document.getElementById("in");
       i.value = x.fill;
       i.focus();
@@ -1142,6 +1148,13 @@ async function send() {
   }
 
   if (t === "school" && schoolMode === "cards" && !img) { add(text, "user"); await makeCards(text); return; }
+  if (t === "school" && schoolMode === "cards" && img) {
+    const im = img, tx = text || "dem Foto";
+    add(text || "Foto zu Karteikarten", "user", im.url);
+    clearImg();
+    await makeCards(tx, im);
+    return;
+  }
   if (img && !text) text = t === "school" ? "Hilf mir bei der Aufgabe auf dem Foto." : "Beschreibe dieses Bild.";
   try { rememberQ(t, text); } catch (e) {}
   add(text, "user", img ? img.url : null);
@@ -1234,7 +1247,7 @@ function drawChips() {
   mc.appendChild(dk);
 }
 
-async function makeCards(topic) {
+async function makeCards(topic, photo) {
   const btn = document.getElementById("btn"), core = document.getElementById("core");
   const wait = add("erstellt Karteikarten...", "bot");
   btn.disabled = true;
@@ -1242,18 +1255,19 @@ async function makeCards(topic) {
   try {
     let srcTxt = "";
     if (useNotes && notes.length) srcTxt = "\n\nNutze dieses Material:\n" + notesText();
-    const sys = "Du erstellst Lernkarten auf Deutsch für das Fach " + schoolSubject + ". Antworte AUSSCHLIESSLICH mit einem JSON-Array aus 8 Objekten der Form {\"q\":\"Frage\",\"a\":\"kurze Antwort\"}. Kein Text davor oder danach, keine Code-Blöcke, keine Anführungszeichen innerhalb der Texte. Fragen präzise, Antworten höchstens zwei Sätze.";
+    const sys = "Du erstellst Lernkarten auf Deutsch für das Fach " + schoolSubject + (photo ? ". Lies den Inhalt des Fotos genau und frage nur Dinge ab, die wirklich darauf stehen" : "") + ". Antworte AUSSCHLIESSLICH mit einem JSON-Array aus 8 Objekten der Form {\"q\":\"Frage\",\"a\":\"kurze Antwort\"}. Kein Text davor oder danach, keine Code-Blöcke, keine Anführungszeichen innerhalb der Texte. Fragen präzise, Antworten höchstens zwei Sätze.";
     let cards = [], lastErr = null;
     for (let t = 0; t < 2 && !cards.length; t++) {
       try {
-        const data = await api({ messages: [{ role: "user", content: "Thema: " + topic + srcTxt }], system: sys, mode: "chat" });
+        const content = photo ? [{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: photo.data } }, { type: "text", text: "Erstelle die Lernkarten aus dem Inhalt dieses Fotos (Heft, Buch oder Tafel)." + (topic && topic !== "dem Foto" ? " Schwerpunkt: " + topic : "") }] : "Thema: " + topic + srcTxt;
+        const data = await api({ messages: [{ role: "user", content: content }], system: sys, mode: "chat" });
         if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || "API-Fehler"));
         const txt = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("");
         cards = fJson(txt, "[", "]").filter(c => c && c.q && c.a).map(c => ({ q: String(c.q), a: String(c.a), k: 0 }));
       } catch (e) { lastErr = e; }
     }
     if (!cards.length) throw new Error(lastErr ? lastErr.message : "Keine Karten erhalten");
-    const deck = { id: Date.now(), topic: topic.slice(0, 80), subj: schoolSubject, ts: Date.now(), cards: cards };
+    const deck = { id: Date.now(), topic: (photo ? "Foto: " : "") + topic.slice(0, 80), subj: schoolSubject, ts: Date.now(), cards: cards };
     decks.unshift(deck);
     saveDecks();
     try { drawChips(); } catch (e) {}
@@ -1360,6 +1374,30 @@ const eur = n => nf(n, 2) + " €";
 const pct = n => nf(n, 2) + " %";
 const ok = n => typeof n === "number" && isFinite(n);
 
+
+const CINFO = {
+  bep: { d: "Ab wann lohnt es sich?", w: "Der Punkt, ab dem du keinen Verlust mehr machst. Alles, was du danach verkaufst, ist Gewinn.", f: "Fixkosten ÷ (Preis − variable Kosten)", b: "Fixkosten 500 €, Preis 20 €, variable Kosten 12 €: 500 ÷ 8 = 63 Stück." },
+  kalk: { d: "Vom Einkauf zum Verkaufspreis", w: "Rechnet Schritt für Schritt vom Einkaufspreis hoch zu dem Preis, den dein Kunde zahlt, inklusive Kosten, Gewinn und Rabatten.", f: "Einkauf − Rabatt − Skonto + Bezugskosten, dann + Kosten + Gewinn, dann + Skonto, Provision und Rabatt für den Kunden, dann + MwSt", b: "Einkauf 100 €, du willst 20 % Kosten und Gewinn aufschlagen: 120 € netto, mit 19 % MwSt 142,80 €." },
+  zins: { d: "Wie wächst dein Geld?", w: "Zeigt, wie viel Geld du nach einer Zeit hast, wenn du regelmäßig sparst und Zinsen dazukommen. Zinsen bringen mit der Zeit selbst wieder Zinsen.", f: "Jeden Monat: (Kontostand × (1 + Monatszins)) + Sparrate", b: "100 € im Monat, 5 % Zins, 20 Jahre: ca. 41.000 €, davon nur 24.000 € selbst eingezahlt." },
+  kredit: { d: "Monatsrate und Zinskosten", w: "Zeigt, wie hoch die feste Monatsrate eines Kredits ist und wie viel Zinsen du insgesamt zahlst.", f: "Rate = Kredit × Monatszins ÷ (1 − (1 + Monatszins)^−Monate)", b: "10.000 €, 6 % Zins, 5 Jahre: ca. 193 € im Monat, gut 1.600 € Zinsen." },
+  marge: { d: "Gewinn, Aufschlag und MwSt", w: "Marge ist der Gewinn im Verhältnis zum Verkaufspreis, der Aufschlag im Verhältnis zum Einkaufspreis. Beides ist nicht dasselbe.", f: "Marge = Gewinn ÷ Verkaufspreis. Aufschlag = Gewinn ÷ Einkaufspreis", b: "Einkauf 6 €, Verkauf 10 €: Gewinn 4 €, Marge 40 %, Aufschlag 67 %." },
+  kenn: { d: "Rendite und Liquidität", w: "Kennzahlen zeigen, wie gesund eine Firma ist: wie viel Gewinn sie macht, wie viel eigenes Geld drinsteckt und ob sie ihre Rechnungen zahlen kann.", f: "Umsatzrendite = Gewinn ÷ Umsatz. Eigenkapitalquote = Eigenkapital ÷ Gesamtkapital. Liquidität = flüssige Mittel ÷ kurzfristige Schulden", b: "Gewinn 20.000 € bei 200.000 € Umsatz: Umsatzrendite 10 %." }
+};
+const CHINT = {
+  bep: { fix: "Miete, Abos, Löhne pro Monat oder Jahr", var: "Material, Versand pro Stück", ziel: "Wie viel Gewinn du erreichen willst" },
+  kalk: { lr: "Rabatt vom Lieferanten auf die Liste", ls: "Abzug, wenn du schnell bezahlst", bz: "Fracht, Verpackung, Zoll", hk: "Anteil für Miete, Löhne und Co.", g: "Dein Gewinn in Prozent", ks: "Abzug für Kunden, die schnell zahlen", vp: "Provision für Vertreter", kr: "Rabatt für den Kunden" },
+  zins: { z: "Zum Beispiel 5", rate: "Was du jeden Monat einzahlst" },
+  marge: { ek: "ohne MwSt", vk: "ohne MwSt" },
+  kenn: { ek: "Dein eigenes Geld im Betrieb", gk: "Eigenes plus geliehenes Geld", um: "Waren, offene Rechnungen, Geld", liq: "Geld auf Konto und in der Kasse", kv: "Schulden, die du bald zahlen musst" }
+};
+const CSUM = {
+  bep: (v, o) => { const db = v.preis - v.var; return db > 0 ? "Ab " + nf(Math.ceil(v.fix / db), 0) + " verkauften Stücken machst du Gewinn." : ""; },
+  zins: (v, o) => o.length > 2 ? "Du zahlst " + o[1][1] + " ein und hast am Ende " + o[0][1] + ". Der Rest sind Zinsen." : "",
+  kredit: (v, o) => o.length > 2 ? "Du zahlst " + o[0][1] + " im Monat, insgesamt " + o[2][1] + ". Davon sind " + o[1][1] + " Zinsen." : "",
+  marge: (v, o) => o.length ? "Von jedem Verkauf bleiben " + o[0][1] + " Gewinn." : "",
+  kalk: (v, o) => { const r = o.filter(x => x[0] === "Listenverkaufspreis netto")[0]; return r ? "Du musst " + r[1] + " netto verlangen, damit dein Gewinnziel klappt." : ""; }
+};
+
 const CALCS = [
   { id: "bep", title: "📈 Break-even", need: ["fix", "preis", "var"],
     fields: [["fix", "Fixkosten gesamt (€)", ""], ["preis", "Verkaufspreis pro Stück (€)", ""], ["var", "Variable Kosten pro Stück (€)", ""], ["ziel", "Wunschgewinn (€, optional)", ""]],
@@ -1459,6 +1497,8 @@ function buildCalcs() {
       w.className = "fld";
       const l = document.createElement("label");
       l.textContent = f[1];
+      const hh = (CHINT[c.id] || {})[f[0]];
+      if (hh) { const sm = document.createElement("small"); sm.textContent = hh; sm.style.cssText = "display:block;opacity:.5;font-size:11.5px;line-height:1.3;margin-top:1px"; l.appendChild(sm); }
       const i = document.createElement("input");
       i.type = "text";
       i.setAttribute("inputmode", "decimal");
@@ -1471,6 +1511,23 @@ function buildCalcs() {
     const res = document.createElement("div");
     res.className = "res";
     body.insertBefore(res, body.firstChild);
+    const csum = document.createElement("div");
+    csum.className = "csum";
+    body.insertBefore(csum, res.nextSibling);
+    const inf = CINFO[c.id];
+    if (inf) {
+      const wrap = document.createElement("div");
+      const tg = document.createElement("button");
+      tg.className = "smallbtn";
+      tg.textContent = "Was ist das?";
+      tg.style.margin = "0 0 6px";
+      const pn2 = document.createElement("div");
+      pn2.className = "cinfo";
+      pn2.innerHTML = "<p><b>Worum geht es?</b><br>" + esc(inf.w) + "</p><p><b>Formel</b><br>" + esc(inf.f) + "</p><p><b>Beispiel</b><br>" + esc(inf.b) + "</p>";
+      tg.onclick = () => { const o = pn2.style.display === "block"; pn2.style.display = o ? "none" : "block"; tg.textContent = o ? "Was ist das?" : "Schließen"; };
+      wrap.appendChild(tg); wrap.appendChild(pn2);
+      body.insertBefore(wrap, body.firstChild);
+    }
     const actions = document.createElement("div");
     const ex = document.createElement("button");
     ex.className = "smallbtn";
@@ -1488,6 +1545,7 @@ function buildCalcs() {
       const w = {};
       Object.keys(v).forEach(k => { w[k] = ok(v[k]) ? v[k] : (c.need.indexOf(k) >= 0 ? NaN : (c.id === "marge" || c.id === "kenn" ? NaN : 0)); });
       res.innerHTML = "";
+      csum.textContent = "";
       lastTxt = "";
       if (empty) { res.innerHTML = '<span class="hint">Trage die Pflichtwerte ein, dann erscheint das Ergebnis.</span>'; return; }
       let out = [];
@@ -1498,6 +1556,7 @@ function buildCalcs() {
         d.innerHTML = "<span>" + esc(r[0]) + "</span><b>" + esc(r[1]) + "</b>";
         res.appendChild(d);
       });
+      try { if (CSUM[c.id]) csum.textContent = CSUM[c.id](w, out) || ""; } catch (e) {}
       const ins = c.fields.filter(f => ok(v[f[0]])).map(f => f[1] + ": " + inputs[f[0]].value).join("; ");
       lastTxt = c.title.replace(/^\S+\s/, "") + "\nEingaben: " + ins + "\nErgebnis: " + out.map(r => r[0] + " " + r[1]).join("; ");
     }
@@ -2340,7 +2399,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v40</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v41</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
