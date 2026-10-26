@@ -2193,7 +2193,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v29</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v30</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -2424,16 +2424,24 @@ function drawInv() {
 
 try { buildReseller(); } catch (e) {}
 /* ---- Startup-Planer ---- */
-let pl = load("jarvis_pl", { pr: "", mg: "", vk: "", fx: "", st: "", h: "" });
+let pl = load("jarvis_pl", { pr: "", mg: "", vk: "", gb: "", fx: "", st: "", h: "" });
 function buildPlan() {
   const host = document.getElementById("fplan");
-  host.innerHTML = '<div class="rsec" style="border-top:none"><h3>Lohnt sich das?</h3><div class="hsub">Trage deine Annahmen ein. Der Planer rechnet drei Szenarien. Steuern und Sozialabgaben sind nicht eingerechnet, die Zahlen sind keine Prognose.</div></div>';
-  const F = [["pr", "Preis pro Verkauf oder Auftrag (€)"], ["mg", "Verkäufe oder Aufträge pro Monat"], ["vk", "Variable Kosten pro Verkauf (€)"], ["fx", "Fixkosten pro Monat (€)"], ["st", "Startinvestition einmalig (€)"], ["h", "Stunden pro Woche"]];
+  host.innerHTML = '<div class="rsec" style="border-top:none"><h3>Lohnt sich das?</h3><div class="hsub">Trage ein, was du dir vorstellst. Der Planer zeigt dir, wie viel Geld am Ende wirklich bei dir bleibt. Wenn du etwas nicht genau weißt, schätze lieber etwas vorsichtig.</div></div>';
+  const F = [
+    ["pr", "Verkaufspreis", "Was zahlt ein Kunde für ein Teil oder einen Auftrag? (in €)"],
+    ["mg", "Verkäufe pro Monat", "Wie viele Teile oder Aufträge schaffst du in einem Monat?"],
+    ["vk", "Kosten pro Verkauf", "Was kostet dich jedes einzelne Teil? Einkauf, Material, Verpackung, Versand (in €)"],
+    ["gb", "Gebühr der Plattform", "Zieht Vinted, eBay oder PayPal Prozent ab? Sonst 0 lassen (in %)"],
+    ["fx", "Feste Kosten im Monat", "Was zahlst du jeden Monat, auch wenn du nichts verkaufst? Zum Beispiel Abo, Website, Werbung (in €)"],
+    ["st", "Startgeld", "Was musst du am Anfang einmal kaufen? Zum Beispiel Werkzeug oder erste Ware (in €)"],
+    ["h", "Arbeitszeit pro Woche", "Wie viele Stunden steckst du pro Woche rein?"]
+  ];
   const inp = {};
   F.forEach(f => {
     const w = document.createElement("div");
     w.className = "fld";
-    w.innerHTML = "<label>" + f[1] + "</label>";
+    w.innerHTML = "<label>" + f[1] + '<br><small style="opacity:.55;font-size:12px;line-height:1.3;display:inline-block;margin-top:2px">' + f[2] + "</small></label>";
     const i = document.createElement("input");
     i.type = "text"; i.setAttribute("inputmode", "decimal"); i.value = pl[f[0]] || "";
     i.addEventListener("input", () => { pl[f[0]] = i.value; save("jarvis_pl", pl); upd(); });
@@ -2453,40 +2461,50 @@ function buildPlan() {
   host.appendChild(ai);
   const g = k => { const v = pn(inp[k].value); return ok(v) ? v : 0; };
   let lastTxt = "";
+  const perSale = () => g("pr") * (1 - Math.min(g("gb"), 100) / 100) - g("vk");
   function scen(f) {
-    const pr = g("pr"), m = g("mg") * f, vk = g("vk"), fx = g("fx"), st = g("st"), hrs = g("h") * 4.33;
-    const profit = (pr - vk) * m - fx;
-    return { rev: pr * m, profit: profit, hourly: hrs > 0 ? profit / hrs : null, pay: st > 0 && profit > 0 ? st / profit : (st > 0 ? null : 0) };
+    const m = g("mg") * f, hrs = g("h") * 4.33, st = g("st");
+    const profit = perSale() * m - g("fx");
+    return { profit: profit, hourly: hrs > 0 ? profit / hrs : null, pay: st > 0 ? (profit > 0 ? st / profit : null) : 0 };
   }
   function upd() {
     out.innerHTML = "";
-    if (!g("pr") || !g("mg")) { out.innerHTML = '<div class="hint">Trage mindestens Preis und Menge ein.</div>'; lastTxt = ""; return; }
-    const S = [["Vorsichtig (50 % der Menge)", 0.5], ["Realistisch", 1], ["Optimistisch (150 %)", 1.5]];
+    if (!g("pr") || !g("mg")) { out.innerHTML = '<div class="hint" style="margin-top:12px">Trage zuerst Verkaufspreis und Verkäufe pro Monat ein.</div>'; lastTxt = ""; return; }
+    const ps = perSale();
+    const first = document.createElement("div");
+    first.className = "res";
+    first.innerHTML = "<div><span>Pro Verkauf bleibt dir</span><b>" + eur(ps) + "</b></div>" + (ps <= 0 ? '<div class="hint">Das ist zu wenig: Du zahlst bei jedem Verkauf drauf. Erhöhe den Preis oder senke die Kosten.</div>' : "") + (g("gb") > 0 ? '<div class="hint">Schon abgezogen: ' + eur(g("pr") * g("gb") / 100) + " Gebühr und " + eur(g("vk")) + " Kosten.</div>" : "");
+    out.appendChild(first);
+    const S = [["Schlechter Monat", "nur halb so viele Verkäufe wie geplant", 0.5], ["So wie geplant", "genau so viele Verkäufe, wie du eingetragen hast", 1], ["Guter Monat", "anderthalb mal so viele Verkäufe", 1.5]];
     const lines = [];
     S.forEach(x => {
-      const r = scen(x[1]);
+      const r = scen(x[2]);
       const h = document.createElement("div");
       h.className = "hsub";
-      h.style.cssText = "margin:12px 0 2px;font-size:13px;opacity:.7";
-      h.textContent = x[0];
+      h.style.cssText = "margin:14px 0 2px;font-size:13px;opacity:.75";
+      h.innerHTML = "<b>" + x[0] + "</b> (" + x[1] + ")";
       out.appendChild(h);
       const d = document.createElement("div");
       d.className = "sum";
-      d.innerHTML = "<div>Gewinn / Monat<b>" + eur(r.profit) + "</b></div><div>Stundenlohn<b>" + (r.hourly == null ? "-" : eur(r.hourly)) + "</b></div><div>Start zurück<b>" + (r.pay === 0 ? "sofort" : r.pay == null ? "nie" : nf(r.pay, 1) + " Mon.") + "</b></div>";
+      const pay = r.pay === 0 ? "kein Startgeld" : r.pay == null ? "wird nicht zurückverdient" : "nach " + nf(r.pay, 1) + " Monaten";
+      d.innerHTML = "<div>Bleibt im Monat übrig<b>" + eur(r.profit) + "</b></div><div>Verdienst pro Arbeitsstunde<b>" + (r.hourly == null ? "-" : eur(r.hourly)) + "</b></div><div>Startgeld wieder drin<b style=\"font-size:13px\">" + pay + "</b></div>";
       out.appendChild(d);
-      lines.push(x[0] + ": Gewinn " + eur(r.profit) + " pro Monat, Stundenlohn " + (r.hourly == null ? "-" : eur(r.hourly)) + ", Startinvestition zurück: " + (r.pay === 0 ? "sofort" : r.pay == null ? "nie" : nf(r.pay, 1) + " Monate"));
+      lines.push(x[0] + " (" + x[1] + "): bleibt im Monat " + eur(r.profit) + " übrig, Verdienst pro Arbeitsstunde " + (r.hourly == null ? "-" : eur(r.hourly)) + ", Startgeld " + pay);
     });
-    const db = g("pr") - g("vk");
     const note = document.createElement("div");
     note.className = "hsub";
-    note.style.cssText = "margin-top:12px;font-size:13px;opacity:.7";
-    let t = db > 0 ? "Break-even: " + nf(Math.ceil(g("fx") / db), 0) + " Verkäufe pro Monat, um die Fixkosten zu decken." : "Der Preis liegt nicht über den variablen Kosten, so entsteht kein Gewinn.";
+    note.style.cssText = "margin-top:14px;font-size:13px;opacity:.8;line-height:1.5";
+    const tips = [];
+    if (ps > 0) tips.push("Du brauchst mindestens " + nf(Math.ceil(g("fx") / ps), 0) + " Verkäufe im Monat, damit deine festen Kosten bezahlt sind. Alles darüber ist dein Gewinn.");
     const year = g("pr") * g("mg") * 12;
-    if (year > 20000) t += " Achtung: Bei etwa " + eur(year) + " Jahresumsatz kann die Kleinunternehmerregelung (§ 19 UStG, Grenzen 25.000 € im Vorjahr und 100.000 € im laufenden Jahr) relevant werden. Bitte aktuell prüfen.";
-    if (g("pr") * g("mg") * 12 > 0 && g("h") > 0 && scen(1).hourly != null && scen(1).hourly < 13.9) t += " Der Stundenlohn liegt unter dem gesetzlichen Mindestlohn für Angestellte (2026: 13,90 €, bitte prüfen). Prüfe Preis, Menge oder Aufwand.";
-    note.textContent = t;
+    if (year > 20000) tips.push("Bei etwa " + eur(year) + " Umsatz im Jahr musst du wahrscheinlich Umsatzsteuer abführen, die Kleinunternehmer-Regel gilt nur bis etwa 25.000 € (bitte aktuell prüfen).");
+    const h1 = scen(1).hourly;
+    if (h1 != null && h1 < 13.9) tips.push("Pro Stunde bleibt dir weniger, als ein Angestellter mit Mindestlohn bekommt (2026: 13,90 €, bitte prüfen). Am Anfang ist das normal. Auf Dauer solltest du Preis, Menge oder Zeitaufwand verbessern.");
+    if (prof && prof.age === "unter 16") tips.push("Du bist noch unter 16: Sprich vorher mit deinen Eltern. Für ein Gewerbe und Verträge brauchst du ihre Zustimmung.");
+    tips.push("Noch nicht eingerechnet: Steuern, Versicherungen und Zeit für Kundensuche. Plane dafür etwas Puffer ein.");
+    note.innerHTML = tips.map(t => "• " + esc(t)).join("<br>");
     out.appendChild(note);
-    lastTxt = "Startup-Planer\nPreis " + eur(g("pr")) + ", " + nf(g("mg"), 0) + " pro Monat, variable Kosten " + eur(g("vk")) + ", Fixkosten " + eur(g("fx")) + ", Start " + eur(g("st")) + ", " + nf(g("h"), 1) + " Std./Woche\n" + lines.join("\n") + "\n" + t;
+    lastTxt = "Mein Plan: Verkaufspreis " + eur(g("pr")) + ", " + nf(g("mg"), 0) + " Verkäufe pro Monat, Kosten pro Verkauf " + eur(g("vk")) + ", Plattformgebühr " + nf(g("gb"), 1) + " %, feste Kosten pro Monat " + eur(g("fx")) + ", Startgeld " + eur(g("st")) + ", " + nf(g("h"), 1) + " Stunden pro Woche. Pro Verkauf bleiben " + eur(ps) + ".\n" + lines.join("\n") + "\n" + tips.join(" ");
   }
   mk("Ehrlich bewerten", async b => {
     if (!lastTxt) return;
@@ -2495,7 +2513,7 @@ function buildPlan() {
     ai.style.display = "block";
     ai.textContent = "Jarvis rechnet nach...";
     try {
-      const data = await api({ messages: [{ role: "user", content: lastTxt }], system: "Du bist ein ehrlicher Gründer-Coach in Deutschland. Bewerte den Plan in höchstens 7 kurzen Sätzen: Welche Annahme ist am unsichersten oder unrealistisch, was fehlt (zum Beispiel Steuern, Versicherung, Zeit für Kundensuche), und was sollte man zuerst günstig testen. Keine Gewinn-Versprechen.", mode: "chat" });
+      const data = await api({ messages: [{ role: "user", content: lastTxt }], system: "Du bist ein ehrlicher Gründer-Coach in Deutschland. Erkläre so einfach, dass es auch ein 13-Jähriger versteht: kurze Sätze, keine Fremdwörter (oder sie sofort in einfachen Worten erklären). Bewerte den Plan in höchstens 7 kurzen Sätzen: Welche Zahl ist am unsichersten oder zu optimistisch, was wurde vergessen (zum Beispiel Steuern, Versicherung, Zeit für Kundensuche), und was sollte man zuerst günstig ausprobieren. Keine Gewinn-Versprechen.", mode: "chat" });
       if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || "API-Fehler"));
       const txt = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("");
       ai.innerHTML = fmt(txt);
@@ -2513,7 +2531,7 @@ function buildPlan() {
     ["pr", "vk", "mg"].forEach(k => { inp[k].value = pl[k]; });
     upd();
   });
-  mk("In Notizen", b => { if (!lastTxt) return; notes.unshift({ text: lastTxt }); saveData(); renderNotes(); b.textContent = "✓ Gespeichert"; setTimeout(() => { b.textContent = "In Notizen"; }, 1500); });
+  mk("In Notizen", b => { if (!lastTxt) return; notes.unshift({ text: "Startup-Planer\n" + lastTxt }); saveData(); renderNotes(); b.textContent = "✓ Gespeichert"; setTimeout(() => { b.textContent = "In Notizen"; }, 1500); });
   upd();
 }
 try { buildPlan(); } catch (e) {}
