@@ -110,6 +110,9 @@
   .item .tg.late { background: rgba(230,100,90,.2); color: #f2a8a0; }
   .item .pin-on { color: var(--a, #8fbf9f); }
   .tcard { margin: 22px auto 0; max-width: 420px; text-align: left; padding: 14px 16px; border-radius: 22px; background: rgba(255,255,255,.045); border: 1px solid rgba(var(--ar), .25); }
+  .tcard.wide { max-width: none; margin: 12px 0 4px; }
+  .tcard .bt { font-size: 15px; font-weight: 600; color: var(--a2); margin: 2px 0 2px; }
+  .tcard .bp { font-size: 14px; opacity: .8; margin: 0 0 6px; line-height: 1.45; }
   .tcard h3 { margin: 0 0 8px; font-size: 13px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--a2); opacity: .8; }
   .tcard .tr { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid rgba(255,255,255,.07); font-size: 14px; cursor: pointer; }
   .tcard .tr:first-of-type { border-top: none; }
@@ -429,6 +432,7 @@
 </div>
 <div id="found" style="display:none">
   <div class="pagehead"><h2>Startup</h2><div class="hsub">Ideen finden, Reseller-Lager führen und im Planer durchrechnen, ob sich deine Idee lohnt.</div></div>
+  <div class="tcard wide" id="tc-found"></div>
   <div class="seg"><button class="sub on" id="fs-i" onclick="fsub('i')">Ideen</button><button class="sub" id="fs-r" onclick="fsub('r')">Reseller</button><button class="sub" id="fs-p" onclick="fsub('p')">Planer</button></div>
   <div id="fideas">
   <div id="fform"></div>
@@ -448,7 +452,7 @@
 </div>
 <div id="mk" style="display:none"></div>
 <div id="ev" style="display:none"></div>
-<div id="biz" style="display:none"><div class="pagehead"><h2>Rechner-Werkstatt</h2><div class="hsub">Tippe einen Rechner an, trage Werte ein und lass dir das Ergebnis von Jarvis erklären.</div></div><div id="calcs"></div></div>
+<div id="biz" style="display:none"><div class="pagehead"><h2>Rechner-Werkstatt</h2><div class="hsub">Tippe einen Rechner an, trage Werte ein und lass dir das Ergebnis von Jarvis erklären.</div></div><div class="tcard wide" id="tc-biz"></div><div id="calcs"></div></div>
 <div id="notes" style="display:none">
   <div class="pagehead"><h2>Notizen &amp; Aufgaben</h2><div class="hsub">Alles an einem Ort, auf allen Geräten synchron.</div></div>
   <div class="acts" style="margin:0 0 4px"><button class="smallbtn" id="setbtn" onclick="toggleSet()" style="margin-top:0">Einstellungen</button></div>
@@ -695,7 +699,7 @@ function renderNotes() {
     c.appendChild(b);
     tl.appendChild(c);
   }
-  try { fillToday(); } catch (e) {}
+  try { fillAll(); } catch (e) {}
 }
 
 function subTab(k) {
@@ -826,7 +830,7 @@ let lst = load("jarvis_lst", { days: {} });
 let extraSubj = load("jarvis_subj_x", []);
 const DAYGOAL = 10;
 const dkey = d => { d = d || new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
-function saveDecks() { save("jarvis_decks", decks.slice(0, 40)); save("jarvis_lst", lst); }
+function saveDecks() { save("jarvis_decks", decks.slice(0, 40)); save("jarvis_lst", lst); try { fillAll(); } catch (e) {} }
 function markRev() { const k = dkey(); lst.days[k] = (lst.days[k] || 0) + 1; saveDecks(); }
 function streak() {
   let n = 0, d = new Date();
@@ -914,7 +918,7 @@ function makeHero(t) {
     c.appendChild(b);
   });
   d.appendChild(c);
-  if (t === "chat") { const tc = document.createElement("div"); tc.className = "tcard"; tc.id = "todaycard"; d.appendChild(tc); setTimeout(() => { try { fillToday(); } catch (e) {} }, 0); }
+  if (t === "chat" || t === "search" || t === "school") { const tc = document.createElement("div"); tc.className = "tcard"; tc.id = t === "chat" ? "todaycard" : "tc-" + t; d.appendChild(tc); setTimeout(() => { try { fillAll(); } catch (e) {} }, 0); }
   return d;
 }
 
@@ -1023,7 +1027,7 @@ function show(t) {
   const p = document.getElementById(t);
   if (p) p.scrollTop = (t === "notes" || t === "biz" || t === "found" || t === "mk" || t === "ev") ? 0 : p.scrollHeight;
   if (t === "mk") mkEnter();
-  if (t === "chat") { try { fillToday(); } catch (e) {} }
+  try { fillAll(); } catch (e) {}
 }
 
 function shrink(file) {
@@ -1116,6 +1120,7 @@ async function send() {
 
   if (t === "school" && schoolMode === "cards" && !img) { add(text, "user"); await makeCards(text); return; }
   if (img && !text) text = t === "school" ? "Hilf mir bei der Aufgabe auf dem Foto." : "Beschreibe dieses Bild.";
+  try { rememberQ(t, text); } catch (e) {}
   add(text, "user", img ? img.url : null);
   T.h.push(img ? { role: "user", content: text, img: img.data, hadImg: true } : { role: "user", content: text });
   clearImg();
@@ -2199,7 +2204,7 @@ function invStats() {
 }
 
 /* ---- Sicherheit, Backup, Einstellungen ---- */
-function saveInv() { save("jarvis_inv", inv); saveData(); }
+function saveInv() { save("jarvis_inv", inv); saveData(); try { fillAll(); } catch (e) {} }
 let hiddenAt = 0;
 const b64 = buf => btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
 const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
@@ -2311,7 +2316,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v38</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v39</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -2726,7 +2731,7 @@ function evRange() {
 
 function buildEv() {
   const h = document.getElementById("ev");
-  h.innerHTML = '<div class="pagehead"><h2>Events</h2><div class="hsub">Was in deiner Nähe los ist, dein Kalender und neue Termine.</div></div>' +
+  h.innerHTML = '<div class="pagehead"><h2>Events</h2><div class="hsub">Was in deiner Nähe los ist, dein Kalender und neue Termine.</div></div><div class="tcard wide" id="tc-ev"></div>' +
     '<div class="seg"><button class="sub on" id="es-e" onclick="evsub(\'e\')">In deiner Nähe</button><button class="sub" id="es-c" onclick="evsub(\'c\')">Kalender</button><button class="sub" id="es-t" onclick="evsub(\'t\')">Termin</button></div>' +
     '<div id="ev-e"></div><div id="ev-c" style="display:none"></div><div id="ev-t" style="display:none"></div>' +
     '<div class="disc">Die Treffer stammen aus einer Websuche und können unvollständig oder veraltet sein. Prüfe Datum, Ort und Preis beim Veranstalter, bevor du losgehst.</div>';
@@ -3004,7 +3009,7 @@ async function calRefresh(force) {
     calErr = "";
   } catch (e) { calErr = e.message; }
   try { drawCal(); } catch (e) {}
-  try { fillToday(); } catch (e) {}
+  try { fillAll(); } catch (e) {}
 }
 function drawCal() {
   const host = document.getElementById("ev-c");
@@ -3065,8 +3070,123 @@ function drawCal() {
   host.appendChild(u);
 }
 try { buildEv(); } catch (e) {}
+try { fillAll(); } catch (e) {}
 try { if (calUrl) calRefresh(false); } catch (e) {}
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { try { calRefresh(false); } catch (e) {} } });
+
+
+/* ---- Eigene Tagesübersichten ---- */
+let rq = load("jarvis_rq", { search: [], school: [] });
+function rememberQ(t, text) {
+  if (t !== "search" && t !== "school") return;
+  const v = (t === "school" ? schoolSubject + ": " : "") + text.slice(0, 70);
+  rq[t] = [v].concat((rq[t] || []).filter(x => x !== v)).slice(0, 6);
+  save("jarvis_rq", rq);
+}
+const BWLT = [
+  ["Deckungsbeitrag", "Was von einem Verkaufspreis übrig bleibt, wenn du die Kosten für genau dieses Teil abziehst. Damit werden die festen Kosten bezahlt."],
+  ["Break-even", "Der Punkt, an dem Einnahmen und Kosten gleich groß sind. Alles, was du danach verkaufst, ist Gewinn."],
+  ["Liquidität", "Wie viel Geld du sofort zum Bezahlen hast. Eine Firma kann Gewinn machen und trotzdem pleitegehen, wenn das Geld fehlt."],
+  ["Marge", "Der Anteil vom Verkaufspreis, der als Gewinn bleibt. Kostet etwas 6 € und verkaufst du es für 10 €, sind das 4 € oder 40 %."],
+  ["Fixkosten", "Kosten, die jeden Monat gleich bleiben, egal wie viel du verkaufst, zum Beispiel Miete oder Abos."],
+  ["Variable Kosten", "Kosten, die mit jedem verkauften Teil steigen, zum Beispiel Material oder Versand."],
+  ["Skonto", "Ein kleiner Rabatt, wenn du eine Rechnung besonders schnell bezahlst, oft 2 %."],
+  ["Abschreibung", "Wenn du etwas Teures kaufst, das lange hält, verteilst du die Kosten auf mehrere Jahre."],
+  ["Bilanz", "Eine Momentaufnahme: Was besitzt die Firma, und was schuldet sie anderen?"],
+  ["Cashflow", "Wie viel Geld in einer Zeit hereinkommt und wie viel hinausgeht. Der Unterschied zeigt, ob die Kasse wächst."],
+  ["Rendite", "Wie viel Prozent mehr du am Ende hast als am Anfang. Aus 100 € werden 105 €, dann sind es 5 % Rendite."],
+  ["Inflation", "Alles wird mit der Zeit teurer, dein Geld kann also weniger kaufen. Bei 2 % Inflation ist 100 € nach einem Jahr nur noch etwa 98 € wert."],
+  ["Zinseszins", "Zinsen, die selbst wieder Zinsen bringen. Je länger du wartest, desto schneller wächst das Geld."],
+  ["Angebot und Nachfrage", "Gibt es viele Käufer und wenig Ware, steigt der Preis. Gibt es viel Ware und wenig Käufer, sinkt er."],
+  ["Opportunitätskosten", "Das, worauf du verzichtest, wenn du dich für etwas entscheidest. Wer Samstag arbeitet, verzichtet auf Freizeit."],
+  ["Zielgruppe", "Die Menschen, für die dein Angebot gemacht ist. Wer alle erreichen will, erreicht oft niemanden."],
+  ["USP", "Dein Alleinstellungsmerkmal: Was kannst du, was andere nicht oder nicht so gut?"],
+  ["Amortisation", "Wie lange es dauert, bis sich eine Anschaffung durch die Einnahmen bezahlt gemacht hat."],
+  ["Diversifikation", "Nicht alles auf eine Karte setzen. Wer sein Geld verteilt, verliert bei einem Ausfall weniger."],
+  ["ROI", "Return on Investment: Wie viel Gewinn hat dir das eingesetzte Geld gebracht, im Verhältnis zur Summe?"],
+  ["Rücklagen", "Geld, das du für schlechte Zeiten oder große Ausgaben zur Seite legst."],
+  ["Lagerumschlag", "Wie oft deine Ware im Lager verkauft und neu aufgefüllt wird. Hoher Umschlag heißt, das Geld arbeitet schnell."],
+  ["Kundenwert", "Wie viel Geld ein Kunde dir über die ganze Zeit bringt, nicht nur beim ersten Kauf."],
+  ["SWOT", "Eine Übersicht mit vier Feldern: Stärken, Schwächen, Chancen und Risiken deiner Idee."],
+  ["Gewinn vs. Umsatz", "Umsatz ist alles, was reinkommt. Gewinn ist das, was nach Abzug aller Kosten übrig bleibt."],
+  ["Preiskalkulation", "Rechnen, welchen Preis du verlangen musst, damit nach allen Kosten noch Gewinn bleibt."],
+  ["Skalierung", "Wenn dein Geschäft wächst, ohne dass die Kosten im gleichen Tempo steigen."],
+  ["Kapitalbindung", "Geld, das gerade in Ware oder Material steckt und nicht frei verfügbar ist."],
+  ["Eigenkapital", "Geld, das dir selbst gehört, im Gegensatz zu geliehenem Geld."],
+  ["Hebel", "Mit geliehenem Geld mehr bewegen. Das kann Gewinne vergrößern, aber auch Verluste."]
+];
+function tFill(id, title, rows, head) {
+  const h = document.getElementById(id);
+  if (!h) return;
+  h.innerHTML = "";
+  const t = document.createElement("h3");
+  t.textContent = title;
+  h.appendChild(t);
+  if (head) h.appendChild(head);
+  rows.forEach(r => {
+    const e = document.createElement("div");
+    e.className = "tr";
+    e.innerHTML = "<span></span><span></span>";
+    e.children[0].textContent = r[0];
+    e.children[1].textContent = r[1];
+    if (r[2]) e.onclick = r[2]; else e.style.cursor = "default";
+    h.appendChild(e);
+  });
+}
+function fillAll() {
+  [fillToday, fillSearchT, fillSchoolT, fillBizT, fillFoundT, fillEvT].forEach(f => { try { f(); } catch (e) {} });
+}
+function fillSearchT() {
+  const L = (rq.search || []).slice(0, 4);
+  tFill("tc-search", "Zuletzt gesucht", L.length ? L.map(q => [q, "", () => { const i = document.getElementById("in"); i.value = q; i.focus(); }]) : [["Noch nichts gesucht. Frag zum Beispiel nach aktuellen Preisen oder Nachrichten.", ""]]);
+}
+function fillSchoolT() {
+  const rows = [];
+  const tdy = dkey(new Date()), nowc = lst.days[tdy] || 0, st = streak();
+  rows.push(["Karteikarten heute", nowc + " / " + DAYGOAL + " · Serie " + st, () => { showDecks(); }]);
+  decks.filter(d => d.cards.some(c => (c.k || 0) < 2)).slice(0, 2).forEach(d => rows.push([d.topic, d.cards.filter(c => (c.k || 0) < 2).length + " offen", () => showDecks()]));
+  todos.filter(x => !x.done && /^Lernen \|/.test(x.text)).slice(0, 3).forEach(x => rows.push([x.text.replace(/^Lernen \|\s*/, ""), "Aufgabe", () => { show("notes"); subTab("t"); }]));
+  if (calUrl && calC && calC.items) {
+    const lim = dkey(new Date(Date.now() + 14 * 86400000));
+    const ex = calC.items.filter(x => /klausur|prüfung|pruefung|klassenarbeit|test|abitur|referat|vokabel/i.test(x.t) && x.s.slice(0, 10) >= tdy && x.s.slice(0, 10) <= lim)[0];
+    if (ex) { const dd = Math.round((new Date(ex.s.slice(0, 10) + "T12:00:00") - new Date(tdy + "T12:00:00")) / 86400000); rows.unshift([ex.t, dd === 0 ? "heute" : dd === 1 ? "morgen" : "in " + dd + " Tagen", () => { show("ev"); evsub("c"); }]); }
+  }
+  (rq.school || []).slice(0, 2).forEach(q => rows.push([q, "weiter", () => { const i = document.getElementById("in"); i.value = q.replace(/^[^:]*:\s*/, ""); i.focus(); }]));
+  tFill("tc-school", "Heute lernen", rows);
+}
+function fillBizT() {
+  const d = new Date(), doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+  const x = BWLT[doy % BWLT.length];
+  const head = document.createElement("div");
+  head.innerHTML = '<div class="bt"></div><div class="bp"></div>';
+  head.children[0].textContent = x[0];
+  head.children[1].textContent = x[1];
+  tFill("tc-biz", "BWL-Begriff des Tages", [["Genauer erklären lassen", "→", () => { schoolSubject = "Wirtschaft"; schoolMode = "explain"; save("jarvis_subject", schoolSubject); save("jarvis_mode", schoolMode); drawChips(); show("school"); document.getElementById("in").value = "Erkläre mir den Begriff „" + x[0] + "“ mit einem einfachen Beispiel."; send(); }]], head);
+}
+function fillFoundT() {
+  const rows = [];
+  if (inv.length) {
+    const b = inv.filter(x => x.st < 2), so = inv.filter(x => x.st === 2);
+    const bound = b.reduce((a, x) => a + x.ek, 0), prof2 = so.reduce((a, x) => a + x.sold - x.ek - (x.fee || 0), 0);
+    rows.push(["Im Lager: " + b.length + " Artikel", eur(bound) + " gebunden", () => fsub("r")]);
+    rows.push(["Verkauft: " + so.length + " Artikel", "Gewinn " + eur(prof2), () => fsub("r")]);
+  } else rows.push(["Reseller starten", "Ersten Artikel eintragen", () => fsub("r")]);
+  const ot = todos.filter(x => !x.done && x.text.indexOf(" | ") > 0 && !/^Lernen \|/.test(x.text));
+  if (ot.length) rows.push([ot[0].text.length > 40 ? ot[0].text.slice(0, 40) + "…" : ot[0].text, ot.length + " offen", () => { show("notes"); subTab("t"); }]);
+  if (fideas && fideas.length) rows.push(["Deine Ideen: " + fideas[0].name, fideas.length + " gespeichert", () => fsub("i")]);
+  else rows.push(["Noch keine Ideen", "Jetzt finden", () => fsub("i")]);
+  tFill("tc-found", "Dein Stand", rows);
+}
+function fillEvT() {
+  const rows = [];
+  const tdy = dkey(new Date());
+  if (calUrl && calC && calC.items) {
+    calC.items.filter(x => x.s.slice(0, 10) >= tdy).slice(0, 3).forEach(x => rows.push([x.t, calDay(x.s.slice(0, 10)).replace("Heute · ", "").replace("Morgen · ", "morgen ") + " " + (x.a ? "" : x.s.slice(11)), () => evsub("c")]));
+    if (!rows.length) rows.push(["Keine Termine in den nächsten Tagen", "", () => evsub("c")]);
+  } else rows.push(["Kalender verbinden", "Apple Kalender", () => evsub("c")]);
+  if (evRes && evRes.items && evRes.items.length) rows.push(["Letzte Suche: " + evRes.city, evRes.items.length + " Events", () => evsub("e")]);
+  tFill("tc-ev", "Als Nächstes", rows);
+}
 
 /* ---- Einstiegsfragen ---- */
 const OQ = [
