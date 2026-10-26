@@ -727,8 +727,21 @@ const MODES = { explain: "Erklären", quiz: "Quiz", cards: "Karten", plan: "Lern
 let schoolSubject = load("jarvis_subject", "Mathe");
 let schoolMode = load("jarvis_mode", "explain");
 let useNotes = load("jarvis_usenotes", false) === true;
+let decks = load("jarvis_decks", []);
+let lst = load("jarvis_lst", { days: {} });
+let extraSubj = load("jarvis_subj_x", []);
+const DAYGOAL = 10;
+const dkey = d => { d = d || new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+function saveDecks() { save("jarvis_decks", decks.slice(0, 40)); save("jarvis_lst", lst); }
+function markRev() { const k = dkey(); lst.days[k] = (lst.days[k] || 0) + 1; saveDecks(); }
+function streak() {
+  let n = 0, d = new Date();
+  if (!lst.days[dkey(d)]) d.setDate(d.getDate() - 1);
+  while (lst.days[dkey(d)] > 0) { n++; d.setDate(d.getDate() - 1); }
+  return n;
+}
 
-function notesText() { return notes.map(n => "- " + n.text).join("\n").slice(0, 6000); }
+function notesText() { return notes.map(n => "- " + n.text).join("\n").slice(0, 2000); }
 
 function schoolSystem() {
   let s = "Du bist Jarvis im Lernmodus, ein geduldiger, motivierender Nachhilfelehrer. Du sprichst Deutsch und duzt den Nutzer. Fach: " + schoolSubject + ". Grundregel: Du hilfst beim Verstehen und gibst nicht einfach nur die fertige Lösung ab. Bei Aufgaben lässt du den Nutzer zuerst den nächsten Schritt versuchen, gibst gestufte Hinweise und zeigst die volle Lösung erst, wenn er es ausdrücklich verlangt oder nach zwei Versuchen nicht weiterkommt. Rechne sauber und prüfe Zwischenergebnisse. Kurze Absätze, keine Tabellen. Schreibe Formeln als Klartext, zum Beispiel 3x + 2 = 11. Wenn der Nutzer ein Foto schickt, lies die Aufgabe daraus ab und fasse sie kurz zusammen, bevor du hilfst.";
@@ -822,7 +835,24 @@ function addActions(el, text, t) {
   mk("Nochmal", () => redo(t, el));
   mk("In Notizen", b => { notes.unshift({ text: text }); saveData(); renderNotes(); b.textContent = "✓ Gespeichert"; b.disabled = true; });
   mk("Vorlesen", () => speak(text, true));
+  if (t === "school" && schoolMode === "plan") mk("Als Aufgaben", b => planToTodos(text, b));
   el.appendChild(row);
+}
+
+async function planToTodos(text, b) {
+  b.textContent = "wandelt um...";
+  b.disabled = true;
+  try {
+    const sys = "Wandle den Lernplan in ein JSON-Array aus höchstens 10 kurzen Strings um. Jeder String beginnt mit dem Tag oder Zeitraum, zum Beispiel \"Mo: Kapitel 1 wiederholen\". Antworte ausschließlich mit dem JSON-Array.";
+    const data = await api({ messages: [{ role: "user", content: text.slice(0, 3000) }], system: sys, mode: "chat" });
+    if (data.error) throw new Error("API");
+    const txt = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("");
+    const arr = fJson(txt, "[", "]").filter(x => typeof x === "string");
+    if (!arr.length) throw new Error("leer");
+    arr.forEach(x => todos.push({ text: "Lernen | " + x, done: false }));
+    saveData(); renderNotes();
+    b.textContent = "✓ " + arr.length + " Aufgaben";
+  } catch (e) { b.textContent = "Fehler, nochmal"; b.disabled = false; }
 }
 
 function redo(t, el) {
@@ -1019,13 +1049,26 @@ function addSaveBtn(el, text) {
 function drawChips() {
   const sc = document.getElementById("subjchips"), mc = document.getElementById("modechips");
   sc.innerHTML = ""; mc.innerHTML = "";
-  SUBJECTS.forEach(s => {
+  SUBJECTS.concat(extraSubj).forEach(s => {
     const b = document.createElement("button");
     b.className = "chip" + (s === schoolSubject ? " on" : "");
     b.textContent = s;
     b.onclick = () => { schoolSubject = s; save("jarvis_subject", s); drawChips(); };
     sc.appendChild(b);
   });
+  const plus = document.createElement("button");
+  plus.className = "chip";
+  plus.textContent = "+ Fach";
+  plus.onclick = () => {
+    let v = "";
+    try { v = prompt("Neues Fach eingeben (zum Entfernen: -Name)", "") || ""; } catch (e) {}
+    v = v.trim().slice(0, 24);
+    if (!v) return;
+    if (v[0] === "-") { const nm = v.slice(1).trim(); extraSubj = extraSubj.filter(x => x !== nm); if (schoolSubject === nm) schoolSubject = "Frei"; }
+    else if (SUBJECTS.concat(extraSubj).indexOf(v) < 0) { extraSubj.push(v); schoolSubject = v; }
+    save("jarvis_subj_x", extraSubj); save("jarvis_subject", schoolSubject); drawChips();
+  };
+  sc.appendChild(plus);
   Object.keys(MODES).forEach(k => {
     const b = document.createElement("button");
     b.className = "chip" + (k === schoolMode ? " on" : "");
@@ -1038,6 +1081,11 @@ function drawChips() {
   n.textContent = "Notizen nutzen";
   n.onclick = () => { useNotes = !useNotes; save("jarvis_usenotes", useNotes); drawChips(); };
   mc.appendChild(n);
+  const dk = document.createElement("button");
+  dk.className = "chip";
+  dk.textContent = "Meine Karten (" + decks.length + ")";
+  dk.onclick = () => { showDecks(); };
+  mc.appendChild(dk);
 }
 
 async function makeCards(topic) {
@@ -1048,15 +1096,24 @@ async function makeCards(topic) {
   try {
     let srcTxt = "";
     if (useNotes && notes.length) srcTxt = "\n\nNutze dieses Material:\n" + notesText();
-    const sys = "Du erstellst Lernkarten auf Deutsch für das Fach " + schoolSubject + ". Antworte AUSSCHLIESSLICH mit einem JSON-Array aus 8 Objekten der Form {\"q\":\"Frage\",\"a\":\"kurze Antwort\"}. Kein Text davor oder danach, keine Code-Blöcke. Fragen präzise, Antworten höchstens zwei Sätze.";
-    const data = await api({ messages: [{ role: "user", content: "Thema: " + topic + srcTxt }], system: sys, mode: "chat" });
-    if (data.error) throw new Error(data.error.message || "API-Fehler");
-    const txt = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
-    const cards = JSON.parse(txt.slice(txt.indexOf("["), txt.lastIndexOf("]") + 1)).filter(c => c && c.q && c.a);
-    if (!cards.length) throw new Error("Keine Karten erhalten");
+    const sys = "Du erstellst Lernkarten auf Deutsch für das Fach " + schoolSubject + ". Antworte AUSSCHLIESSLICH mit einem JSON-Array aus 8 Objekten der Form {\"q\":\"Frage\",\"a\":\"kurze Antwort\"}. Kein Text davor oder danach, keine Code-Blöcke, keine Anführungszeichen innerhalb der Texte. Fragen präzise, Antworten höchstens zwei Sätze.";
+    let cards = [], lastErr = null;
+    for (let t = 0; t < 2 && !cards.length; t++) {
+      try {
+        const data = await api({ messages: [{ role: "user", content: "Thema: " + topic + srcTxt }], system: sys, mode: "chat" });
+        if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || "API-Fehler"));
+        const txt = (data.content || []).filter(x => x.type === "text").map(x => x.text).join("");
+        cards = fJson(txt, "[", "]").filter(c => c && c.q && c.a).map(c => ({ q: String(c.q), a: String(c.a), k: 0 }));
+      } catch (e) { lastErr = e; }
+    }
+    if (!cards.length) throw new Error(lastErr ? lastErr.message : "Keine Karten erhalten");
+    const deck = { id: Date.now(), topic: topic.slice(0, 80), subj: schoolSubject, ts: Date.now(), cards: cards };
+    decks.unshift(deck);
+    saveDecks();
+    try { drawChips(); } catch (e) {}
     wait.classList.add("deckmsg");
-    wait.innerHTML = "<b>" + cards.length + " Karteikarten</b> zu: " + esc(topic);
-    renderDeck(cards, wait);
+    wait.innerHTML = "<b>" + cards.length + " Karteikarten</b> zu: " + esc(topic) + '<div class="dkhint" style="margin:4px 0 8px">Gespeichert unter „Meine Karten“</div>';
+    renderDeck(deck, wait);
   } catch (e) {
     wait.textContent = "Fehler: " + e.message + " (nochmal versuchen)";
   }
@@ -1064,8 +1121,36 @@ async function makeCards(topic) {
   core.classList.remove("busy");
 }
 
-function renderDeck(cards, host) {
-  let list = cards, i = 0, known = 0, flipped = false, again = [];
+function showDecks() {
+  const m = add("", "bot", null, "school");
+  m.classList.add("deckmsg");
+  const today = lst.days[dkey()] || 0, st = streak();
+  const head = document.createElement("div");
+  head.innerHTML = "<b>Meine Karten</b><div class=\"dkhint\" style=\"text-align:left;margin:4px 0 10px\">Heute " + today + " / " + DAYGOAL + " Karten · Serie " + st + (st === 1 ? " Tag" : " Tage") + (today >= DAYGOAL ? " · Tagesziel geschafft" : "") + "</div>";
+  m.appendChild(head);
+  if (!decks.length) { const e = document.createElement("div"); e.className = "dkhint"; e.style.textAlign = "left"; e.textContent = "Noch keine Stapel. Wähle den Modus Karten und nenne ein Thema."; m.appendChild(e); return; }
+  decks.forEach(d => {
+    const done = d.cards.filter(c => (c.k || 0) >= 2).length;
+    const r = document.createElement("div");
+    r.className = "li2";
+    r.style.cssText = "display:flex;align-items:center;gap:8px;justify-content:space-between;padding:9px 0;border-top:1px solid rgba(255,255,255,.08)";
+    const t = document.createElement("div");
+    t.innerHTML = "<div>" + esc(d.topic) + "</div><div class=\"dkhint\" style=\"text-align:left\">" + esc(d.subj) + " · " + done + " / " + d.cards.length + " gelernt</div>";
+    const go = document.createElement("button"); go.className = "smallbtn"; go.textContent = "Lernen";
+    go.onclick = () => { const h = add("", "bot", null, "school"); h.classList.add("deckmsg"); h.innerHTML = "<b>" + esc(d.topic) + "</b>"; renderDeck(d, h); };
+    const del = document.createElement("button"); del.className = "smallbtn"; del.textContent = "Löschen";
+    del.onclick = () => { decks = decks.filter(x => x.id !== d.id); saveDecks(); try { drawChips(); } catch (e) {} r.remove(); };
+    const b = document.createElement("div"); b.style.cssText = "display:flex;gap:6px;flex-shrink:0"; b.appendChild(go); b.appendChild(del);
+    r.appendChild(t); r.appendChild(b); m.appendChild(r);
+  });
+}
+
+function renderDeck(deck, host) {
+  const all = deck.cards;
+  let open = all.filter(c => (c.k || 0) < 2);
+  let list = open.length ? open : all.slice();
+  if (!open.length) all.forEach(c => { c.k = 0; });
+  let i = 0, known = 0, flipped = false, again = [];
   const box = document.createElement("div");
   host.appendChild(box);
   function draw() {
@@ -1073,8 +1158,13 @@ function renderDeck(cards, host) {
     if (i >= list.length) {
       const d = document.createElement("div");
       d.className = "dkdone";
-      d.textContent = "Durch! " + known + " von " + list.length + " gewusst.";
+      const left = all.filter(c => (c.k || 0) < 2).length;
+      d.textContent = "Durch! " + known + " von " + list.length + " gewusst." + (left ? "" : " Stapel gelernt.");
       box.appendChild(d);
+      const sdiv = document.createElement("div");
+      sdiv.className = "dkhint";
+      sdiv.textContent = "Heute " + (lst.days[dkey()] || 0) + " / " + DAYGOAL + " Karten · Serie " + streak() + " Tage";
+      box.appendChild(sdiv);
       if (again.length) {
         const r = document.createElement("button");
         r.className = "smallbtn";
@@ -1095,10 +1185,10 @@ function renderDeck(cards, host) {
       row.className = "dkrow";
       const y = document.createElement("button");
       y.textContent = "✓ Gewusst";
-      y.onclick = () => { known++; i++; flipped = false; draw(); };
+      y.onclick = () => { known++; c.k = Math.min(3, (c.k || 0) + 1); markRev(); i++; flipped = false; draw(); };
       const n = document.createElement("button");
       n.textContent = "↻ Nochmal";
-      n.onclick = () => { again.push(c); i++; flipped = false; draw(); };
+      n.onclick = () => { again.push(c); c.k = 0; markRev(); i++; flipped = false; draw(); };
       row.appendChild(y); row.appendChild(n);
       box.appendChild(row);
     } else {
@@ -2053,7 +2143,7 @@ function initLock() {
 }
 
 function exportAll() {
-  const o = { app: "jarvis", v: 25, t: Date.now(), notes: notes, todos: todos, facts: facts, inv: inv, fav: fav, sp: sp, wl: load("jarvis_wl", []), ideas: fideas };
+  const o = { app: "jarvis", v: 25, t: Date.now(), notes: notes, todos: todos, facts: facts, inv: inv, fav: fav, sp: sp, wl: load("jarvis_wl", []), ideas: fideas, decks: decks, lst: lst, prof: prof, subj: extraSubj };
   const blob = new Blob([JSON.stringify(o, null, 1)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -2076,6 +2166,11 @@ function importAll(file) {
       if (Array.isArray(o.inv)) inv = o.inv;
       if (Array.isArray(o.fav)) fav = o.fav;
       if (o.sp && typeof o.sp === "object") { sp = o.sp; save("jarvis_sp", sp); }
+      if (Array.isArray(o.decks)) decks = o.decks;
+      if (o.lst && o.lst.days) lst = o.lst;
+      if (o.prof && typeof o.prof === "object") { prof = o.prof; save("jarvis_profile", prof); }
+      if (Array.isArray(o.subj)) extraSubj = o.subj;
+      save("jarvis_subj_x", extraSubj); saveDecks(); try { drawChips(); } catch (e) {}
       saveData();
       renderNotes();
       try { drawInv(); } catch (e) {}
@@ -2097,7 +2192,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v27</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v28</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
