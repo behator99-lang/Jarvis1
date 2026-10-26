@@ -321,7 +321,14 @@
 
   /* ---- v18: Märkte ---- */
   body[data-t="mk"] { --ar: 185,214,111; --a: #b9d66f; --a2: #e6f2c0; --bg0: #0d1204; --bg1: #26300a; --on: #151d05; --bga: .36; background: radial-gradient(130% 60% at 50% 0%, rgba(var(--ar), var(--bga)) 0%, transparent 72%), var(--bg0); }
-  #mk { flex: 1; overflow-y: auto; padding: 4px 18px 20px; min-height: 0; }
+  #mk, #ev { flex: 1; overflow-y: auto; padding: 4px 18px 20px; min-height: 0; }
+  body[data-t="ev"] { --ar: 240,143,107; --a: #f0906b; --a2: #fbd3c0; --bg0: #170a06; --bg1: #3a1a0e; --on: #2a0e05; --bga: .34; background: radial-gradient(130% 55% at 50% 0%, rgba(var(--ar), var(--bga)) 0%, transparent 70%), radial-gradient(120% 45% at 50% 100%, rgba(var(--ar), .14) 0%, transparent 70%), var(--bg0); }
+  .evc { margin: 12px 0; padding: 16px; border-radius: 22px; background: rgba(255,255,255,.045); border: 1px solid rgba(var(--ar), .25); }
+  .evc h3 { margin: 0 0 4px; font-size: 17px; font-weight: 600; color: var(--a2); }
+  .evc .d { font-size: 14px; color: var(--a); margin-bottom: 2px; }
+  .evc .o { font-size: 13px; opacity: .65; }
+  .evc p { margin: 6px 0 0; font-size: 14px; opacity: .85; }
+  .evc a.smallbtn { text-decoration: none; display: inline-flex; align-items: center; }
   body[data-t] .tab { font-size: 11px; }
   .tk { display: flex; gap: 10px; overflow-x: auto; margin: 14px 0 6px; padding-bottom: 4px; -webkit-overflow-scrolling: touch; }
   .tkc { flex-shrink: 0; min-width: 140px; padding: 12px 14px; border-radius: 20px; background: linear-gradient(160deg, rgba(var(--ar), .18), rgba(255,255,255,.04)); border: 1px solid rgba(var(--ar), .3); }
@@ -361,7 +368,7 @@
   .tab { min-width: 0; padding: 0; overflow: hidden; }
   body[data-t] .tab { font-size: 11px; letter-spacing: 0; }
   @media (max-width: 380px) { body[data-t] .tab { font-size: 10px; } }
-  #chat, #search, #notes, #biz, #school, #found, #mk { padding-left: max(18px, calc((100% - 680px) / 2)); padding-right: max(18px, calc((100% - 680px) / 2)); }
+  #chat, #search, #notes, #biz, #school, #found, #mk, #ev { padding-left: max(18px, calc((100% - 680px) / 2)); padding-right: max(18px, calc((100% - 680px) / 2)); }
   #schoolctl { padding-left: max(18px, calc((100% - 680px) / 2)); padding-right: max(18px, calc((100% - 680px) / 2)); }
   header { padding-left: max(16px, calc((100vw - 680px) / 2)); padding-right: max(16px, calc((100vw - 680px) / 2)); }
   #bar { margin-left: max(14px, calc((100vw - 680px) / 2)); margin-right: max(14px, calc((100vw - 680px) / 2)); }
@@ -430,6 +437,7 @@
   <div id="fplan" style="display:none"></div>
 </div>
 <div id="mk" style="display:none"></div>
+<div id="ev" style="display:none"></div>
 <div id="biz" style="display:none"><div class="pagehead"><h2>Rechner-Werkstatt</h2><div class="hsub">Tippe einen Rechner an, trage Werte ein und lass dir das Ergebnis von Jarvis erklären.</div></div><div id="calcs"></div></div>
 <div id="notes" style="display:none">
   <div class="pagehead"><h2>Notizen &amp; Aufgaben</h2><div class="hsub">Alles an einem Ort, auf allen Geräten synchron.</div></div>
@@ -455,6 +463,7 @@
   <button class="tab" id="tab-biz" onclick="show('biz')">BWL</button>
   <button class="tab" id="tab-found" onclick="show('found')">Startup</button>
   <button class="tab" id="tab-mk" onclick="show('mk')">Märkte</button>
+  <button class="tab" id="tab-ev" onclick="show('ev')">Events</button>
   <button class="tab" id="tab-notes" onclick="show('notes')">Notizen</button>
 </div>
 <script>
@@ -887,8 +896,8 @@ function newChat() {
   renderTab(cur);
 }
 
-const TITLES = { chat: "Chat", search: "Suche", school: "Schule", biz: "BWL", found: "Startup", mk: "Märkte", notes: "Notizen" };
-const PANES = { chat: "chat", search: "search", school: "schoolwrap", biz: "biz", found: "found", mk: "mk", notes: "notes" };
+const TITLES = { chat: "Chat", search: "Suche", school: "Schule", biz: "BWL", found: "Startup", mk: "Märkte", ev: "Events", notes: "Notizen" };
+const PANES = { chat: "chat", search: "search", school: "schoolwrap", biz: "biz", found: "found", mk: "mk", ev: "ev", notes: "notes" };
 const PLACE = { chat: "Sag etwas zu Jarvis...", search: "Was soll ich suchen?", school: "Thema, Aufgabe oder Antwort..." };
 
 function show(t) {
@@ -900,12 +909,12 @@ function show(t) {
     document.getElementById(PANES[k]).style.display = k === t ? (k === "school" ? "flex" : "block") : "none";
     document.getElementById("tab-" + k).classList.toggle("on", k === t);
   });
-  document.getElementById("bar").style.display = (t === "notes" || t === "biz" || t === "found" || t === "mk") ? "none" : "flex";
+  document.getElementById("bar").style.display = (t === "notes" || t === "biz" || t === "found" || t === "mk" || t === "ev") ? "none" : "flex";
   document.querySelector(".photo").style.display = (t === "chat" || t === "school") ? "flex" : "none";
   document.getElementById("newbtn").style.visibility = tabs[t] ? "visible" : "hidden";
   document.getElementById("in").placeholder = PLACE[t] || "";
   const p = document.getElementById(t);
-  if (p) p.scrollTop = (t === "notes" || t === "biz" || t === "found" || t === "mk") ? 0 : p.scrollHeight;
+  if (p) p.scrollTop = (t === "notes" || t === "biz" || t === "found" || t === "mk" || t === "ev") ? 0 : p.scrollHeight;
   if (t === "mk") mkEnter();
 }
 
@@ -1390,7 +1399,8 @@ let fideas = load("jarvis_ideas", []);
 
 function fJson(txt, open, close) {
   txt = String(txt || "").replace(/```(json)?/gi, "");
-  const a = txt.indexOf(open);
+  let a = open === "[" ? txt.search(/\[\s*[\{"]/) : txt.indexOf(open);
+  if (a < 0) a = txt.indexOf(open);
   if (a < 0) throw new Error("Antwort nicht lesbar");
   const b = txt.lastIndexOf(close);
   if (b > a) { try { return JSON.parse(txt.slice(a, b + 1)); } catch (e) {} }
@@ -2193,12 +2203,13 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v30</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v31</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
   mk(acts[0], "Zugangscode neu eingeben", () => { try { localStorage.removeItem("jarvis_code"); } catch (e) {} fidMsg("Beim nächsten Senden fragt die App den Code neu ab."); });
   mk(acts[1], "Profil ändern", () => { try { openOnb(); } catch (e) {} });
+  mk(acts[1], "App neu laden", () => { location.replace(location.pathname + "?r=" + Date.now()); });
   mk(acts[2], "Backup speichern", exportAll);
   const lab = document.createElement("label");
   lab.className = "smallbtn";
@@ -2548,6 +2559,224 @@ try { show("chat"); } catch (e) {}
 try { updSpk(); } catch (e) {}
 try { pullSync(); } catch (e) {}
 try { buildSettings(); } catch (e) {}
+
+
+/* ---- Events & Kalender ---- */
+let evCity = load("jarvis_city", "");
+let evI = load("jarvis_evi", []);
+let evT = load("jarvis_evt", "Wochenende");
+let evRes = load("jarvis_evres", null);
+let evSub = "e";
+const EVI = ["Konzerte", "Flohmärkte", "Messen", "Gründer & Business", "Sport", "Kultur & Kunst", "Feste & Märkte", "Workshops", "Familie & Kinder"];
+const EVT = ["Heute", "Wochenende", "7 Tage", "Dieser Monat"];
+
+function icsTxt(e) {
+  const p2 = n => String(n).padStart(2, "0");
+  const ld = d => d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate());
+  const lt = d => ld(d) + "T" + p2(d.getHours()) + p2(d.getMinutes()) + "00";
+  const ex = t => String(t || "").replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+  const L = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Jarvis//DE", "CALSCALE:GREGORIAN", "BEGIN:VEVENT",
+    "UID:" + Date.now() + Math.floor(Math.random() * 1e6) + "@jarvis", "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z"];
+  if (e.allDay) {
+    const n = new Date(e.start.getTime()); n.setDate(n.getDate() + 1);
+    L.push("DTSTART;VALUE=DATE:" + ld(e.start), "DTEND;VALUE=DATE:" + ld(n));
+  } else {
+    L.push("DTSTART:" + lt(e.start), "DTEND:" + lt(new Date(e.start.getTime() + (e.mins || 60) * 60000)));
+  }
+  L.push("SUMMARY:" + ex(e.title));
+  if (e.place) L.push("LOCATION:" + ex(e.place));
+  if (e.desc) L.push("DESCRIPTION:" + ex(e.desc));
+  if (e.alarm) L.push("BEGIN:VALARM", "TRIGGER:-PT" + e.alarm + "M", "ACTION:DISPLAY", "DESCRIPTION:" + ex(e.title), "END:VALARM");
+  L.push("END:VEVENT", "END:VCALENDAR");
+  return L.join("\r\n");
+}
+function addToCal(e) {
+  try {
+    const blob = new Blob([icsTxt(e)], { type: "text/calendar;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "termin.ics";
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+    return true;
+  } catch (x) { return false; }
+}
+
+function evRange() {
+  const n = new Date(), d0 = new Date(n.getFullYear(), n.getMonth(), n.getDate()), f = d => dkey(d);
+  let a = d0, b = d0;
+  if (evT === "Wochenende") { const w = d0.getDay(); const toSat = w === 0 ? -1 : (6 - w); a = new Date(d0.getTime() + toSat * 86400000); b = new Date(a.getTime() + 86400000); if (w === 0 || w === 6) a = d0; }
+  else if (evT === "7 Tage") b = new Date(d0.getTime() + 7 * 86400000);
+  else if (evT === "Dieser Monat") b = new Date(n.getFullYear(), n.getMonth() + 1, 0);
+  return [f(a), f(b)];
+}
+
+function buildEv() {
+  const h = document.getElementById("ev");
+  h.innerHTML = '<div class="pagehead"><h2>Events</h2><div class="hsub">Was in deiner Nähe los ist, und Termine direkt in deinen Kalender.</div></div>' +
+    '<div class="seg"><button class="sub on" id="es-e" onclick="evsub(\'e\')">In deiner Nähe</button><button class="sub" id="es-t" onclick="evsub(\'t\')">Termin anlegen</button></div>' +
+    '<div id="ev-e"></div><div id="ev-t" style="display:none"></div>' +
+    '<div class="disc">Die Treffer stammen aus einer Websuche und können unvollständig oder veraltet sein. Prüfe Datum, Ort und Preis beim Veranstalter, bevor du losgehst.</div>';
+  drawEvE();
+  drawEvT();
+}
+function evsub(k) {
+  evSub = k;
+  document.getElementById("ev-e").style.display = k === "e" ? "block" : "none";
+  document.getElementById("ev-t").style.display = k === "t" ? "block" : "none";
+  document.getElementById("es-e").classList.toggle("on", k === "e");
+  document.getElementById("es-t").classList.toggle("on", k === "t");
+}
+function chipRow(host, opts, isOn, onTap) {
+  const row = document.createElement("div");
+  row.className = "chips";
+  row.style.cssText = "flex-wrap:wrap;margin:4px 0 10px";
+  opts.forEach(o => {
+    const b = document.createElement("button");
+    b.className = "chip" + (isOn(o) ? " on" : "");
+    b.textContent = o;
+    b.onclick = () => onTap(o);
+    row.appendChild(b);
+  });
+  host.appendChild(row);
+}
+function lbl(host, t) { const l = document.createElement("div"); l.className = "fq"; l.textContent = t; host.appendChild(l); }
+
+function drawEvE() {
+  const host = document.getElementById("ev-e");
+  host.innerHTML = "";
+  lbl(host, "Wo?");
+  const two = document.createElement("div");
+  two.className = "two";
+  const inp = document.createElement("input");
+  inp.className = "rin"; inp.placeholder = "Stadt oder PLZ"; inp.value = evCity; inp.style.margin = "0";
+  inp.oninput = () => { evCity = inp.value.trim().slice(0, 60); save("jarvis_city", evCity); };
+  const loc = document.createElement("button");
+  loc.className = "smallbtn"; loc.textContent = "Standort"; loc.style.flexShrink = "0";
+  loc.onclick = () => {
+    if (!navigator.geolocation) { loc.textContent = "nicht möglich"; return; }
+    loc.textContent = "sucht...";
+    navigator.geolocation.getCurrentPosition(async pos => {
+      try {
+        const r = await fetch("https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=" + pos.coords.latitude + "&longitude=" + pos.coords.longitude + "&localityLanguage=de");
+        const j = await r.json();
+        const c = j.city || j.locality || j.principalSubdivision || "";
+        if (!c) throw new Error("leer");
+        evCity = c; save("jarvis_city", c); inp.value = c; loc.textContent = "Standort";
+      } catch (e) { loc.textContent = "Tippe die Stadt ein"; }
+    }, () => { loc.textContent = "Erlaubnis fehlt"; }, { timeout: 10000 });
+  };
+  two.appendChild(inp); two.appendChild(loc);
+  host.appendChild(two);
+  lbl(host, "Was interessiert dich? (mehrere möglich)");
+  chipRow(host, EVI, o => evI.indexOf(o) >= 0, o => { const i = evI.indexOf(o); if (i >= 0) evI.splice(i, 1); else evI.push(o); save("jarvis_evi", evI); drawEvE(); });
+  lbl(host, "Wann?");
+  chipRow(host, EVT, o => evT === o, o => { evT = o; save("jarvis_evt", evT); drawEvE(); });
+  const go = document.createElement("button");
+  go.className = "cta"; go.id = "evgo"; go.textContent = "Events suchen";
+  go.onclick = findEvents;
+  host.appendChild(go);
+  const hint = document.createElement("div");
+  hint.className = "hsub"; hint.style.cssText = "font-size:12px;opacity:.5;margin-top:6px;text-align:center";
+  hint.textContent = "Eine Suche zählt wie drei Anfragen für dein Tageslimit.";
+  host.appendChild(hint);
+  const res = document.createElement("div");
+  res.id = "evres";
+  host.appendChild(res);
+  if (evRes && evRes.items) drawEvRes(evRes);
+}
+
+async function findEvents() {
+  const go = document.getElementById("evgo"), res = document.getElementById("evres"), core = document.getElementById("core");
+  if (!evCity) { res.innerHTML = '<div class="empty">Gib zuerst eine Stadt ein oder tippe auf „Standort“.</div>'; return; }
+  go.disabled = true;
+  core.classList.add("busy");
+  res.innerHTML = '<div class="th" style="margin-top:18px"><span class="dot"></span>Jarvis sucht Events in ' + esc(evCity) + '...</div>';
+  try {
+    const rg = evRange();
+    const sys = "Du suchst mit der Websuche echte Veranstaltungen. Ort: " + evCity + " und Umgebung (bis etwa 30 km). Zeitraum: " + rg[0] + " bis " + rg[1] + ". Interessen: " + (evI.join(", ") || "alles Interessante") + ". Nimm nur Veranstaltungen, die du in den Suchergebnissen gefunden hast und die im Zeitraum liegen; erfinde nichts. Passe die Auswahl an das Alter im Nutzerprofil an. Antworte AUSSCHLIESSLICH mit einem JSON-Array aus höchstens 6 Objekten: {\"t\":\"Titel\",\"d\":\"Datum und Uhrzeit lesbar, zum Beispiel Sa 31.10., 19 Uhr\",\"iso\":\"YYYY-MM-DDTHH:MM Startzeit oder leer\",\"o\":\"Ort\",\"w\":\"höchstens 15 Wörter, worum es geht\",\"u\":\"URL der Quelle aus den Suchergebnissen oder leer\"}. Keine Anführungszeichen innerhalb der Texte. Wenn du nichts findest: [].";
+    const data = await api({ messages: [{ role: "user", content: "Heute ist " + new Date().toLocaleDateString("de-DE") + ". Suche Events." }], system: sys, mode: "search" });
+    if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || "API-Fehler"));
+    const txt = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
+    let arr = [];
+    try { arr = fJson(txt, "[", "]").filter(x => x && x.t); } catch (e) { if (!/\[\s*\]/.test(txt)) throw e; }
+    evRes = { t: Date.now(), city: evCity, items: arr.slice(0, 6) };
+    save("jarvis_evres", evRes);
+    drawEvRes(evRes);
+  } catch (e) {
+    res.innerHTML = '<div class="empty">Fehler: ' + esc(e.message) + ". Tippe nochmal auf „Events suchen“.</div>";
+  }
+  go.disabled = false;
+  core.classList.remove("busy");
+}
+
+function drawEvRes(r) {
+  const host = document.getElementById("evres");
+  host.innerHTML = "";
+  if (!r.items.length) { host.innerHTML = '<div class="empty">Nichts Passendes gefunden. Versuche einen größeren Zeitraum oder weniger Filter.</div>'; return; }
+  r.items.forEach(x => {
+    const c = document.createElement("div");
+    c.className = "evc";
+    c.innerHTML = "<h3>" + esc(x.t) + '</h3><div class="d">' + esc(x.d || "") + '</div><div class="o">' + esc(x.o || "") + "</div>" + (x.w ? "<p>" + esc(x.w) + "</p>" : "");
+    const row = document.createElement("div");
+    row.className = "acts";
+    const mk = (l, fn) => { const b = document.createElement("button"); b.className = "smallbtn"; b.textContent = l; b.onclick = () => fn(b); row.appendChild(b); };
+    const st = x.iso ? new Date(x.iso) : null;
+    if (st && !isNaN(st)) mk("In Kalender", b => { b.textContent = addToCal({ title: x.t, start: st, mins: 120, place: x.o, desc: x.w, alarm: 60 }) ? "✓ Datei erstellt" : "Fehler"; });
+    mk("Merken", b => { notes.unshift({ text: "Event: " + x.t + "\n" + (x.d || "") + (x.o ? ", " + x.o : "") + (x.u ? "\n" + x.u : "") }); saveData(); renderNotes(); b.textContent = "✓ Gemerkt"; b.disabled = true; });
+    if (x.u && /^https?:\/\//.test(x.u)) {
+      const a = document.createElement("a");
+      a.className = "smallbtn"; a.textContent = "Quelle"; a.href = x.u; a.target = "_blank"; a.rel = "noopener";
+      row.appendChild(a);
+    }
+    c.appendChild(row);
+    host.appendChild(c);
+  });
+}
+
+function drawEvT() {
+  const host = document.getElementById("ev-t");
+  host.innerHTML = "";
+  const st = { title: "", when: "", place: "", dur: "1 Std.", alarm: "30 Min." };
+  const f = (l, ph, type, key) => {
+    lbl(host, l);
+    const i = document.createElement("input");
+    i.className = "rin"; i.placeholder = ph; i.type = type || "text";
+    i.oninput = () => { st[key] = i.value; };
+    host.appendChild(i);
+  };
+  f("Was?", "z. B. Mathe-Klausur lernen", "text", "title");
+  f("Wann?", "", "datetime-local", "when");
+  f("Wo? (optional)", "Ort oder Adresse", "text", "place");
+  lbl(host, "Dauer");
+  const DUR = ["30 Min.", "1 Std.", "2 Std.", "Ganzer Tag"], ALM = ["keine", "10 Min.", "30 Min.", "1 Std.", "1 Tag"];
+  const rows = document.createElement("div");
+  host.appendChild(rows);
+  function dr() {
+    rows.innerHTML = "";
+    chipRow(rows, DUR, o => st.dur === o, o => { st.dur = o; dr(); });
+    lbl(rows, "Erinnerung vorher");
+    chipRow(rows, ALM, o => st.alarm === o, o => { st.alarm = o; dr(); });
+  }
+  dr();
+  const go = document.createElement("button");
+  go.className = "cta"; go.textContent = "In Kalender eintragen";
+  const msg = document.createElement("div");
+  msg.className = "hsub"; msg.style.cssText = "font-size:13px;margin-top:10px;text-align:center;opacity:.8";
+  go.onclick = () => {
+    if (!st.title.trim() || !st.when) { msg.textContent = "Bitte Titel und Zeitpunkt eintragen."; return; }
+    const d = new Date(st.when);
+    if (isNaN(d)) { msg.textContent = "Das Datum konnte nicht gelesen werden."; return; }
+    const mins = { "30 Min.": 30, "1 Std.": 60, "2 Std.": 120 }[st.dur] || 60;
+    const al = { "10 Min.": 10, "30 Min.": 30, "1 Std.": 60, "1 Tag": 1440 }[st.alarm] || 0;
+    const ok2 = addToCal({ title: st.title.trim(), start: d, mins: mins, allDay: st.dur === "Ganzer Tag", place: st.place.trim(), alarm: al });
+    msg.textContent = ok2 ? "Datei erstellt. Tippe sie an und wähle „Zum Kalender hinzufügen“. Wenn nichts passiert, öffne Jarvis einmal in Safari." : "Das hat nicht geklappt.";
+  };
+  host.appendChild(go);
+  host.appendChild(msg);
+}
+try { buildEv(); } catch (e) {}
 
 /* ---- Einstiegsfragen ---- */
 const OQ = [
