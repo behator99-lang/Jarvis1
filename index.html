@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="Jarvis">
 <meta name="theme-color" content="#04100a">
 <meta name="color-scheme" content="dark">
+<script>try{if(localStorage.getItem("jarvis_fid"))document.documentElement.classList.add("locked")}catch(e){}</script>
 <title>Jarvis</title>
 <style>
   html { background: #04100a; min-height: 100%; }
@@ -364,9 +365,29 @@
   #schoolctl { padding-left: max(18px, calc((100% - 680px) / 2)); padding-right: max(18px, calc((100% - 680px) / 2)); }
   header { padding-left: max(16px, calc((100vw - 680px) / 2)); padding-right: max(16px, calc((100vw - 680px) / 2)); }
   #bar { margin-left: max(14px, calc((100vw - 680px) / 2)); margin-right: max(14px, calc((100vw - 680px) / 2)); }
+
+  /* ---- v24 ---- */
+  #lock { display: none; position: fixed; inset: 0; z-index: 9999; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 24px; background: radial-gradient(120% 60% at 50% 0%, rgba(143,191,159,.35) 0%, transparent 70%), #04100a; }
+  html.locked #lock { display: flex; }
+  #lock h2 { font-weight: 300; font-size: 26px; margin: 28px 0 6px; color: #cfe8d6; }
+  #lock .orb { background: radial-gradient(circle at 35% 30%, #cfe8d6 0%, #8fbf9f 30%, rgba(143,191,159,.45) 65%, #04100a 100%); }
+  .t3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 8px 0; }
+  .t3c { padding: 10px; border-radius: 16px; background: linear-gradient(160deg, rgba(var(--ar), .18), rgba(255,255,255,.04)); border: 1px solid rgba(var(--ar), .28); min-width: 0; }
+  .t3c small { display: block; font-size: 11px; opacity: .7; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .t3c b { display: block; font-size: 17px; font-weight: 600; margin: 4px 0 2px; }
+  .t3c span { display: block; font-size: 11px; opacity: .55; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  body[data-t] .star { width: 28px; height: 28px; padding: 0; border-radius: 50%; background: transparent !important; color: rgba(255,255,255,.3) !important; border: none; font-size: 18px; flex-shrink: 0; }
+  body[data-t] .star.on { color: var(--a) !important; }
+  .mrow .nm { flex: 1; min-width: 0; }
+  .chart { width: 100%; height: 150px; margin: 10px 0 4px; }
+  .lg { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11px; opacity: .7; margin-bottom: 8px; }
+  .lg i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+  label.smallbtn { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 14px; font-size: 12px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: var(--a2); }
+  .rin { color: #fff; }
 </style>
 </head>
 <body>
+<div id="lock"><div class="orb"></div><h2>Jarvis</h2><div class="hsub">Gesperrt</div><button class="cta" id="unlockbtn" style="max-width:280px;margin-top:22px">Mit Face ID entsperren</button><button class="smallbtn" id="lockoff" style="margin-top:14px">Face ID ausschalten (Zugangscode)</button><div class="hsub" id="lockmsg" style="margin-top:12px;max-width:300px"></div></div>
 <header>
   <button class="mini spk" id="spk" onclick="toggleSpeak()"></button>
   <div class="pill"><span class="core" id="core"></span><h1 id="ttl">JARVIS</h1></div>
@@ -400,6 +421,8 @@
 <div id="biz" style="display:none"><div class="pagehead"><h2>Rechner-Werkstatt</h2><div class="hsub">Tippe einen Rechner an, trage Werte ein und lass dir das Ergebnis von Jarvis erklären.</div></div><div id="calcs"></div></div>
 <div id="notes" style="display:none">
   <div class="pagehead"><h2>Notizen &amp; Aufgaben</h2><div class="hsub">Alles an einem Ort, auf allen Geräten synchron.</div></div>
+  <div class="acts" style="margin:0 0 4px"><button class="smallbtn" id="setbtn" onclick="toggleSet()" style="margin-top:0">Einstellungen</button></div>
+  <div id="setbox" style="display:none"></div>
   <div id="sub"><button class="sub on" id="sub-n" onclick="subTab('n')">Notizen</button><button class="sub" id="sub-t" onclick="subTab('t')">Aufgaben</button></div>
   <div id="nlist"></div>
   <div id="tlist" style="display:none"></div>
@@ -452,6 +475,8 @@ function saveData() {
   save("jarvis_notes", notes);
   save("jarvis_todos", todos);
   save("jarvis_facts", facts);
+  save("jarvis_inv", inv);
+  save("jarvis_fav", fav);
   clearTimeout(syncTimer);
   syncTimer = setTimeout(pushSync, 800);
 }
@@ -472,7 +497,7 @@ async function api(body) {
 async function pushSync() {
   updated = Date.now();
   save("jarvis_updated", updated);
-  try { await api({ action: "sync_set", data: { notes, todos, facts, updated } }); } catch (e) {}
+  try { await api({ action: "sync_set", data: { notes, todos, facts, inv, fav, updated } }); } catch (e) {}
 }
 
 async function pullSync() {
@@ -487,12 +512,15 @@ async function pullSync() {
       notes = d.notes || [];
       todos = d.todos || [];
       facts = d.facts || [];
+      if (Array.isArray(d.inv)) { inv = d.inv; save("jarvis_inv", inv); }
+      if (Array.isArray(d.fav)) { fav = d.fav; save("jarvis_fav", fav); }
       updated = d.updated;
       save("jarvis_notes", notes);
       save("jarvis_todos", todos);
       save("jarvis_facts", facts);
       save("jarvis_updated", updated);
       renderNotes();
+      try { drawInv(); } catch (e) {}
     }
   } catch (e) {}
 }
@@ -1341,100 +1369,378 @@ async function makePlan(x, b) {
 
 /* ---- Märkte ---- */
 let mkc = load("jarvis_mk", null);
-let wl = load("jarvis_wl", []);
+let mq = load("jarvis_mq", {});
+let fav = load("jarvis_fav", []);
 let brief = load("jarvis_brief", null);
-let mkSub = "c";
+let sp = load("jarvis_sp", { k0: 0, rate: 200, years: 20, r1: 3, r2: 5, r3: 7, cost: 0.2, infl: 2, tax: true, goal: 100000 });
+let mkSub = "o", mkDir = "up", mkMkt = "de", mqErr = "", mkQ = "", mkLoading = false;
 const STABLE = ["usdt", "usdc", "dai", "fdusd", "usde", "tusd", "usds", "pyusd", "usd1", "usdd", "busd"];
 const pfmt = p => (p >= 1 ? nf(p, 2) : p >= 0.01 ? nf(p, 4) : nf(p, 6)) + " €";
 const chg = c => '<span class="' + (c > 0.005 ? "up" : c < -0.005 ? "dn" : "fl") + '">' + (c >= 0 ? "+" : "") + nf(c, 2) + " %</span>";
 const FNG = { "Extreme Fear": "Extreme Angst", "Fear": "Angst", "Neutral": "Neutral", "Greed": "Gier", "Extreme Greed": "Extreme Gier" };
 const LEARN = [
   ["ETF einfach erklärt", "Erkläre mir ETFs einfach: Was ist das, wie funktioniert ein Welt-ETF, was bedeutet TER und thesaurierend gegen ausschüttend?"],
+  ["Sparplan sinnvoll aufbauen", "Erkläre mir, wie ich einen ETF-Sparplan sinnvoll aufbaue: Notgroschen, Höhe der Rate, Laufzeit, Kosten, Steuern in Deutschland und typische Fehler."],
   ["Aktie oder ETF?", "Was sind die Unterschiede zwischen Einzelaktien und ETFs, und für wen passt was?"],
   ["Risiko und Stop-Loss", "Erkläre mir Risikomanagement beim Trading: Positionsgröße, Stop-Loss und warum man nie alles auf eine Karte setzt."],
   ["Hebel und CFDs", "Was sind Hebel und CFDs, und warum verlieren so viele Privatanleger damit Geld?"],
   ["Krypto-Risiken", "Erkläre mir die wichtigsten Risiken bei Kryptowährungen und wie man sie als Anfänger begrenzt."],
-  ["Charts lesen", "Erkläre mir die Basics der Chartanalyse für Anfänger: Trend, Unterstützung, Widerstand und Candlesticks."]
+  ["Charts lesen", "Erkläre mir die Basics der Chartanalyse für Anfänger: Trend, Unterstützung, Widerstand und Candlesticks."],
+  ["Steuern auf Kapitalerträge", "Erkläre mir die Besteuerung von Kapitalerträgen in Deutschland: Abgeltungsteuer, Sparer-Pauschbetrag, Teilfreistellung bei ETFs, Freistellungsauftrag. Weise darauf hin, dass sich Regeln ändern können."]
 ];
+const SEGS = [["o", "Übersicht"], ["c", "Krypto"], ["a", "Aktien"], ["e", "ETFs"], ["s", "Sparplan"], ["l", "Lernen"]];
+
+function cursym(c) { return c === "EUR" ? "€" : c === "USD" ? "$" : c || ""; }
+function fm(it) {
+  if (it.i === "Index") return nf(it.p, 0);
+  const d = it.p >= 1000 ? 0 : it.p >= 1 ? 2 : 4;
+  return nf(it.p, d) + " " + cursym(it.cur);
+}
+const qchg = c => (c == null || !isFinite(c)) ? '<span class="fl">–</span>' : chg(c);
+
+function stockList() {
+  const out = [];
+  ["de1", "de2"].forEach(g => (mq[g] ? mq[g].items : []).forEach(x => out.push({ k: "s:" + x.s, n: x.n, sym: x.s.replace(".DE", ""), p: x.p, c: x.c, cur: x.cur, i: "", g: "de" })));
+  (mq.us ? mq.us.items : []).forEach(x => out.push({ k: "s:" + x.s, n: x.n, sym: x.s, p: x.p, c: x.c, cur: x.cur, i: "", g: "us" }));
+  return out;
+}
+function etfList() { return (mq.etf ? mq.etf.items : []).map(x => ({ k: "s:" + x.s, n: x.n, sym: x.s.replace(".DE", ""), p: x.p, c: x.c, cur: x.cur, i: x.i, g: "etf" })); }
+function coinList() {
+  if (!mkc) return [];
+  return mkc.coins.filter(c => STABLE.indexOf(c.symbol) < 0).map(c => ({ k: "c:" + c.symbol, n: c.name, sym: String(c.symbol).toUpperCase(), p: c.current_price, c: c.price_change_percentage_24h, cur: "EUR", i: "Platz " + (c.market_cap_rank || "-"), g: "c" }));
+}
+function topN(list, dir, n) {
+  const l = list.filter(x => x.c != null && isFinite(x.c));
+  l.sort((a, b) => dir === "up" ? b.c - a.c : a.c - b.c);
+  return l.slice(0, n);
+}
+function allItems() { return stockList().concat(etfList(), coinList()); }
+function isFav(k) { return fav.indexOf(k) >= 0; }
+function toggleFav(k) { const i = fav.indexOf(k); if (i >= 0) fav.splice(i, 1); else fav.push(k); saveData(); }
 
 function mkEnter() {
   if (!document.getElementById("mkbody")) buildMk();
-  if (!mkc || Date.now() - mkc.t > 300000) loadCrypto();
+  const stale = !mq.idx || Date.now() - mq.idx.t > 300000 || !mkc || Date.now() - mkc.t > 300000;
+  if (stale) loadAll();
 }
 
 function buildMk() {
   const h = document.getElementById("mk");
-  h.innerHTML = '<div class="pagehead"><h2>Märkte</h2><div class="hsub" id="mkts">Krypto live, Aktien und ETFs per Briefing.</div></div><div class="tk" id="mktk"></div>' +
-    '<div class="seg"><button class="sub on" id="ms-c" onclick="msub(\'c\')">Krypto</button><button class="sub" id="ms-a" onclick="msub(\'a\')">Aktien & ETFs</button><button class="sub" id="ms-l" onclick="msub(\'l\')">Lernen</button></div>' +
-    '<div id="mkbody"></div><div class="disc">Keine Anlageberatung. Kurse können verzögert oder fehlerhaft sein. Kryptowährungen und Hebelprodukte bergen ein hohes Verlustrisiko, im Extremfall bis zum Totalverlust. Entscheide immer selbst und investiere nur Geld, das du entbehren kannst.</div>';
-  msub("c");
+  h.innerHTML = '<div class="pagehead"><h2>Märkte</h2><div class="hsub" id="mkts">Kurse für Deutschland, USA und Krypto.</div></div><div class="tk" id="mktk"></div>' +
+    '<div class="pills" id="mkseg"></div><div id="mkbody"></div>' +
+    '<div class="disc">Keine Anlageberatung und keine Garantie auf Gewinne. Kurse können verzögert oder fehlerhaft sein. An der Börse sind Verluste möglich, bei Kryptowährungen und Hebelprodukten bis zum Totalverlust. Entscheide immer selbst und investiere nur Geld, das du entbehren kannst.</div>';
+  const seg = document.getElementById("mkseg");
+  SEGS.forEach(s => {
+    const b = document.createElement("button");
+    b.className = "pillb" + (s[0] === mkSub ? " on" : "");
+    b.textContent = s[1];
+    b.id = "ms-" + s[0];
+    b.onclick = () => msub(s[0]);
+    seg.appendChild(b);
+  });
+  msub(mkSub);
   drawTicker();
 }
 
 function msub(k) {
   mkSub = k;
-  ["c", "a", "l"].forEach(x => document.getElementById("ms-" + x).classList.toggle("on", x === k));
+  SEGS.forEach(s => { const e = document.getElementById("ms-" + s[0]); if (e) e.classList.toggle("on", s[0] === k); });
   const b = document.getElementById("mkbody");
+  if (!b) return;
+  const keep = b.scrollTop;
   b.innerHTML = "";
-  if (k === "c") drawCrypto(b); else if (k === "a") drawStocks(b); else drawLearn(b);
+  ({ o: drawOverview, c: drawCrypto, a: drawStocks, e: drawEtfs, s: drawSparplan, l: drawLearn })[k](b);
+}
+
+async function loadQuotes() {
+  mqErr = "";
+  const groups = ["idx", "de1", "de2", "us", "etf"];
+  await Promise.all(groups.map(async g => {
+    try {
+      const r = await api({ action: "quotes", group: g });
+      if (r && r.items) mq[g] = { t: r.t || Date.now(), items: r.items, failed: r.failed || 0, err: r.err || "" };
+      else if (r && r.error) mqErr = r.error.message || "Fehler";
+    } catch (e) { mqErr = e.message; }
+  }));
+  save("jarvis_mq", mq);
 }
 
 async function loadCrypto() {
-  const ts = document.getElementById("mkts");
-  if (ts) ts.textContent = "Lade Krypto-Kurse...";
   try {
     const [m, g, f] = await Promise.allSettled([
       fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=eur&order=market_cap_desc&per_page=100&page=1&sparkline=false").then(r => r.json()),
       fetch("https://api.coingecko.com/api/v3/global").then(r => r.json()),
       fetch("https://api.alternative.me/fng/?limit=1").then(r => r.json())
     ]);
-    if (m.status !== "fulfilled" || !Array.isArray(m.value)) throw new Error("Kursdaten nicht erreichbar");
+    if (m.status !== "fulfilled" || !Array.isArray(m.value)) throw new Error("Krypto-Daten nicht erreichbar");
     mkc = { t: Date.now(), coins: m.value, g: g.status === "fulfilled" && g.value ? g.value.data : null, f: f.status === "fulfilled" && f.value && f.value.data ? f.value.data[0] : null };
     save("jarvis_mk", mkc);
-  } catch (e) {
-    if (ts) ts.textContent = "Kurse gerade nicht erreichbar (" + e.message + "). Zeige letzten Stand.";
-  }
+  } catch (e) { mqErr = mqErr || e.message; }
+}
+
+async function loadAll() {
+  if (mkLoading) return;
+  mkLoading = true;
+  const ts = document.getElementById("mkts");
+  if (ts) ts.textContent = "Lade Kurse...";
+  await Promise.all([loadQuotes(), loadCrypto()]);
+  mkLoading = false;
   drawTicker();
-  if (mkSub === "c") msub("c");
+  if (document.getElementById("mkbody") && mkSub !== "s" && mkSub !== "l") msub(mkSub);
 }
 
 function drawTicker() {
-  const h = document.getElementById("mktk");
-  const ts = document.getElementById("mkts");
+  const h = document.getElementById("mktk"), ts = document.getElementById("mkts");
   if (!h) return;
-  if (!mkc) { h.innerHTML = ""; return; }
-  const find = sym => mkc.coins.find(c => c.symbol === sym);
   const card = (l, v, c) => '<div class="tkc"><small>' + l + '</small><b>' + v + '</b>' + (c == null ? "" : chg(c)) + '</div>';
   let html = "";
-  const btc = find("btc"), eth = find("eth");
-  if (btc) html += card("Bitcoin", pfmt(btc.current_price), btc.price_change_percentage_24h);
-  if (eth) html += card("Ethereum", pfmt(eth.current_price), eth.price_change_percentage_24h);
-  if (mkc.g && mkc.g.market_cap_change_percentage_24h_usd != null) html += card("Gesamtmarkt", nf(mkc.g.total_market_cap.eur / 1e12, 2) + " Bio. €", mkc.g.market_cap_change_percentage_24h_usd);
-  if (mkc.f) html += card("Angst & Gier", mkc.f.value + " / 100", null).replace("</div>", '<span class="fl">' + (FNG[mkc.f.value_classification] || mkc.f.value_classification) + "</span></div>");
-  h.innerHTML = html;
-  if (ts) ts.textContent = "Krypto-Stand: " + new Date(mkc.t).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) + " Uhr";
+  const idx = mq.idx ? mq.idx.items : [];
+  ["DAX", "S&P 500", "Nasdaq", "Gold", "EUR/USD"].forEach(n => {
+    const x = idx.find(y => y.n === n);
+    if (x) html += card(esc(x.n), x.n === "EUR/USD" ? nf(x.p, 4) : nf(x.p, 0), x.c);
+  });
+  if (mkc) {
+    const btc = mkc.coins.find(c => c.symbol === "btc");
+    if (btc) html += card("Bitcoin", nf(btc.current_price, 0) + " €", btc.price_change_percentage_24h);
+    if (mkc.f) html += card("Angst & Gier", mkc.f.value + " / 100", null).replace("</div>", '<span class="fl">' + (FNG[mkc.f.value_classification] || mkc.f.value_classification) + "</span></div>");
+  }
+  h.innerHTML = html || "";
+  if (ts) {
+    const t = Math.max(mq.idx ? mq.idx.t : 0, mkc ? mkc.t : 0);
+    ts.textContent = t ? "Stand: " + new Date(t).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) + " Uhr" : "Noch keine Kurse geladen.";
+  }
 }
 
-function mrow(c) {
-  return '<div class="mrow"><div>' + esc(c.name) + '<small>' + esc(String(c.symbol).toUpperCase()) + ' · Platz ' + (c.market_cap_rank || "-") + '</small></div><div class="r">' + pfmt(c.current_price) + chg(c.price_change_percentage_24h) + '</div></div>';
+function t3html(list, dir) {
+  const top = topN(list, dir, 3);
+  if (!top.length) return '<div class="empty">Keine Daten.</div>';
+  return '<div class="t3">' + top.map(x => '<div class="t3c"><small>' + esc(x.n) + '</small><b class="' + (x.c >= 0 ? "up" : "dn") + '">' + (x.c >= 0 ? "+" : "") + nf(x.c, 2) + ' %</b><span>' + esc(fm(x)) + '</span></div>').join("") + "</div>";
+}
+
+function drawOverview(b) {
+  const bar = document.createElement("div");
+  bar.className = "pills";
+  const mk = (arr, cur, fn) => {
+    arr.forEach(o => {
+      const x = document.createElement("button");
+      x.className = "pillb" + (o[0] === cur ? " on" : "");
+      x.textContent = o[1];
+      x.onclick = () => { fn(o[0]); msub("o"); };
+      bar.appendChild(x);
+    });
+  };
+  mk([["up", "Gewinner"], ["dn", "Verlierer"]], mkDir, v => { mkDir = v; });
+  mk([["de", "Deutschland"], ["us", "USA"], ["all", "Alle"]], mkMkt, v => { mkMkt = v; });
+  b.appendChild(bar);
+  const sl = stockList().filter(x => mkMkt === "all" || x.g === mkMkt);
+  const host = document.createElement("div");
+  host.innerHTML = '<div class="mh">Top 3 Aktien heute</div>' + (sl.length ? t3html(sl, mkDir) : '<div class="empty">Aktien-Kurse nicht geladen.</div>') +
+    '<div class="mh">Top 3 ETFs heute</div>' + (mq.etf ? t3html(etfList(), mkDir) : '<div class="empty">ETF-Kurse nicht geladen.</div>') +
+    '<div class="mh">Top 3 Krypto heute</div>' + (mkc ? t3html(coinList(), mkDir) : '<div class="empty">Krypto-Kurse nicht geladen.</div>');
+  b.appendChild(host);
+  if (mqErr) {
+    const e = document.createElement("div");
+    e.className = "disc";
+    e.style.marginTop = "10px";
+    e.textContent = /Keine Nachrichten|Ungültig/.test(mqErr) ? "Hinweis: Für Aktien und ETFs muss im Cloudflare-Worker der neue Code eingefügt sein." : "Hinweis: " + mqErr + ". Falls Aktien fehlen, nutze das KI-Briefing unten.";
+    b.appendChild(e);
+  }
+  const favs = allItems().filter(x => isFav(x.k));
+  if (favs.length) {
+    const f = document.createElement("div");
+    f.innerHTML = '<div class="mh">Meine Favoriten</div>' + favs.map(qrow).join("");
+    b.appendChild(f);
+    wireStars(f);
+  }
+  const bs = document.createElement("div");
+  bs.innerHTML = '<div class="mh">KI-Briefing (Websuche)</div><div class="hsub" style="font-size:13px;opacity:.55">Indizes, Rohstoffe, Gewinner und Verlierer als Zusammenfassung. Kostet drei Suchen vom Tageslimit.</div><button class="cta" id="bgo" style="margin-top:10px;height:44px">Briefing erstellen</button><div class="brief" id="bout" style="display:none"></div>';
+  b.appendChild(bs);
+  const bout = document.getElementById("bout");
+  if (brief) { bout.style.display = "block"; renderBrief(bout, brief); }
+  document.getElementById("bgo").onclick = async () => {
+    bout.style.display = "block";
+    const o = await askMarket("Du bist ein nüchterner Markt-Analyst für Privatanleger in Deutschland. Nutze die Websuche für die heutigen Daten. Antworte auf Deutsch, höchstens 220 Wörter. Format: Abschnittsüberschriften in Großbuchstaben auf eigener Zeile (INDIZES, ROHSTOFFE UND DEVISEN, GEWINNER, VERLIERER, HEUTE WICHTIG), darunter kurze Zeilen wie 'DAX: 18.500 (+0,4 %)'. INDIZES: DAX, S&P 500, Nasdaq, Dow Jones. ROHSTOFFE UND DEVISEN: Gold, Öl, EUR/USD. GEWINNER und VERLIERER: je 3 Aktien mit Prozent, Deutschland zuerst. HEUTE WICHTIG: 2 Punkte. Nenne den Zeitpunkt der Daten. Findest du einen Wert nicht, schreibe 'nicht gefunden', erfinde nichts. Keine Anlageempfehlungen.", "Erstelle das Markt-Briefing für heute.", bout, "jarvis_brief", document.getElementById("bgo"));
+    if (o) brief = o;
+  };
+  const r = document.createElement("div");
+  r.className = "acts";
+  const x = document.createElement("button");
+  x.className = "smallbtn";
+  x.textContent = "Kurse neu laden";
+  x.onclick = () => loadAll();
+  r.appendChild(x);
+  b.appendChild(r);
+}
+
+function qrow(it) {
+  return '<div class="mrow"><button class="star' + (isFav(it.k) ? " on" : "") + '" data-k="' + esc(it.k) + '">★</button><div class="nm">' + esc(it.n) + '<small>' + esc(it.sym + (it.i ? " · " + it.i : "")) + '</small></div><div class="r">' + esc(fm(it)) + qchg(it.c) + '</div></div>';
+}
+function wireStars(host) {
+  host.querySelectorAll(".star").forEach(x => { x.onclick = () => { toggleFav(x.dataset.k); msub(mkSub); }; });
 }
 
 function drawCrypto(b) {
-  if (!mkc) { b.innerHTML = '<div class="empty">Lade Daten...</div>'; return; }
-  const list = mkc.coins.filter(c => c.price_change_percentage_24h != null && STABLE.indexOf(c.symbol) < 0);
-  const up = list.slice().sort((a, c) => c.price_change_percentage_24h - a.price_change_percentage_24h).slice(0, 5);
-  const dn = list.slice().sort((a, c) => a.price_change_percentage_24h - c.price_change_percentage_24h).slice(0, 5);
-  b.innerHTML = '<div class="mh">Gewinner des Tages (Top 100)</div>' + up.map(mrow).join("") + '<div class="mh">Verlierer des Tages</div>' + dn.map(mrow).join("") + '<div class="mh">Größte nach Marktwert</div>' + mkc.coins.slice(0, 10).map(mrow).join("");
+  const list = coinList();
+  if (!list.length) { b.innerHTML = '<div class="empty">' + (mkLoading ? "Lade Daten..." : "Krypto-Daten nicht geladen.") + "</div>"; return; }
+  const up = topN(list, "up", 5), dn = topN(list, "dn", 5);
+  b.innerHTML = '<div class="mh">Gewinner des Tages (Top 100)</div>' + up.map(qrow).join("") + '<div class="mh">Verlierer des Tages</div>' + dn.map(qrow).join("") + '<div class="mh">Größte nach Marktwert</div>' + list.slice(0, 10).map(qrow).join("");
+  wireStars(b);
   const r = document.createElement("div");
   r.className = "acts";
   const mk = (l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; r.appendChild(x); };
   mk("Warum bewegen die sich?", () => {
     show("search");
-    document.getElementById("in").value = "Warum sind heute " + up.slice(0, 3).map(c => c.name).join(", ") + " stark gestiegen und " + dn.slice(0, 3).map(c => c.name).join(", ") + " gefallen? Nenne aktuelle Gründe mit Quellen und sag, wenn du es nicht sicher weißt.";
+    document.getElementById("in").value = "Warum sind heute " + up.slice(0, 3).map(c => c.n).join(", ") + " stark gestiegen und " + dn.slice(0, 3).map(c => c.n).join(", ") + " gefallen? Nenne aktuelle Gründe mit Quellen und sag, wenn du es nicht sicher weißt.";
     send();
   });
-  mk("Neu laden", () => loadCrypto());
+  mk("Neu laden", () => loadAll());
   b.appendChild(r);
+}
+
+function drawStocks(b) {
+  const bar = document.createElement("div");
+  bar.className = "pills";
+  [["de", "Deutschland"], ["us", "USA"]].forEach(o => {
+    const x = document.createElement("button");
+    x.className = "pillb" + ((mkMkt === "us" ? "us" : "de") === o[0] ? " on" : "");
+    x.textContent = o[1];
+    x.onclick = () => { mkMkt = o[0]; msub("a"); };
+    bar.appendChild(x);
+  });
+  b.appendChild(bar);
+  const inp = document.createElement("input");
+  inp.className = "rin";
+  inp.placeholder = "Suchen, zum Beispiel SAP";
+  inp.value = mkQ;
+  b.appendChild(inp);
+  const list = document.createElement("div");
+  b.appendChild(list);
+  const draw = () => {
+    const q = mkQ.toLowerCase();
+    let l = stockList().filter(x => x.g === (mkMkt === "us" ? "us" : "de"));
+    if (q) l = l.filter(x => (x.n + " " + x.sym).toLowerCase().indexOf(q) >= 0);
+    l.sort((a, c) => (c.c == null ? -99 : c.c) - (a.c == null ? -99 : a.c));
+    list.innerHTML = l.length ? l.map(qrow).join("") : '<div class="empty">' + (stockList().length ? "Nichts gefunden." : (mkLoading ? "Lade Daten..." : "Aktien-Kurse nicht geladen. Prüfe, ob der neue Worker-Code eingefügt ist.")) + "</div>";
+    wireStars(list);
+  };
+  inp.oninput = () => { mkQ = inp.value; draw(); };
+  draw();
+}
+
+function drawEtfs(b) {
+  const l = etfList();
+  b.innerHTML = '<div class="mh">Beliebte ETFs (Xetra, in Euro)</div><div class="hsub" style="font-size:13px;opacity:.55">Prüfe vor dem Kauf immer Index, Kosten (TER), Fondsgröße und Ausschüttungsart im Basisinformationsblatt des Anbieters.</div>' +
+    (l.length ? l.map(qrow).join("") : '<div class="empty">' + (mkLoading ? "Lade Daten..." : "ETF-Kurse nicht geladen.") + "</div>");
+  wireStars(b);
+  const w = document.createElement("div");
+  w.innerHTML = '<div class="mh">ETF-Check mit Jarvis</div><input class="rin" id="etfq" placeholder="ETF-Name oder ISIN"><div class="acts"><button class="smallbtn" id="etfgo">Check starten</button></div>';
+  b.appendChild(w);
+  document.getElementById("etfgo").onclick = () => {
+    const q = document.getElementById("etfq").value.trim();
+    if (!q) return;
+    show("search");
+    document.getElementById("in").value = "Erkläre mir den ETF \"" + q + "\": Welchen Index bildet er ab, wie hoch sind die laufenden Kosten (TER), wie groß ist der Fonds, ausschüttend oder thesaurierend, und was sind die Risiken? Nenne Quellen und sag, wenn du etwas nicht sicher findest.";
+    send();
+  };
+}
+
+/* Sparplan */
+function spSim(k0, rate, years, r, cost) {
+  const im = Math.pow(1 + (r - cost) / 100, 1 / 12) - 1, n = Math.round(years * 12);
+  let bal = k0;
+  const pts = [bal];
+  for (let m = 1; m <= n; m++) { bal = bal * (1 + im) + rate; if (m % 12 === 0 || m === n) pts.push(bal); }
+  return { end: bal, pts: pts, im: im, n: n };
+}
+function spTax(end, dep, on) {
+  if (!on) return 0;
+  const gain = Math.max(0, end - dep);
+  return Math.max(0, gain * 0.7 - 1000) * 0.26375;
+}
+
+function drawSparplan(b) {
+  const F = [["k0", "Einmalanlage (€)"], ["rate", "Sparrate pro Monat (€)"], ["years", "Laufzeit (Jahre)"], ["r1", "Rendite vorsichtig (% pro Jahr)"], ["r2", "Rendite mittel (% pro Jahr)"], ["r3", "Rendite optimistisch (% pro Jahr)"], ["cost", "Kosten pro Jahr (%)"], ["infl", "Inflation pro Jahr (%)"]];
+  b.innerHTML = '<div class="mh">Sparplan-Rechner</div><div class="hsub" style="font-size:13px;opacity:.6">Drei Szenarien mit festen Annahmen. Das sind keine Prognosen: Die Börse schwankt, und es gibt keine Garantie auf Gewinn. Frühere Entwicklungen sind kein Versprechen für die Zukunft.</div><div id="spin"></div><div class="acts"><button class="smallbtn" id="sptax"></button></div><div id="spout"></div><div class="mh">Zielrechner</div><div id="spgoal"></div>';
+  const inh = document.getElementById("spin");
+  const inp = {};
+  F.concat([["goal", "Zielbetrag (€)"]]).forEach(f => {
+    const w = document.createElement("div");
+    w.className = "fld";
+    w.innerHTML = "<label>" + f[1] + "</label>";
+    const i = document.createElement("input");
+    i.type = "text";
+    i.setAttribute("inputmode", "decimal");
+    i.value = String(sp[f[0]]).replace(".", ",");
+    i.addEventListener("input", upd);
+    inp[f[0]] = i;
+    w.appendChild(i);
+    (f[0] === "goal" ? document.getElementById("spgoal") : inh).appendChild(w);
+  });
+  const goalOut = document.createElement("div");
+  goalOut.className = "res";
+  document.getElementById("spgoal").appendChild(goalOut);
+  const taxBtn = document.getElementById("sptax");
+  const taxTxt = () => { taxBtn.textContent = sp.tax ? "Steuern: ja (vereinfacht, 30 % Teilfreistellung)" : "Steuern: nein"; };
+  taxBtn.onclick = () => { sp.tax = !sp.tax; save("jarvis_sp", sp); taxTxt(); upd(); };
+  taxTxt();
+  const out = document.getElementById("spout");
+  function upd() {
+    F.concat([["goal"]]).forEach(f => { const v = pn(inp[f[0]].value); if (ok(v)) sp[f[0]] = v; });
+    save("jarvis_sp", sp);
+    const y = Math.min(60, Math.max(1, sp.years));
+    const sc = [[sp.r1, "Vorsichtig"], [sp.r2, "Mittel"], [sp.r3, "Optimistisch"]].map(a => {
+      const s = spSim(sp.k0, sp.rate, y, a[0], sp.cost);
+      const dep = sp.k0 + sp.rate * s.n;
+      const tax = spTax(s.end, dep, sp.tax);
+      const net = s.end - tax;
+      return { l: a[1], r: a[0], s: s, dep: dep, tax: tax, net: net, real: net / Math.pow(1 + sp.infl / 100, y) };
+    });
+    const mid = sc[1];
+    const stressBase = mid.s.pts.length > 1 ? mid.s.pts[mid.s.pts.length - 2] : mid.s.pts[0];
+    const stress = stressBase * 0.7 + sp.rate * 12;
+    let h = '<div class="t3">' + sc.map(x => '<div class="t3c"><small>' + x.l + " · " + nf(x.r, 1) + ' %</small><b>' + nf(x.net, 0) + ' €</b><span>real ' + nf(x.real, 0) + ' €</span></div>').join("") + "</div>";
+    h += '<div class="hsub" style="font-size:12px;opacity:.55;margin:4px 0 8px">Endwert nach Kosten' + (sp.tax ? " und geschätzten Steuern" : "") + ". „real" + "“ ist kaufkraftbereinigt mit der Inflation.</div>";
+    const W = 320, H = 150, P = 6;
+    const series = [{ n: "Einzahlungen", c: "rgba(255,255,255,.45)", d: "4 3", v: mid.s.pts.map((_, i) => sp.k0 + sp.rate * Math.min(i * 12, mid.s.n)) }, { n: "Vorsichtig", c: "var(--a2)", o: .55, v: sc[0].s.pts }, { n: "Mittel", c: "var(--a)", v: sc[1].s.pts }, { n: "Optimistisch", c: "#ffffff", o: .8, v: sc[2].s.pts }];
+    const maxV = Math.max.apply(null, series.map(s => Math.max.apply(null, s.v))) || 1;
+    const cnt = mid.s.pts.length - 1 || 1;
+    let svg = '<svg class="chart" viewBox="0 0 ' + W + " " + H + '" preserveAspectRatio="none">';
+    series.forEach(s => {
+      const pts = s.v.map((v, i) => (P + i / cnt * (W - 2 * P)).toFixed(1) + "," + (H - P - v / maxV * (H - 2 * P)).toFixed(1)).join(" ");
+      svg += '<polyline points="' + pts + '" fill="none" style="stroke:' + s.c + '" stroke-width="2" stroke-linejoin="round" ' + (s.d ? 'stroke-dasharray="' + s.d + '" ' : "") + (s.o ? 'opacity="' + s.o + '" ' : "") + 'vector-effect="non-scaling-stroke"/>';
+    });
+    svg += "</svg>";
+    h += svg + '<div class="lg"><span><i style="background:rgba(255,255,255,.45)"></i>Einzahlungen</span><span><i style="background:var(--a2);opacity:.6"></i>Vorsichtig</span><span><i style="background:var(--a)"></i>Mittel</span><span><i style="background:#fff;opacity:.8"></i>Optimistisch</span></div>';
+    h += '<div class="res">' +
+      "<div><span>Einzahlungen gesamt</span><b>" + nf(mid.dep, 0) + " €</b></div>" +
+      "<div><span>Gewinn (mittel, vor Steuern)</span><b>" + nf(mid.s.end - mid.dep, 0) + " €</b></div>" +
+      (sp.tax ? "<div><span>Steuern geschätzt (mittel)</span><b>" + nf(mid.tax, 0) + " €</b></div>" : "") +
+      "<div><span>Stress: −30 % im letzten Jahr</span><b>" + nf(stress, 0) + " €</b></div></div>";
+    out.innerHTML = h;
+    const re = (sp.r2 - sp.cost);
+    const im = Math.pow(1 + re / 100, 1 / 12) - 1, n = Math.round(y * 12), g = Math.pow(1 + im, n);
+    let need = im > 0 ? (sp.goal - sp.k0 * g) / ((g - 1) / im) : (sp.goal - sp.k0) / n;
+    if (!ok(need) || need < 0) need = 0;
+    const im1 = Math.pow(1 + (sp.r1 - sp.cost) / 100, 1 / 12) - 1, g1 = Math.pow(1 + im1, n);
+    let need1 = im1 > 0 ? (sp.goal - sp.k0 * g1) / ((g1 - 1) / im1) : (sp.goal - sp.k0) / n;
+    if (!ok(need1) || need1 < 0) need1 = 0;
+    goalOut.innerHTML = "<div><span>Nötige Rate (mittel)</span><b>" + nf(need, 0) + " € / Monat</b></div><div><span>Nötige Rate (vorsichtig)</span><b>" + nf(need1, 0) + " € / Monat</b></div><div><span>Vor Steuern, nach Kosten</span><b>in " + nf(y, 0) + " Jahren</b></div>";
+    upd.last = "Sparplan: Einmalanlage " + nf(sp.k0, 0) + " €, Rate " + nf(sp.rate, 0) + " € pro Monat, " + nf(y, 0) + " Jahre, Kosten " + nf(sp.cost, 2) + " %. Endwert nach Steuern: vorsichtig (" + sc[0].r + " %) " + nf(sc[0].net, 0) + " €, mittel (" + sc[1].r + " %) " + nf(sc[1].net, 0) + " €, optimistisch (" + sc[2].r + " %) " + nf(sc[2].net, 0) + " €. Einzahlungen " + nf(mid.dep, 0) + " €.";
+  }
+  const acts = document.createElement("div");
+  acts.className = "acts";
+  const mk = (l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = () => fn(x); acts.appendChild(x); };
+  mk("Erklär mir das", () => {
+    schoolSubject = "Wirtschaft"; schoolMode = "explain";
+    save("jarvis_subject", schoolSubject); save("jarvis_mode", schoolMode);
+    drawChips();
+    show("school");
+    document.getElementById("in").value = "Ich habe einen Sparplan durchgerechnet. " + upd.last + " Erkläre mir verständlich, wie diese Zahlen zustande kommen, was Zinseszins damit zu tun hat, welche Annahmen drinstecken und wo die Risiken liegen. Gib keine Anlageempfehlung.";
+    send();
+  });
+  mk("In Notizen", x => { notes.unshift({ text: upd.last }); saveData(); renderNotes(); x.textContent = "Gespeichert"; });
+  b.appendChild(acts);
+  upd();
 }
 
 function renderBrief(host, o) {
@@ -1468,54 +1774,11 @@ async function askMarket(sys, user, host, store, btn) {
     renderBrief(host, o);
     return o;
   } catch (e) {
-    host.innerHTML = '<div class="empty">Fehler: ' + esc(e.message) + '</div>';
+    host.innerHTML = '<div class="empty">Fehler: ' + esc(e.message) + "</div>";
   } finally {
     btn.disabled = false;
     core.classList.remove("busy");
   }
-}
-
-function drawStocks(b) {
-  b.innerHTML = '<div class="mh">Markt-Briefing</div><div class="hsub" style="font-size:13px;opacity:.55">Indizes, Gold, Öl, Gewinner und Verlierer, aus der Websuche zusammengefasst. Kostet drei Suchen vom Tageslimit.</div><button class="cta" id="bgo" style="margin-top:10px;height:44px">Briefing erstellen</button><div class="brief" id="bout" style="display:none"></div>' +
-    '<div class="mh">Watchlist</div><div class="hsub" style="font-size:13px;opacity:.55">Trage Aktien, ETFs oder Rohstoffe ein, zum Beispiel Apple, MSCI World oder Gold.</div><div class="wl"><input class="rin" id="wlin" placeholder="Name oder Ticker"><button class="smallbtn" id="wladd" style="margin:0;height:46px">Hinzufügen</button></div><div id="wlchips"></div><button class="smallbtn" id="wlgo" style="margin-top:6px">Kurse abfragen</button><div class="brief" id="wlout" style="display:none"></div>';
-  const bout = document.getElementById("bout");
-  if (brief) { bout.style.display = "block"; renderBrief(bout, brief); }
-  document.getElementById("bgo").onclick = async () => {
-    bout.style.display = "block";
-    const o = await askMarket("Du bist ein nüchterner Markt-Analyst für Privatanleger in Deutschland. Nutze die Websuche für die heutigen Daten. Antworte auf Deutsch, höchstens 220 Wörter. Format: Abschnittsüberschriften in Großbuchstaben auf eigener Zeile (INDIZES, ROHSTOFFE UND DEVISEN, GEWINNER, VERLIERER, HEUTE WICHTIG), darunter kurze Zeilen wie 'DAX: 18.500 (+0,4 %)'. INDIZES: DAX, S&P 500, Nasdaq, Dow Jones. ROHSTOFFE UND DEVISEN: Gold, Öl, EUR/USD. GEWINNER und VERLIERER: je 3 Aktien mit Prozent. HEUTE WICHTIG: 2 Punkte. Nenne den Zeitpunkt der Daten. Findest du einen Wert nicht, schreibe 'nicht gefunden', erfinde nichts. Keine Anlageempfehlungen.", "Erstelle das Markt-Briefing für heute.", bout, "jarvis_brief", document.getElementById("bgo"));
-    if (o) brief = o;
-  };
-  const wc = document.getElementById("wlchips");
-  const drawWl = () => {
-    wc.innerHTML = "";
-    wl.forEach((n, i) => {
-      const c = document.createElement("span");
-      c.className = "wlchip";
-      c.textContent = n + " ";
-      const x = document.createElement("button");
-      x.textContent = "✕";
-      x.onclick = () => { wl.splice(i, 1); save("jarvis_wl", wl); drawWl(); };
-      c.appendChild(x);
-      wc.appendChild(c);
-    });
-  };
-  drawWl();
-  const addW = () => {
-    const i = document.getElementById("wlin"), v = i.value.trim();
-    if (!v || wl.length >= 12) return;
-    wl.push(v);
-    save("jarvis_wl", wl);
-    i.value = "";
-    drawWl();
-  };
-  document.getElementById("wladd").onclick = addW;
-  document.getElementById("wlin").addEventListener("keydown", e => { if (e.key === "Enter") addW(); });
-  document.getElementById("wlgo").onclick = async () => {
-    if (!wl.length) return;
-    const out = document.getElementById("wlout");
-    out.style.display = "block";
-    await askMarket("Du bist ein nüchterner Markt-Assistent. Nutze die Websuche. Gib für jeden genannten Titel den aktuellen Kurs mit Währung und die Veränderung zum Vortag, jeweils eine Zeile im Format 'Name: Kurs (+/-x,x %)'. Findest du einen Wert nicht sicher, schreibe 'nicht gefunden'. Erfinde nichts. Keine Anlageempfehlung. Höchstens 120 Wörter.", "Titel: " + wl.join(", "), out, null, document.getElementById("wlgo"));
-  };
 }
 
 function drawLearn(b) {
@@ -1535,6 +1798,271 @@ function drawLearn(b) {
     };
     b.appendChild(r);
   });
+}
+
+/* ---- Gewinn einsetzen ---- */
+const GOALS = ["Neue Ware", "Sparplan / ETF", "Krypto", "Rücklage", "Weiterbildung"];
+let invGoals = ["Neue Ware", "Sparplan / ETF", "Rücklage"];
+
+function openInvest(base, item) {
+  const host = document.getElementById("rinvest");
+  if (!host) return;
+  host.innerHTML = "";
+  const c = document.createElement("div");
+  c.className = "idea";
+  host.appendChild(c);
+  host.scrollIntoView({ behavior: "smooth", block: "start" });
+  if (base <= 0) {
+    c.innerHTML = "<h3>" + (item ? "Verkauft: " + esc(item.n) : "Kein Gewinn") + "</h3><p>Dieser Verkauf hat " + (item ? "keinen Gewinn gebracht (" + eur(base) + ")" : "bisher keinen Gewinn") + ". Dann gibt es noch nichts zu investieren. Prüfe lieber Einkaufspreis, Verkaufspreis und Gebühren, damit der nächste Artikel sich lohnt.</p>";
+    const r = document.createElement("div");
+    r.className = "acts";
+    const x = document.createElement("button");
+    x.className = "smallbtn";
+    x.textContent = "Schließen";
+    x.onclick = () => { host.innerHTML = ""; };
+    r.appendChild(x);
+    c.appendChild(r);
+    return;
+  }
+  const marge = item && item.sold ? (base / item.sold * 100) : null;
+  c.innerHTML = "<h3>" + (item ? "Verkauft: " + esc(item.n) : "Gewinn einsetzen") + "</h3><p>" + (item ? "Gewinn bei diesem Verkauf: <b>" + eur(base) + "</b>" + (marge != null ? " (Marge " + pct(marge) + ")" : "") + "." : "Gewinn aus allen Verkäufen: <b>" + eur(base) + "</b>.") + " Möchtest du Vorschläge, was du damit machen kannst? Wähle, was dich interessiert:</p>";
+  const chips = document.createElement("div");
+  chips.className = "chips";
+  chips.style.flexWrap = "wrap";
+  const drawG = () => {
+    chips.innerHTML = "";
+    GOALS.forEach(g => {
+      const b = document.createElement("button");
+      b.className = "chip" + (invGoals.indexOf(g) >= 0 ? " on" : "");
+      b.textContent = g;
+      b.onclick = () => { const i = invGoals.indexOf(g); if (i >= 0) invGoals.splice(i, 1); else invGoals.push(g); drawG(); };
+      chips.appendChild(b);
+    });
+  };
+  drawG();
+  c.appendChild(chips);
+  const go = document.createElement("button");
+  go.className = "cta";
+  go.style.cssText = "height:44px;margin-top:14px";
+  go.textContent = "Vorschläge anzeigen";
+  c.appendChild(go);
+  const out = document.createElement("div");
+  c.appendChild(out);
+  const close = document.createElement("button");
+  close.className = "smallbtn";
+  close.textContent = "Später";
+  close.onclick = () => { host.innerHTML = ""; };
+  c.appendChild(close);
+  go.onclick = async () => {
+    go.disabled = true;
+    const core = document.getElementById("core");
+    core.classList.add("busy");
+    out.innerHTML = '<div class="th" style="margin-top:14px"><span class="dot"></span>Jarvis überlegt...</div>';
+    try {
+      const sold = inv.filter(x => x.st === 2);
+      const hist = sold.slice(0, 10).map(x => x.n + ": Einkauf " + nf(x.ek, 2) + " €, Verkauf " + nf(x.sold, 2) + " €").join("; ");
+      const st = invStats();
+      const goals = invGoals.length ? invGoals.join(", ") : "keine Angabe";
+      const sys = "Du bist ein ehrlicher Finanz-Coach für Privatpersonen in Deutschland, kein Anlageberater. Ein Reseller hat Gewinn gemacht. Gib Denkanstöße und Aufteilungsvorschläge als Szenarien mit Vor- und Nachteilen. Keine konkreten Wertpapiere, Coins oder Kaufempfehlungen, keine Renditeversprechen. Krypto nur nennen, wenn der Nutzer es gewählt hat, als hochriskant und mit höchstens 10 Prozent. Nenne an erster Stelle eine Rücklage für Steuern und Notgroschen, falls regelmäßig verkauft wird. Reseller-Ideen sollen konkret zur Verkaufshistorie passen (Kategorie, Marge, Einkaufsquellen wie Flohmarkt, Haushaltsauflösung, Outlet) und keine Fälschungen enthalten. Antworte AUSSCHLIESSLICH mit JSON: {\"tip\":\"2 Sätze Einschätzung zum Verkauf\",\"split\":[{\"l\":\"Name\",\"p\":Zahl,\"w\":\"ein kurzer Satz warum\"}],\"ideas\":[\"Idee 1\",\"Idee 2\",\"Idee 3\"],\"warn\":\"ein wichtiger Hinweis\"}. split hat 3 bis 5 Einträge, p sind ganze Prozent und ergeben zusammen 100. Verwende nur die gewählten Ziele plus Rücklage. Sehr kompakt, die Idee-Einträge sind nur sinnvoll, wenn Neue Ware gewählt wurde, sonst leeres Array.";
+      const user = "Gewinn als Basis: " + nf(base, 2) + " €." + (item ? " Dieser Verkauf: " + item.n + ", Einkauf " + nf(item.ek, 2) + " €, Verkauf " + nf(item.sold, 2) + " €, Kosten " + nf(item.fee || 0, 2) + " €." : "") + " Bisher " + st.n + " Verkäufe, Gewinn gesamt " + nf(st.profit, 2) + " €, gebundenes Kapital im Lager " + nf(st.bound, 2) + " €. Verkaufshistorie: " + (hist || "keine") + ". Gewählte Ziele: " + goals + ".";
+      const txt = await fAsk(sys, user);
+      const o = fJson(txt, "{", "}");
+      out.innerHTML = "";
+      const tip = document.createElement("p");
+      tip.style.marginTop = "12px";
+      tip.textContent = o.tip || "";
+      out.appendChild(tip);
+      const split = (o.split || []).filter(x => x && ok(Number(x.p)));
+      const tot = split.reduce((a, x) => a + Number(x.p), 0) || 1;
+      const bar = document.createElement("div");
+      bar.style.cssText = "display:flex;height:14px;border-radius:7px;overflow:hidden;margin:8px 0 10px";
+      split.forEach((x, i) => { const seg = document.createElement("div"); seg.style.cssText = "width:" + (Number(x.p) / tot * 100) + "%;background:var(--a);opacity:" + [1, .75, .55, .4, .3][i % 5] + ";"; bar.appendChild(seg); });
+      out.appendChild(bar);
+      split.forEach((x, i) => {
+        const amt = base * Number(x.p) / tot;
+        const r = document.createElement("div");
+        r.className = "lf";
+        r.innerHTML = "<small>" + nf(Number(x.p), 0) + " % · " + eur(amt) + "</small><div></div>";
+        r.lastChild.textContent = x.l + ": " + (x.w || "");
+        out.appendChild(r);
+      });
+      if (o.ideas && o.ideas.length) {
+        const d = document.createElement("div");
+        d.className = "lf";
+        d.innerHTML = "<small>Ideen für neue Ware</small><div></div>";
+        d.lastChild.textContent = o.ideas.map(t => "• " + t).join("\n");
+        out.appendChild(d);
+      }
+      if (o.warn) {
+        const w = document.createElement("div");
+        w.className = "risk";
+        w.textContent = "Wichtig: " + o.warn;
+        out.appendChild(w);
+      }
+      const dis = document.createElement("div");
+      dis.className = "risk";
+      dis.textContent = "Das sind Denkanstöße, keine Anlageberatung und keine Garantie auf Gewinn. Entscheide selbst.";
+      out.appendChild(dis);
+      const r = document.createElement("div");
+      r.className = "acts";
+      const mkb = (l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; r.appendChild(x); };
+      const sp1 = split.find(x => /sparplan|etf/i.test(x.l));
+      if (sp1) mkb("Sparplan rechnen", () => {
+        sp.k0 = Math.round(base * Number(sp1.p) / tot);
+        save("jarvis_sp", sp);
+        mkSub = "s";
+        show("mk");
+        if (document.getElementById("mkbody")) msub("s");
+      });
+      mkb("Mit Jarvis besprechen", () => {
+        show("chat");
+        document.getElementById("in").value = "Ich habe " + nf(base, 2) + " € Gewinn mit Reselling gemacht. Das ist der Vorschlag: " + split.map(x => nf(Number(x.p), 0) + " % " + x.l).join(", ") + ". Geh das mit mir durch, nenne Vor- und Nachteile und was ich beachten muss. Gib keine Anlageberatung.";
+        send();
+      });
+      if (o.ideas && o.ideas.length) mkb("Preis-Check Idee 1", () => {
+        show("search");
+        document.getElementById("in").value = "Zu welchem Preis wird gebraucht verkauft: " + o.ideas[0] + "? Realistische Spanne in Deutschland mit Quellen, und sag, wie sicher du bist.";
+        send();
+      });
+      out.appendChild(r);
+    } catch (e) {
+      out.innerHTML = '<div class="empty">Fehler: ' + esc(e.message) + "</div>";
+    }
+    go.disabled = false;
+    core.classList.remove("busy");
+  };
+}
+
+function invStats() {
+  const sold = inv.filter(x => x.st === 2);
+  return { n: sold.length, profit: sold.reduce((a, x) => a + x.sold - x.ek - (x.fee || 0), 0), bound: inv.filter(x => x.st < 2).reduce((a, x) => a + x.ek, 0) };
+}
+
+/* ---- Sicherheit, Backup, Einstellungen ---- */
+function saveInv() { save("jarvis_inv", inv); saveData(); }
+let hiddenAt = 0;
+const b64 = buf => btoa(String.fromCharCode.apply(null, new Uint8Array(buf)));
+const unb64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+function fidMsg(t) { const e = document.getElementById("fidmsg"); if (e) e.textContent = t; const l = document.getElementById("lockmsg"); if (l) l.textContent = t; }
+
+async function enableFid() {
+  if (!window.PublicKeyCredential || !navigator.credentials) { fidMsg("Face ID wird in diesem Browser nicht unterstützt."); return; }
+  try {
+    const cred = await navigator.credentials.create({ publicKey: {
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      rp: { name: "Jarvis" },
+      user: { id: crypto.getRandomValues(new Uint8Array(16)), name: "jarvis", displayName: "Jarvis" },
+      pubKeyCredParams: [{ type: "public-key", alg: -7 }, { type: "public-key", alg: -257 }],
+      authenticatorSelection: { authenticatorAttachment: "platform", userVerification: "required" },
+      timeout: 60000
+    } });
+    localStorage.setItem("jarvis_fid", b64(cred.rawId));
+    fidMsg("Face ID ist aktiv. Die App sperrt sich, wenn du sie länger als eine Minute verlässt.");
+  } catch (e) { fidMsg("Hat nicht geklappt (" + (e.name || "Fehler") + "). Nichts wurde geändert."); }
+  buildSettings();
+}
+
+async function unlock() {
+  let id = "";
+  try { id = localStorage.getItem("jarvis_fid") || ""; } catch (e) {}
+  if (!id) { document.documentElement.classList.remove("locked"); return; }
+  try {
+    await navigator.credentials.get({ publicKey: {
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      allowCredentials: [{ type: "public-key", id: unb64(id), transports: ["internal"] }],
+      userVerification: "required",
+      timeout: 60000
+    } });
+    document.documentElement.classList.remove("locked");
+    fidMsg("");
+  } catch (e) { fidMsg("Entsperren hat nicht geklappt (" + (e.name || "Fehler") + "). Tippe nochmal oder nutze den Zugangscode unten."); }
+}
+
+function fidOff() {
+  const c = prompt("Zugangscode eingeben, um Face ID zu deaktivieren:");
+  let saved = "";
+  try { saved = localStorage.getItem("jarvis_code") || ""; } catch (e) {}
+  if (c && c.trim() === saved) {
+    try { localStorage.removeItem("jarvis_fid"); } catch (e) {}
+    document.documentElement.classList.remove("locked");
+    buildSettings();
+  } else fidMsg("Code stimmt nicht.");
+}
+
+function initLock() {
+  document.getElementById("unlockbtn").onclick = unlock;
+  document.getElementById("lockoff").onclick = fidOff;
+  document.addEventListener("visibilitychange", () => {
+    let has = false;
+    try { has = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
+    if (document.visibilityState === "hidden") hiddenAt = Date.now();
+    else if (has && hiddenAt && Date.now() - hiddenAt > 60000) { document.documentElement.classList.add("locked"); unlock(); }
+  });
+  if (document.documentElement.classList.contains("locked")) unlock();
+}
+
+function exportAll() {
+  const o = { app: "jarvis", v: 25, t: Date.now(), notes: notes, todos: todos, facts: facts, inv: inv, fav: fav, sp: sp, wl: load("jarvis_wl", []), ideas: fideas };
+  const blob = new Blob([JSON.stringify(o, null, 1)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "jarvis-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+  fidMsg("Backup erstellt. Du findest die Datei in Dateien unter Downloads.");
+}
+
+function importAll(file) {
+  const rd = new FileReader();
+  rd.onload = () => {
+    try {
+      const o = JSON.parse(rd.result);
+      if (o.app !== "jarvis") throw new Error("keine Jarvis-Datei");
+      if (Array.isArray(o.notes)) notes = o.notes;
+      if (Array.isArray(o.todos)) todos = o.todos;
+      if (Array.isArray(o.facts)) facts = o.facts;
+      if (Array.isArray(o.inv)) inv = o.inv;
+      if (Array.isArray(o.fav)) fav = o.fav;
+      if (o.sp && typeof o.sp === "object") { sp = o.sp; save("jarvis_sp", sp); }
+      saveData();
+      renderNotes();
+      try { drawInv(); } catch (e) {}
+      fidMsg("Backup eingespielt.");
+    } catch (e) { fidMsg("Backup konnte nicht gelesen werden (" + e.message + ").");
+    }
+  };
+  rd.readAsText(file);
+}
+
+function toggleSet() {
+  const b = document.getElementById("setbox");
+  b.style.display = b.style.display === "none" ? "block" : "none";
+  if (b.style.display === "block") buildSettings();
+}
+
+function buildSettings() {
+  const b = document.getElementById("setbox");
+  if (!b) return;
+  let on = false;
+  try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v25</div>';
+  const acts = b.querySelectorAll(".acts");
+  const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
+  mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
+  mk(acts[0], "Zugangscode neu eingeben", () => { try { localStorage.removeItem("jarvis_code"); } catch (e) {} fidMsg("Beim nächsten Senden fragt die App den Code neu ab."); });
+  mk(acts[1], "Backup speichern", exportAll);
+  const lab = document.createElement("label");
+  lab.className = "smallbtn";
+  lab.style.cssText = "display:inline-flex;align-items:center;margin:6px 0 0";
+  lab.textContent = "Backup einspielen";
+  const fi = document.createElement("input");
+  fi.type = "file";
+  fi.accept = "application/json,.json";
+  fi.style.display = "none";
+  fi.onchange = e => { if (e.target.files[0]) importAll(e.target.files[0]); };
+  lab.appendChild(fi);
+  acts[1].appendChild(lab);
 }
 
 try { drawForm(); } catch (e) {}
@@ -1579,6 +2107,7 @@ function buildReseller() {
     <h3>Lager</h3>
     <div class="hsub">Behalte den Überblick über alles, was du eingekauft hast.</div>
     <div id="rsum"></div>
+    <div id="rinvest"></div>
     <input class="rin" id="inm" placeholder="Artikel, zum Beispiel Nike Hoodie M">
     <div class="two"><input class="rin" id="iek" inputmode="decimal" placeholder="Einkauf €"><input class="rin" id="ivk" inputmode="decimal" placeholder="Ziel-Preis €"></div>
     <button class="cta" id="iadd" style="margin-top:8px;height:42px">Hinzufügen</button>
@@ -1694,7 +2223,7 @@ function addInv() {
   if (!n) return;
   const ek = pn(document.getElementById("iek").value), vk = pn(document.getElementById("ivk").value);
   inv.unshift({ n: n, ek: ok(ek) ? ek : 0, vk: ok(vk) ? vk : 0, st: 0, sold: 0 });
-  save("jarvis_inv", inv);
+  saveInv();
   ["inm", "iek", "ivk"].forEach(id => { document.getElementById(id).value = ""; });
   drawInv();
 }
@@ -1703,8 +2232,10 @@ function drawInv() {
   const list = document.getElementById("rinv"), sum = document.getElementById("rsum");
   list.innerHTML = "";
   let bound = 0, profit = 0, revenue = 0;
-  inv.forEach(x => { if (x.st < 2) bound += x.ek; else { profit += x.sold - x.ek; revenue += x.sold; } });
-  sum.innerHTML = '<div class="sum"><div>Gebundenes Kapital<b>' + eur(bound) + '</b></div><div>Gewinn bisher<b>' + eur(profit) + '</b></div><div>Verkauft<b>' + inv.filter(x => x.st === 2).length + ' Stück</b></div></div>';
+  inv.forEach(x => { if (x.st < 2) bound += x.ek; else { profit += x.sold - x.ek - (x.fee || 0); revenue += x.sold; } });
+  sum.innerHTML = '<div class="sum"><div>Gebundenes Kapital<b>' + eur(bound) + '</b></div><div>Gewinn bisher<b>' + eur(profit) + '</b></div><div>Verkauft<b>' + inv.filter(x => x.st === 2).length + ' Stück</b></div></div>' + (profit > 0 ? '<div class="acts"><button class="smallbtn" id="invbtn" style="margin-top:0">Gewinn einsetzen?</button></div>' : '');
+  const ib = document.getElementById("invbtn");
+  if (ib) ib.onclick = () => openInvest(profit, null);
   if (!inv.length) { list.innerHTML = '<div class="empty">Noch nichts im Lager.</div>'; return; }
   inv.forEach((x, i) => {
     const r = document.createElement("div");
@@ -1713,7 +2244,7 @@ function drawInv() {
     nm.className = "nm";
     nm.textContent = x.n;
     const sm = document.createElement("small");
-    sm.textContent = "Einkauf " + eur(x.ek) + (x.st === 2 ? " · verkauft für " + eur(x.sold) : (x.vk ? " · Ziel " + eur(x.vk) : ""));
+    sm.textContent = "Einkauf " + eur(x.ek) + (x.st === 2 ? " · verkauft für " + eur(x.sold) + " · Gewinn " + eur(x.sold - x.ek - (x.fee || 0)) : (x.vk ? " · Ziel " + eur(x.vk) : ""));
     nm.appendChild(sm);
     const st = document.createElement("button");
     st.className = "smallbtn";
@@ -1722,15 +2253,20 @@ function drawInv() {
       if (x.st === 1) {
         const v = pn(prompt("Verkauft für wie viel Euro?", x.vk ? String(x.vk) : "") || "");
         if (!ok(v)) return;
-        x.sold = v; x.st = 2;
+        const fee = pn(prompt("Versand und Gebühren in Euro (0, wenn keine):", "0") || "0");
+        x.sold = v; x.fee = ok(fee) ? fee : 0; x.st = 2;
+        saveInv();
+        drawInv();
+        openInvest(x.sold - x.ek - x.fee, x);
+        return;
       } else x.st = (x.st + 1) % 3;
-      save("jarvis_inv", inv);
+      saveInv();
       drawInv();
     };
     const del = document.createElement("button");
     del.className = "smallbtn";
     del.textContent = "✕";
-    del.onclick = () => { inv.splice(i, 1); save("jarvis_inv", inv); drawInv(); };
+    del.onclick = () => { inv.splice(i, 1); saveInv(); drawInv(); };
     r.appendChild(nm); r.appendChild(st); r.appendChild(del);
     list.appendChild(r);
   });
@@ -1748,6 +2284,8 @@ document.getElementById("nin").addEventListener("keydown", e => { if (e.key === 
 try { show("chat"); } catch (e) {}
 try { updSpk(); } catch (e) {}
 try { pullSync(); } catch (e) {}
+try { buildSettings(); } catch (e) {}
+try { initLock(); } catch (e) {}
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pullSync(); });
 </script>
 </body>
