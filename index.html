@@ -397,7 +397,7 @@
 </style>
 </head>
 <body>
-<div id="onb"><div class="in"><div class="orb" style="margin:0 auto"></div><h2>Willkommen</h2><div class="hsub" style="text-align:center">Vier kurze Fragen, damit Jarvis besser zu dir passt. Die Angaben bleiben auf deinem Gerät und du kannst sie jederzeit ändern.</div><div id="onbf"></div><button class="cta" id="onbgo" style="margin-top:26px">Los geht's</button><button class="smallbtn" id="onbskip" style="display:block;margin:14px auto 0">Überspringen</button></div></div>
+<div id="onb"><div class="in"><div class="orb" style="margin:0 auto"></div><h2>Willkommen</h2><div class="hsub" style="text-align:center">Ein paar kurze Fragen, damit Jarvis besser zu dir passt. Die Angaben bleiben auf deinem Gerät und du kannst sie jederzeit ändern.</div><div id="onbf"></div><button class="cta" id="onbgo" style="margin-top:26px">Los geht's</button><button class="smallbtn" id="onbskip" style="display:block;margin:14px auto 0">Überspringen</button></div></div>
 <div id="lock"><div class="orb"></div><h2>Jarvis</h2><div class="hsub">Gesperrt</div><button class="cta" id="unlockbtn" style="max-width:280px;margin-top:22px">Mit Face ID entsperren</button><button class="smallbtn" id="lockoff" style="margin-top:14px">Face ID ausschalten (Zugangscode)</button><div class="hsub" id="lockmsg" style="margin-top:12px;max-width:300px"></div></div>
 <header>
   <button class="mini spk" id="spk" onclick="toggleSpeak()"></button>
@@ -493,7 +493,33 @@ function saveData() {
   syncTimer = setTimeout(pushSync, 800);
 }
 
+function profCtx() {
+  if (!prof) return "";
+  const P = [];
+  if (prof.name) P.push("Name: " + prof.name);
+  if (prof.age) P.push("Altersgruppe: " + prof.age);
+  if (prof.role) P.push("Tätigkeit: " + prof.role);
+  if (prof.field) P.push("Bereich/Branche: " + prof.field);
+  if (prof.level) P.push("Vorwissen: " + prof.level);
+  if (prof.use && prof.use.length) P.push("nutzt die KI für: " + prof.use.join(", "));
+  if (!P.length && !prof.tone && !prof.len) return "";
+  let t = "\n\nNUTZERPROFIL (passe Inhalt, Beispiele, Wortwahl und Tiefe daran an, ohne das Profil aufzuzählen): " + P.join("; ") + ".";
+  if (prof.tone) t += " Ton: " + prof.tone + ".";
+  if (prof.len) t += " Antwortlänge: " + prof.len + ".";
+  if (prof.age === "unter 16") t += " Der Nutzer ist minderjährig: einfache, freundliche Sprache; bei Geld, Investieren oder Risiken auf Eltern oder Lehrkräfte hinweisen; keine konkreten Anlage- oder Handelsanleitungen.";
+  if (prof.level === "Anfänger") t += " Erkläre Fachbegriffe kurz beim ersten Gebrauch.";
+  if (prof.level === "Profi") t += " Komm direkt zum Punkt, Fachbegriffe sind bekannt.";
+  if (/Unternehmen|Selbstständig/.test(prof.role || "")) t += " Denke geschäftlich: Aufwand, Kosten, Kunden, Zeitersparnis.";
+  if (/Schule|Studium/.test(prof.role || "")) t += " Erkläre lernfreundlich, mit kleinen Beispielen.";
+  return t;
+}
 async function api(body) {
+  try {
+    if (body && typeof body.system === "string") {
+      const ex = profCtx();
+      if (ex && body.system.length + ex.length < 3950) body.system += ex;
+    }
+  } catch (e) {}
   const res = await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Jarvis-Code": getCode() },
@@ -721,7 +747,6 @@ function buildSystem(t) {
     const open = todos.filter(x => !x.done).map(x => x.text);
     if (open.length) s += "\n\nOffene Aufgaben des Nutzers:\n- " + open.join("\n- ");
   }
-  if (prof && (prof.age || prof.role || (prof.use && prof.use.length))) s += "\n\nProfil des Nutzers (passe Sprache, Beispiele und Tiefe daran an): " + [prof.name && "Name " + prof.name, prof.age && "Alter " + prof.age, prof.role && "Tätigkeit " + prof.role, prof.use && prof.use.length && "nutzt die KI für " + prof.use.join(", ")].filter(Boolean).join("; ") + ".";
   s += "\n\nAktuelles Datum und Uhrzeit: " + new Date().toLocaleString("de-DE");
   return s;
 }
@@ -953,7 +978,7 @@ async function send() {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Jarvis-Code": getCode() },
-      body: JSON.stringify({ messages: buildMsgs(T.h), system: buildSystem(t), mode: t === "search" ? "search" : "chat" })
+      body: JSON.stringify({ messages: buildMsgs(T.h), system: buildSystem(t) + (function () { try { var e = profCtx(), b = buildSystem(t); return e && b.length + e.length < 3950 ? e : ""; } catch (x) { return ""; } })(), mode: t === "search" ? "search" : "chat" })
     });
     if (res.status === 401) {
       try { localStorage.removeItem("jarvis_code"); } catch (e) {}
@@ -2072,7 +2097,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v26</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v27</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -2317,7 +2342,10 @@ try { buildSettings(); } catch (e) {}
 const OQ = [
   { k: "age", q: "Altersgruppe", multi: false, o: ["unter 16", "16–24", "25–39", "40–59", "60+"] },
   { k: "role", q: "Was machst du?", multi: false, o: ["Schule", "Studium / Ausbildung", "Angestellt", "Selbstständig / Gründer", "Kleines Unternehmen"] },
-  { k: "use", q: "Wofür willst du die KI nutzen?", multi: true, o: ["Lernen", "Business / BWL", "Geld & Märkte", "Reselling", "Texte & Mails", "Büro-Alltag", "Alltag & Ideen"] }
+  { k: "use", q: "Wofür willst du die KI nutzen?", multi: true, o: ["Lernen", "Business / BWL", "Geld & Märkte", "Reselling", "Texte & Mails", "Büro-Alltag", "Alltag & Ideen"] },
+  { k: "level", q: "Wie viel Vorwissen hast du bei deinen Themen?", multi: false, o: ["Anfänger", "Fortgeschritten", "Profi"] },
+  { k: "tone", q: "Wie soll Jarvis klingen?", multi: false, o: ["locker und freundlich", "sachlich und professionell", "motivierend", "ruhig wie ein Butler"] },
+  { k: "len", q: "Wie ausführlich sollen Antworten sein?", multi: false, o: ["sehr kurz", "kurz mit Details auf Nachfrage", "ausführlich"] }
 ];
 let onbSel = null;
 function drawOnb() {
@@ -2327,6 +2355,10 @@ function drawOnb() {
   const inp = document.createElement("input"); inp.className = "oi"; inp.placeholder = "Vorname (optional)"; inp.value = onbSel.name || "";
   inp.oninput = () => { onbSel.name = inp.value.trim().slice(0, 30); };
   host.appendChild(l0); host.appendChild(inp);
+  const l1 = document.createElement("div"); l1.className = "oq"; l1.textContent = "Bereich oder Branche (optional)";
+  const i1 = document.createElement("input"); i1.className = "oi"; i1.placeholder = "z. B. Handwerk, Online-Shop, Informatik, Pflege"; i1.value = onbSel.field || "";
+  i1.oninput = () => { onbSel.field = i1.value.trim().slice(0, 60); };
+  host.appendChild(l1); host.appendChild(i1);
   OQ.forEach(q => {
     const l = document.createElement("div"); l.className = "oq"; l.textContent = q.q; host.appendChild(l);
     const row = document.createElement("div"); row.className = "ch";
@@ -2344,12 +2376,12 @@ function drawOnb() {
   });
 }
 function openOnb() {
-  onbSel = { name: (prof && prof.name) || "", age: (prof && prof.age) || "", role: (prof && prof.role) || "", use: ((prof && prof.use) || []).slice() };
+  onbSel = { name: (prof && prof.name) || "", field: (prof && prof.field) || "", age: (prof && prof.age) || "", role: (prof && prof.role) || "", level: (prof && prof.level) || "", tone: (prof && prof.tone) || "", len: (prof && prof.len) || "", use: ((prof && prof.use) || []).slice() };
   drawOnb();
   document.getElementById("onb").classList.add("on");
 }
 function closeOnb(saveIt) {
-  if (saveIt) prof = { name: onbSel.name, age: onbSel.age, role: onbSel.role, use: onbSel.use, done: 1 };
+  if (saveIt) prof = { name: onbSel.name, field: onbSel.field, age: onbSel.age, role: onbSel.role, level: onbSel.level, tone: onbSel.tone, len: onbSel.len, use: onbSel.use, done: 1 };
   else if (!prof) prof = { done: 1 };
   save("jarvis_profile", prof);
   document.getElementById("onb").classList.remove("on");
