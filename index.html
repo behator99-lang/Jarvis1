@@ -421,7 +421,6 @@
   .rin { color: #fff; }
   body[data-t="bu"] { --ar: 214,199,161; --a: #d6c7a1; --a2: #efe6cf; --bg0: #14110a; --bg1: #2e2716; --on: #1c160a; --bga: .30; background: radial-gradient(130% 55% at 50% 0%, rgba(var(--ar), var(--bga)) 0%, transparent 70%), radial-gradient(120% 45% at 50% 100%, rgba(var(--ar), .12) 0%, transparent 70%), var(--bg0); }
   #bu { flex: 1; overflow-y: auto; padding: 4px 18px 24px; min-height: 0; padding-left: max(18px, calc((100% - 680px) / 2)); padding-right: max(18px, calc((100% - 680px) / 2)); }
-  body[data-t] .tab { font-size: 10px; }
   #bu .bbtn { height: 32px; padding: 0 14px; margin: 6px 6px 0 0; border-radius: 16px; font-size: 13px; font-weight: 400; background: rgba(255,255,255,.06); border: 1px solid rgba(var(--ar), .4); color: var(--a2); display: inline-flex; align-items: center; }
   #bu .bbtn.dang { border-color: rgba(242,168,160,.5); color: #f2b4ac; }
   #bu .bbtn:disabled { opacity: .5; }
@@ -460,6 +459,26 @@
   #bu .bu-ck.no { color: #f2a8a0; }
   #bu .bu-msg { font-size: 13px; margin-top: 8px; color: var(--a2); }
   #bu .bu-big { font-size: 40px; font-weight: 300; text-align: center; margin: 8px 0; font-variant-numeric: tabular-nums; color: var(--a2); }
+
+  #webb { width: 38px; height: 38px; padding: 0; border-radius: 50%; flex-shrink: 0; display: none; align-items: center; justify-content: center; background: rgba(255,255,255,.08); border: none; color: #e8f1ea; }
+  #webb.on { background: var(--a); color: var(--on); box-shadow: 0 0 14px rgba(var(--ar), .5); }
+  .sumc { background: rgba(255,255,255,.045); border: 1px solid rgba(var(--ar), .25); border-radius: 16px; padding: 12px 14px; margin: 6px 0 4px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .sumc b { display: block; font-size: 14px; margin-bottom: 2px; color: var(--a2); }
+  .sumc span { font-size: 13px; opacity: .65; line-height: 1.4; }
+  .sumc button { flex-shrink: 0; height: 30px; padding: 0 14px; border-radius: 15px; font-size: 13px; background: transparent; border: 1px solid rgba(var(--ar), .45); color: var(--a2); }
+  .tcard .tr span, #todaycard .tr span { white-space: normal; }
+  .expl { font-size: 13px; opacity: .6; line-height: 1.45; margin: 2px 0 10px; }
+
+  .fpacc { background: rgba(255,255,255,.045); border: 1px solid rgba(var(--ar), .25); border-radius: 16px; margin: 8px 0; overflow: hidden; }
+  .fphd { background: transparent !important; color: var(--a2) !important; border: 0 !important; width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 14px; background: transparent; border: 0; color: var(--a2); font: inherit; font-weight: 600; font-size: 15px; text-align: left; }
+  .fphd i { width: 8px; height: 8px; border-right: 2px solid var(--a2); border-bottom: 2px solid var(--a2); transform: rotate(45deg); transition: .2s; margin-right: 4px; flex-shrink: 0; }
+  .fpacc.open .fphd i { transform: rotate(-135deg); }
+  .fpbd { display: none; padding: 0 14px 14px; }
+  .fpacc.open .fpbd { display: block; }
+  .fprich p { margin: 6px 0; font-size: 14px; line-height: 1.5; }
+  .fprich p.fph { font-weight: 600; margin-top: 12px; color: var(--a2); }
+  .fprich ul { margin: 4px 0 8px; padding-left: 20px; }
+  .fprich li { font-size: 14px; line-height: 1.5; margin: 3px 0; }
 </style>
 </head>
 <body>
@@ -495,38 +514,41 @@
   </div>
   <div id="freseller" style="display:none"></div>
   <div id="fplan" style="display:none"></div>
+  <div id="fplanv" style="display:none"></div>
 </div>
 <div id="mk" style="display:none"></div>
 <div id="ev" style="display:none"></div>
 <div id="bu" style="display:none"></div>
 <div id="biz" style="display:none"><div class="pagehead"><h2>Rechner-Werkstatt</h2><div class="hsub">Tippe einen Rechner an, trage Werte ein und lass dir das Ergebnis von Jarvis erklären.</div></div><div class="tcard wide" id="tc-biz"></div><div id="calcs"></div></div>
 <div id="notes" style="display:none">
-  <div class="pagehead"><h2>Notizen &amp; Aufgaben</h2><div class="hsub">Alles an einem Ort, auf allen Geräten synchron.</div></div>
+  <div class="pagehead"><h2>Notizen &amp; Aufgaben</h2><div class="hsub">Notizen, Aufgaben und dein Kalender an einem Ort.</div></div>
   <div class="acts" style="margin:0 0 4px"><button class="smallbtn" id="setbtn" onclick="toggleSet()" style="margin-top:0">Einstellungen</button></div>
   <div id="setbox" style="display:none"></div>
-  <div id="sub"><button class="sub on" id="sub-n" onclick="subTab('n')">Notizen</button><button class="sub" id="sub-t" onclick="subTab('t')">Aufgaben</button></div>
+  <div id="sub"><button class="sub on" id="sub-n" onclick="subTab('n')">Notizen</button><button class="sub" id="sub-t" onclick="subTab('t')">Aufgaben</button><button class="sub" id="sub-c" onclick="subTab('c')">Kalender</button></div>
   <input id="nsr" placeholder="Suchen..." autocomplete="off">
   <div id="nlist"></div>
   <div id="tlist" style="display:none"></div>
+  <div id="ncal" style="display:none"><div class="tcard wide" id="tc-ev"></div><div id="ev-c"></div><div class="fq" style="margin-top:20px">Neuer Termin</div><div id="ev-t"></div></div>
   <div class="addrow"><input id="nin" placeholder="Neue Notiz..."><input type="date" id="ndue" style="display:none" title="Fällig am"><button onclick="addItem()">+</button></div>
 </div>
 <div id="preview"><img id="pimg"><button class="x" onclick="clearImg()">✕</button></div>
 <div id="bar">
   <label class="photo" for="file"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></label>
   <input type="file" id="file" accept="image/*" style="display:none">
+  <button id="webb" onclick="toggleWeb()" aria-label="Websuche"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg></button>
   <input id="in" placeholder="Sag etwas zu Jarvis...">
   <button class="mic" id="mic" onclick="toggleMic()"><svg class="ic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
   <button id="btn" onclick="send()"><svg class="ic" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
 </div>
 <div id="nav">
   <button class="tab on" id="tab-chat" onclick="show('chat')">Chat</button>
-  <button class="tab" id="tab-search" onclick="show('search')">Suche</button>
+  <button class="tab" id="tab-search" onclick="show('search')" style="display:none">Suche</button>
   <button class="tab" id="tab-school" onclick="show('school')">Schule</button>
   <button class="tab" id="tab-biz" onclick="show('biz')">BWL</button>
   <button class="tab" id="tab-bu" onclick="show('bu')">Büro</button>
   <button class="tab" id="tab-found" onclick="show('found')">Startup</button>
   <button class="tab" id="tab-mk" onclick="show('mk')">Märkte</button>
-  <button class="tab" id="tab-ev" onclick="show('ev')">Events</button>
+  <button class="tab" id="tab-ev" onclick="show('ev')" style="display:none">Events</button>
   <button class="tab" id="tab-notes" onclick="show('notes')">Notizen</button>
 </div>
 <script>
@@ -754,10 +776,15 @@ function subTab(k) {
   sub = k;
   document.getElementById("nlist").style.display = k === "n" ? "block" : "none";
   document.getElementById("tlist").style.display = k === "t" ? "block" : "none";
+  document.getElementById("ncal").style.display = k === "c" ? "block" : "none";
   document.getElementById("sub-n").classList.toggle("on", k === "n");
   document.getElementById("sub-t").classList.toggle("on", k === "t");
+  document.getElementById("sub-c").classList.toggle("on", k === "c");
+  document.getElementById("nsr").style.display = k === "c" ? "none" : "";
+  document.querySelector("#notes .addrow").style.display = k === "c" ? "none" : "flex";
   document.getElementById("nin").placeholder = k === "n" ? "Neue Notiz..." : "Neue Aufgabe...";
   document.getElementById("ndue").style.display = k === "t" ? "block" : "none";
+  if (k === "c" && calUrl) { try { calRefresh(false); } catch (e) {} }
 }
 
 function addItem() {
@@ -937,7 +964,8 @@ function greetWord() { const h = new Date().getHours(); return h < 11 ? "Guten M
 const HERO = {
   chat: { sub: "Wobei kann ich dir helfen?", chips: [
     { l: "📝 Notiz speichern", fill: "Notiz: " }, { l: "✅ Aufgabe anlegen", fill: "Aufgabe: " },
-    { l: "🧠 Was weißt du über mich?", fill: "Was weißt du über mich?", auto: true }, { l: "💡 Erkläre mir…", fill: "Erkläre mir " }] },
+    { l: "📰 Nachrichten heute", fill: "Was sind heute die wichtigsten Nachrichten?", auto: true, web: true }, { l: "🌦️ Wetter", fill: "Wetter in ", web: true },
+    { l: "💡 Erkläre mir…", fill: "Erkläre mir " }, { l: "🧠 Was weißt du über mich?", fill: "Was weißt du über mich?", auto: true }] },
   search: { sub: "Was soll ich für dich nachschlagen?", chips: [
     { l: "📰 Nachrichten heute", fill: "Was sind heute die wichtigsten Nachrichten?", auto: true }, { l: "🌦️ Wetter", fill: "Wetter in " },
     { l: "💶 Preise vergleichen", fill: "Preise vergleichen: " }, { l: "📈 Aktuelle Zahlen", fill: "Aktuelle Zahlen zu " }] },
@@ -959,6 +987,7 @@ function makeHero(t) {
     b.onclick = () => {
       if (x.mode) { schoolMode = x.mode; save("jarvis_mode", x.mode); drawChips(); }
       if (x.pick) { try { document.getElementById("file").click(); } catch (e) {} return; }
+      if (x.web) { webOn = true; webUi(); }
       const i = document.getElementById("in");
       i.value = x.fill;
       i.focus();
@@ -978,7 +1007,7 @@ function fillToday() {
   const rows = [];
   const tdy = dkey(new Date());
   if (calUrl && calC && calC.items) {
-    calC.items.filter(x => x.s.slice(0, 10) === tdy).slice(0, 3).forEach(x => rows.push([x.t, calTime(x), () => { show("ev"); evsub("c"); }]));
+    calC.items.filter(x => x.s.slice(0, 10) === tdy).slice(0, 3).forEach(x => rows.push([x.t, calTime(x), () => { show("notes"); subTab("c"); }]));
   }
   const open = todos.filter(x => !x.done).sort((a, b) => (a.due || "9") < (b.due || "9") ? -1 : 1).slice(0, 3);
   open.forEach(x => { const dl = dueLab(x.due); rows.push([x.text, dl ? dl[0] : "Aufgabe", () => { show("notes"); subTab("t"); }]); });
@@ -1095,6 +1124,8 @@ function show(t) {
   });
   document.getElementById("bar").style.display = (t === "notes" || t === "biz" || t === "found" || t === "mk" || t === "ev" || t === "bu") ? "none" : "flex";
   document.querySelector(".photo").style.display = (t === "chat" || t === "school") ? "flex" : "none";
+  document.getElementById("webb").style.display = t === "chat" ? "flex" : "none";
+  try { webUi(); } catch (e) {}
   document.getElementById("newbtn").style.visibility = tabs[t] ? "visible" : "hidden";
   document.getElementById("in").placeholder = PLACE[t] || "";
   const p = document.getElementById(t);
@@ -1142,6 +1173,12 @@ function clearImg() {
   document.getElementById("preview").style.display = "none";
 }
 
+let webOn = false;
+function webUi() {
+  const b = document.getElementById("webb"); if (b) b.classList.toggle("on", webOn);
+  if (cur === "chat") document.getElementById("in").placeholder = webOn ? "Websuche an. Was soll ich nachschlagen?" : (PLACE.chat || "");
+}
+function toggleWeb() { webOn = !webOn; webUi(); if (webOn) document.getElementById("in").focus(); }
 async function send() {
   const t = cur;
   const T = tabs[t];
@@ -1205,14 +1242,16 @@ async function send() {
   add(text, "user", img ? img.url : null);
   T.h.push(img ? { role: "user", content: text, img: img.data, hadImg: true } : { role: "user", content: text });
   clearImg();
-  const wait = addWait(t === "search" ? "sucht..." : t === "school" ? "überlegt..." : "denkt nach...", "bot");
+  const web = t === "chat" && webOn && !img;
+  if (web) { webOn = false; webUi(); }
+  const wait = addWait(t === "search" || web ? "sucht..." : t === "school" ? "überlegt..." : "denkt nach...", "bot");
   btn.disabled = true;
   core.classList.add("busy");
   try {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Jarvis-Code": getCode() },
-      body: JSON.stringify({ messages: buildMsgs(T.h), system: buildSystem(t) + (function () { try { var e = profCtx(), b = buildSystem(t); return e && b.length + e.length < 11500 ? e : ""; } catch (x) { return ""; } })(), mode: t === "search" ? "search" : "chat" })
+      body: JSON.stringify({ messages: buildMsgs(T.h), system: buildSystem(web ? "search" : t) + (function () { try { var e = profCtx(), b = buildSystem(web ? "search" : t); return e && b.length + e.length < 11500 ? e : ""; } catch (x) { return ""; } })(), mode: t === "search" || web ? "search" : "chat" })
     });
     if (res.status === 401) {
       try { localStorage.removeItem("jarvis_code"); } catch (e) {}
@@ -1636,6 +1675,7 @@ const FQ = [
 ];
 let fsel = load("jarvis_fsel", { kap: "100 – 500 €", zeit: "10 – 20 Std.", int: [], ziel: "Nebenverdienst" });
 let fideas = load("jarvis_ideas", []);
+let fOpen = null;
 
 function fJson(txt, open, close) {
   txt = String(txt || "").replace(/```(json)?/gi, "");
@@ -1662,7 +1702,20 @@ async function fAsk(sys, user) {
 function drawForm() {
   const host = document.getElementById("fform");
   host.innerHTML = "";
-  FQ.forEach(q => {
+  const fo = fOpen === null ? fsel.int.length === 0 : fOpen;
+  if (!fo) {
+    const sc = document.createElement("div"); sc.className = "sumc";
+    sc.innerHTML = "<div><b>Dein Profil</b><span>" + esc(fsel.kap + " · " + fsel.zeit + " · " + fsel.ziel + (fsel.int.length ? " · " + fsel.int.join(", ") : "")) + "</span></div>";
+    const cb = document.createElement("button"); cb.textContent = "Ändern"; cb.onclick = () => { fOpen = true; drawForm(); };
+    sc.appendChild(cb); host.appendChild(sc);
+    const ex = document.createElement("div"); ex.className = "expl"; ex.textContent = "Jarvis schlägt Ideen vor, die zu Budget, Zeit und Stärken passen. Du kannst sie speichern und im Planer durchrechnen.";
+    host.appendChild(ex);
+  } else {
+    fOpen = true;
+    const ex = document.createElement("div"); ex.className = "expl"; ex.textContent = "Beantworte vier kurze Fragen, dann sucht Jarvis passende Ideen.";
+    host.appendChild(ex);
+  }
+  if (fo) FQ.forEach(q => {
     const l = document.createElement("div");
     l.className = "fq";
     l.textContent = q.q;
@@ -1689,7 +1742,7 @@ function drawForm() {
   go.className = "cta";
   go.id = "fgo";
   go.textContent = fideas.length ? "Neue Ideen finden" : "Ideen finden";
-  go.onclick = findIdeas;
+  go.onclick = () => { fOpen = false; findIdeas(); };
   host.appendChild(go);
 }
 
@@ -1729,8 +1782,10 @@ function drawIdeas() {
       "<div class=\"fq\" style=\"margin:8px 0 2px\">Erste Schritte</div><ol>" + steps + "</ol><div class=\"risk\">Risiko: " + esc(x.risk) + "</div>";
     const row = document.createElement("div");
     row.className = "acts";
-    const mk = (l, fn) => { const b = document.createElement("button"); b.className = "smallbtn"; b.textContent = l; b.onclick = () => fn(b); row.appendChild(b); };
-    mk("30-Tage-Plan", b => makePlan(x, b));
+    const mk = (l, fn) => { const b = document.createElement("button"); b.className = "smallbtn"; b.textContent = l; b.onclick = () => fn(b); row.appendChild(b); return b; };
+    const pb = mk(fplans[fpKey(x)] ? "Startplan öffnen" : "Kompletten Startplan", () => openPlan(x));
+    pb.style.cssText = "background:var(--a);color:var(--on);border-color:var(--a);font-weight:600";
+    mk("Nur Aufgaben", b => makePlan(x, b));
     mk("Besprechen", () => {
       show("chat");
       document.getElementById("in").value = "Ich überlege, mit dieser Idee zu starten: " + x.name + " (" + x.desc + "). Stell mir die wichtigsten Fragen und sag mir ehrlich, wo die Stolpersteine sind.";
@@ -2445,7 +2500,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v42</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v44</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -2475,6 +2530,7 @@ let rImg = null;
 const ST = ["Eingekauft", "Online", "Verkauft"];
 
 function fsub(k) {
+  try { document.getElementById("fplanv").style.display = "none"; document.querySelectorAll("#found > .pagehead, #found > .tcard, #found > .seg").forEach(e => { e.style.display = ""; }); } catch (e) {}
   document.getElementById("fideas").style.display = k === "i" ? "block" : "none";
   document.getElementById("freseller").style.display = k === "r" ? "block" : "none";
   document.getElementById("fplan").style.display = k === "p" ? "block" : "none";
@@ -2810,6 +2866,7 @@ let evI = load("jarvis_evi", []);
 let evT = load("jarvis_evt", "Wochenende");
 let evRes = load("jarvis_evres", null);
 let evSub = "e";
+let evOpen = null;
 let evClubs = load("jarvis_clubs", "");
 let evAge = load("jarvis_evage", "");
 const evMinor = () => !!(prof && prof.age === "unter 16");
@@ -2858,26 +2915,8 @@ function evRange() {
   return [f(a), f(b)];
 }
 
-function buildEv() {
-  const h = document.getElementById("ev");
-  h.innerHTML = '<div class="pagehead"><h2>Events</h2><div class="hsub">Was in deiner Nähe los ist, dein Kalender und neue Termine.</div></div><div class="tcard wide" id="tc-ev"></div>' +
-    '<div class="seg"><button class="sub on" id="es-e" onclick="evsub(\'e\')">In deiner Nähe</button><button class="sub" id="es-c" onclick="evsub(\'c\')">Kalender</button><button class="sub" id="es-t" onclick="evsub(\'t\')">Termin</button></div>' +
-    '<div id="ev-e"></div><div id="ev-c" style="display:none"></div><div id="ev-t" style="display:none"></div>' +
-    '<div class="disc">Die Treffer stammen aus einer Websuche und können unvollständig oder veraltet sein. Prüfe Datum, Ort und Preis beim Veranstalter, bevor du losgehst.</div>';
-  drawEvE();
-  drawEvT();
-  drawCal();
-}
-function evsub(k) {
-  evSub = k;
-  document.getElementById("ev-e").style.display = k === "e" ? "block" : "none";
-  document.getElementById("ev-t").style.display = k === "t" ? "block" : "none";
-  document.getElementById("ev-c").style.display = k === "c" ? "block" : "none";
-  document.getElementById("es-c").classList.toggle("on", k === "c");
-  if (k === "c" && calUrl) calRefresh(false);
-  document.getElementById("es-e").classList.toggle("on", k === "e");
-  document.getElementById("es-t").classList.toggle("on", k === "t");
-}
+function buildEv() { try { drawEvT(); drawCal(); } catch (e) { console.error(e); } }
+function evsub(k) { show("notes"); subTab("c"); }
 function chipRow(host, opts, isOn, onTap) {
   const row = document.createElement("div");
   row.className = "chips";
@@ -2896,7 +2935,20 @@ function lbl(host, t) { const l = document.createElement("div"); l.className = "
 function drawEvE() {
   const host = document.getElementById("ev-e");
   host.innerHTML = "";
-  lbl(host, "Wo?");
+  const evo = evOpen === null ? !(evCity && evI.length) : evOpen;
+  let fh = host;
+  if (!evo) {
+    fh = document.createElement("div");
+    const sc = document.createElement("div"); sc.className = "sumc";
+    sc.innerHTML = "<div><b>" + esc(evCity) + "</b><span>" + esc(evI.join(", ") + " · " + evT) + "</span></div>";
+    const cb = document.createElement("button"); cb.textContent = "Ändern"; cb.onclick = () => { evOpen = true; drawEvE(); };
+    sc.appendChild(cb); host.appendChild(sc);
+  } else {
+    evOpen = true;
+    const ex = document.createElement("div"); ex.className = "expl"; ex.textContent = "Ort, Interessen und Zeitraum festlegen, dann „Events suchen“. Jarvis sucht im Web, das kann etwas dauern.";
+    host.appendChild(ex);
+  }
+  lbl(fh, "Wo?");
   const two = document.createElement("div");
   two.className = "two";
   const inp = document.createElement("input");
@@ -2918,31 +2970,31 @@ function drawEvE() {
     }, () => { loc.textContent = "Erlaubnis fehlt"; }, { timeout: 10000 });
   };
   two.appendChild(inp); two.appendChild(loc);
-  host.appendChild(two);
-  lbl(host, "Was interessiert dich? (mehrere möglich)");
-  chipRow(host, EVI, o => evI.indexOf(o) >= 0, o => { const i = evI.indexOf(o); if (i >= 0) evI.splice(i, 1); else evI.push(o); save("jarvis_evi", evI); drawEvE(); });
+  fh.appendChild(two);
+  lbl(fh, "Was interessiert dich? (mehrere möglich)");
+  chipRow(fh, EVI, o => evI.indexOf(o) >= 0, o => { const i = evI.indexOf(o); if (i >= 0) evI.splice(i, 1); else evI.push(o); save("jarvis_evi", evI); drawEvE(); });
   if (evI.indexOf("Party & Clubs") >= 0) {
     if (evMinor()) {
       const n = document.createElement("div");
       n.className = "hsub"; n.style.cssText = "font-size:13px;margin:0 0 10px;color:var(--a)";
       n.textContent = "Clubpartys sind erst ab 16 erlaubt. Jarvis sucht für dich stattdessen Jugendveranstaltungen wie Jugenddisco oder Schulfeste.";
-      host.appendChild(n);
+      fh.appendChild(n);
     } else {
-      lbl(host, "Party-Alter");
-      chipRow(host, ["ab 16", "ab 18", "egal"], o => (evAge || (prof && prof.age === "16–24" ? "ab 16" : "egal")) === o, o => { evAge = o; save("jarvis_evage", o); drawEvE(); });
-      lbl(host, "Clubs oder Veranstalter, die du kennst (optional)");
+      lbl(fh, "Party-Alter");
+      chipRow(fh, ["ab 16", "ab 18", "egal"], o => (evAge || (prof && prof.age === "16–24" ? "ab 16" : "egal")) === o, o => { evAge = o; save("jarvis_evage", o); drawEvE(); });
+      lbl(fh, "Clubs oder Veranstalter, die du kennst (optional)");
       const ci = document.createElement("input");
       ci.className = "rin"; ci.placeholder = "z. B. Name eines Clubs, durch Komma getrennt"; ci.value = evClubs;
       ci.oninput = () => { evClubs = ci.value.trim().slice(0, 150); save("jarvis_clubs", evClubs); };
-      host.appendChild(ci);
+      fh.appendChild(ci);
       const ig = document.createElement("div");
       ig.className = "hsub"; ig.style.cssText = "font-size:12px;opacity:.6;margin:2px 0 8px";
       ig.textContent = "Instagram kann Jarvis nicht direkt lesen. Mach einen Screenshot vom Flyer oder der Story und lies ihn unten mit „Flyer lesen“ ein.";
-      host.appendChild(ig);
+      fh.appendChild(ig);
     }
   }
-  lbl(host, "Wann?");
-  chipRow(host, EVT, o => evT === o, o => { evT = o; save("jarvis_evt", evT); drawEvE(); });
+  lbl(fh, "Wann?");
+  chipRow(fh, EVT, o => evT === o, o => { evT = o; save("jarvis_evt", evT); drawEvE(); });
   const fl = document.createElement("div");
   fl.style.cssText = "margin:8px 0 0";
   const flb = document.createElement("label");
@@ -2956,7 +3008,7 @@ function drawEvE() {
   host.appendChild(fl);
   const go = document.createElement("button");
   go.className = "cta"; go.id = "evgo"; go.textContent = "Events suchen";
-  go.onclick = findEvents;
+  go.onclick = () => { evOpen = false; findEvents(); };
   host.appendChild(go);
   const hint = document.createElement("div");
   hint.className = "hsub"; hint.style.cssText = "font-size:12px;opacity:.5;margin-top:6px;text-align:center";
@@ -3318,7 +3370,7 @@ function fillSchoolT() {
   if (calUrl && calC && calC.items) {
     const lim = dkey(new Date(Date.now() + 14 * 86400000));
     const ex = calC.items.filter(x => /klausur|prüfung|pruefung|klassenarbeit|test|abitur|referat|vokabel/i.test(x.t) && x.s.slice(0, 10) >= tdy && x.s.slice(0, 10) <= lim)[0];
-    if (ex) { const dd = Math.round((new Date(ex.s.slice(0, 10) + "T12:00:00") - new Date(tdy + "T12:00:00")) / 86400000); rows.unshift([ex.t, dd === 0 ? "heute" : dd === 1 ? "morgen" : "in " + dd + " Tagen", () => { show("ev"); evsub("c"); }]); }
+    if (ex) { const dd = Math.round((new Date(ex.s.slice(0, 10) + "T12:00:00") - new Date(tdy + "T12:00:00")) / 86400000); rows.unshift([ex.t, dd === 0 ? "heute" : dd === 1 ? "morgen" : "in " + dd + " Tagen", () => { show("notes"); subTab("c"); }]); }
   }
   (rq.school || []).slice(0, 2).forEach(q => rows.push([q, "weiter", () => { const i = document.getElementById("in"); i.value = q.replace(/^[^:]*:\s*/, ""); i.focus(); }]));
   tFill("tc-school", "Heute lernen", rows);
@@ -3353,7 +3405,6 @@ function fillEvT() {
     calC.items.filter(x => x.s.slice(0, 10) >= tdy).slice(0, 3).forEach(x => rows.push([x.t, calDay(x.s.slice(0, 10)).replace("Heute · ", "").replace("Morgen · ", "morgen ") + " " + (x.a ? "" : x.s.slice(11)), () => evsub("c")]));
     if (!rows.length) rows.push(["Keine Termine in den nächsten Tagen", "", () => evsub("c")]);
   } else rows.push(["Kalender verbinden", "Apple Kalender", () => evsub("c")]);
-  if (evRes && evRes.items && evRes.items.length) rows.push(["Letzte Suche: " + evRes.city, evRes.items.length + " Events", () => evsub("e")]);
   tFill("tc-ev", "Als Nächstes", rows);
 }
 
@@ -4332,6 +4383,184 @@ function vSet(h) {
   });
 }
 
+
+/* ---- Startplan & Marketing-Guide ---- */
+let fplans = load("jarvis_fplans", {});
+let fpCur = "", fpBusy = false;
+const FPBASE = "Du bist ein erfahrener, ehrlicher Gründer-Coach für Deutschland. Schreibe in einfachem, klarem Deutsch, konkret, mit Zahlen und Beispielen, ohne Floskeln und ohne Gewinn-Versprechen. Stelle KEINE Rückfragen, triff sinnvolle Annahmen und nenne sie kurz. Format: kurze Zwischenüberschriften in **fett**, Aufzählungen mit '- ', keine Tabellen, höchstens 450 Wörter. ";
+const FPS = [
+  { k: "a", t: "Idee & Angebot", p: "Teil: IDEE UND ANGEBOT. Beschreibe die Idee in 2 Sätzen, die Zielgruppe (wer genau, wo erreichbar), das konkrete Angebot mit 2-3 Paketen, was dich von anderen unterscheidet und gib 5 Namensvorschläge." },
+  { k: "b", t: "Geld & Preise", p: "Teil: GELD UND PREISE. Liste die Startkosten einzeln mit realistischen Euro-Beträgen (passend zum Startkapital), empfiehl konkrete Preise, rechne ein Beispiel für den Break-even (ab wie vielen Verkäufen oder Stunden lohnt es sich), nenne laufende Kosten und wie schnell erste Einnahmen realistisch sind. Weise auf Unsicherheiten hin." },
+  { k: "c", t: "Rechtliches & Organisation", p: "Teil: RECHTLICHES UND ORGANISATION in Deutschland. Erkläre Schritt für Schritt: Gewerbeanmeldung (ja/nein, wo, Kosten), Finanzamt und Fragebogen zur steuerlichen Erfassung, Kleinunternehmerregelung (§ 19 UStG, Grenzen bitte aktuell prüfen), Rechnungen schreiben, Impressum und Datenschutz, nötige Versicherungen, Konto trennen. Wenn die Altersgruppe unter 18 ist: erkläre klar, dass die Eltern zustimmen müssen und für ein Gewerbe oft eine familiengerichtliche Genehmigung nötig sein kann (§ 112 BGB), und dass man das vorher prüfen lassen soll. Hinweis: keine Rechts- oder Steuerberatung." },
+  { k: "d", t: "Marketing & erste Kunden", p: "Teil: MARKETING UND ERSTE KUNDEN (Überblick). Nenne die 2 besten Kanäle für diese Idee und warum, wo die ersten 10 Kunden realistisch herkommen, 3 konkrete Aktionen für Woche 1, und womit man kostenlos startet. Am Ende: ein Satz, dass es unten einen ausführlichen Marketing-Guide gibt." },
+  { k: "e", t: "30-Tage-Plan & Risiken", p: "Teil: 30-TAGE-PLAN UND RISIKEN. Gib einen Plan in 4 Wochen mit je 3-4 konkreten Aufgaben, dann die 3 größten Risiken mit Gegenmaßnahme, und zum Schluss: **Die ersten 3 Schritte heute** (jeweils unter 30 Minuten)." }
+];
+const FMS = [
+  { k: "m1", t: "Strategie & Content-Plan", p: "Teil: MARKETING-STRATEGIE. Zielgruppe in einem Satz, 1-2 Kanäle (Instagram, TikTok, YouTube, WhatsApp-Status, lokal) mit Begründung, Profil-Aufbau (Name, Bio, Link, Profilbild), 3 Content-Säulen und ein 14-Tage-Postingplan (Tag, Thema, Format), Posting-Rhythmus." },
+  { k: "m2", t: "Videos & Viral", p: "Teil: VIDEOS UND REICHWEITE. Erkläre Hook-Formeln für die ersten 2 Sekunden, den Aufbau eines Kurzvideos (Hook, Inhalt, Aufruf), schreibe 3 konkrete Beispiel-Skripte für diese Idee, nenne Handy-Aufnahme-Tipps (Licht, Ton, Format 9:16), kostenlose Schnitt-Apps, Untertitel, Trends nutzen, Hashtags, beste Zeiten und woran man erkennt, was funktioniert. Sei ehrlich: Viral ist nicht planbar, Regelmäßigkeit und Testen zählen." },
+  { k: "m3", t: "Werbung (Ads)", p: "Teil: BEZAHLTE WERBUNG. Wann Ads sinnvoll sind und wann nicht, Startbudget zum Testen (z. B. 5-10 Euro am Tag), Plattformen (Meta/Instagram, TikTok, Google) und welche zu dieser Idee passt, Zielgruppen einstellen, 2 Beispiel-Anzeigentexte, wichtige Zahlen (Klickrate, Kosten pro Klick, Kosten pro Kunde), wie man Tests aufbaut, Werbekennzeichnung. Hinweis: Werbekonten gibt es meist erst ab 18, bei Minderjährigen mit den Eltern klären. Warne vor Geldverbrennen." },
+  { k: "m4", t: "Kunden direkt gewinnen", p: "Teil: KUNDEN OHNE WERBEBUDGET. Empfehlungen und Mundpropaganda, Kooperationen, lokale Aktionen (Flyer, Aushänge, Vereine, Schule), Google-Unternehmensprofil, Bewertungen sammeln, Einführungsangebot, wie man Anfragen beantwortet und ein Gespräch führt, kleine Vorlage für eine erste Nachricht." }
+];
+function fpCtx(x) {
+  return "Geschäftsidee: " + x.name + (x.desc ? " (" + x.desc + ")" : "") + "\nStartkapital: " + fsel.kap + "\nZeit pro Woche: " + fsel.zeit + "\nStärken: " + (fsel.int.join(", ") || "keine Angabe") + "\nZiel: " + fsel.ziel + (prof && prof.age ? "\nAltersgruppe des Gründers: " + prof.age : "") + "\nHeute ist " + new Date().toLocaleDateString("de-DE") + ".";
+}
+async function fpRun(defs, x, store, onTick) {
+  await Promise.all(defs.map(async d => {
+    if (store[d.k] && store[d.k].txt) return;
+    let err = "";
+    for (let i = 0; i < 2; i++) {
+      try { const t = (await fAsk(FPBASE + d.p, fpCtx(x))).trim(); if (t.length < 40) throw new Error("zu kurz"); store[d.k] = { txt: t }; err = ""; break; } catch (e) { err = e.message; }
+    }
+    if (err) store[d.k] = { err: err };
+    onTick();
+  }));
+}
+function fpRich(txt) {
+  const box = document.createElement("div"); box.className = "fprich";
+  let ul = null;
+  String(txt).split(/\n+/).forEach(l => {
+    l = l.trim(); if (!l) return;
+    const m = l.match(/^[-•*]\s+(.*)$/);
+    if (m) { if (!ul) { ul = document.createElement("ul"); box.appendChild(ul); } const li = document.createElement("li"); li.innerHTML = fmt(m[1]); ul.appendChild(li); return; }
+    ul = null;
+    const p = document.createElement("p");
+    if (/^\*\*[^*]+\*\*:?$/.test(l) || /^#+\s/.test(l)) { p.className = "fph"; p.innerHTML = fmt(l.replace(/^#+\s*/, "")); } else p.innerHTML = fmt(l);
+    box.appendChild(p);
+  });
+  return box;
+}
+function fpAcc(host, title, st, open, extra, retry) {
+  const c = document.createElement("div"); c.className = "fpacc" + (open ? " open" : "");
+  const hd = document.createElement("button"); hd.className = "fphd"; hd.innerHTML = "<span>" + esc(title) + "</span><i></i>";
+  hd.onclick = () => c.classList.toggle("open");
+  const bd = document.createElement("div"); bd.className = "fpbd";
+  if (st && st.txt) { bd.appendChild(fpRich(st.txt)); if (extra) bd.appendChild(extra); }
+  else if (st && st.err) { const e = document.createElement("div"); e.className = "empty"; e.textContent = "Dieser Teil ist fehlgeschlagen (" + st.err + ")."; bd.appendChild(e); if (retry) { const rb = document.createElement("button"); rb.className = "smallbtn"; rb.textContent = "Nochmal versuchen"; rb.onclick = retry; bd.appendChild(rb); } }
+  else { const e = document.createElement("div"); e.className = "th"; e.innerHTML = '<span class="dot"></span>wird geschrieben...'; bd.appendChild(e); }
+  c.appendChild(hd); c.appendChild(bd); host.appendChild(c);
+}
+function fpPlain(s) { return String(s).replace(/\*\*/g, "").replace(/[^\u0000-ÿ€„…‘’“”•–—·]/g, ""); }
+function fpPdf(title, sub, parts) {
+  const P = new Pdf();
+  let y = 56;
+  const need = h => { if (y + h > 790) { P.newPage(); y = 56; } };
+  pdfWrap(fpPlain(title), 495, 20, true).forEach(l => { P.text(50, y, l, 20, true); y += 25; });
+  P.text(50, y, fpPlain(sub), 10, false, "l", 0.45); y += 26;
+  parts.forEach(pt => {
+    need(40); P.rect(50, y, 495, 1, 0.8); y += 18;
+    P.text(50, y, fpPlain(pt.t), 14, true); y += 20;
+    String(pt.txt).split(/\n+/).forEach(l => {
+      l = l.trim(); if (!l) return;
+      const b = /^[-•*]\s+/.test(l), h = /^\*\*[^*]+\*\*:?$/.test(l);
+      const t = fpPlain(l.replace(/^[-•*]\s+/, ""));
+      const ind = b ? 14 : 0, sz = h ? 11 : 10.5;
+      pdfWrap(t, 495 - ind, sz, h).forEach((w, i) => { need(15); if (b && i === 0) P.text(54, y, "•", sz); P.text(50 + ind, y, w, sz, h); y += 14; });
+      if (h) y += 2;
+    });
+    y += 12;
+  });
+  need(30); P.text(50, y, "Entwurf der KI, keine Rechts-, Steuer- oder Anlageberatung. Bitte alle Angaben prüfen.", 8.5, false, "l", 0.5);
+  return P.build();
+}
+function fpPrompt(x) {
+  return "Du bist ein erfahrener, ehrlicher Gründer-Coach für Deutschland. Erstelle mir ohne Rückfragen einen vollständigen, konkreten Startplan für dieses Business. Triff sinnvolle Annahmen und nenne sie kurz. Schreibe in einfachem Deutsch, mit Zahlen und Beispielen, ohne Gewinn-Versprechen.\n\n" + fpCtx(x) + "\nLand: Deutschland\n\nGliederung:\n1. Idee, Zielgruppe, Angebot in 2-3 Paketen, Alleinstellung, 5 Namensvorschläge\n2. Startkosten einzeln in Euro, Preise, Break-even-Rechnung, laufende Kosten, realistische Zeit bis zu den ersten Einnahmen\n3. Rechtliches: Gewerbeanmeldung, Finanzamt, Kleinunternehmerregelung, Rechnungen, Impressum, Datenschutz, Versicherungen, Konto trennen. Falls der Gründer minderjährig ist: Zustimmung der Eltern und Genehmigung des Familiengerichts erklären\n4. Marketing komplett: Kanäle, Profil-Aufbau, 14-Tage-Postingplan, Hook-Formeln, 3 Video-Skripte, Handy-Aufnahme, Trends, Hashtags, bezahlte Werbung mit Startbudget, Anzeigentexte, Kennzahlen, Kunden ohne Werbebudget\n5. 30-Tage-Plan in 4 Wochen mit konkreten Aufgaben\n6. Die 3 größten Risiken mit Gegenmaßnahmen\n7. Die ersten 3 Schritte für heute (je unter 30 Minuten)\n\nSei ehrlich, wo etwas unsicher ist, und weise darauf hin, dass dies keine Rechts- oder Steuerberatung ist.";
+}
+function fpKey(x) { return (x.name || "Idee").slice(0, 60); }
+function fpHost() { return document.getElementById("fplanv"); }
+function fpShow(on) {
+  ["fideas", "freseller", "fplan"].forEach(i => { const e = document.getElementById(i); if (e) e.style.display = "none"; });
+  document.getElementById("fplanv").style.display = on ? "block" : "none";
+  ["i", "r", "p"].forEach(k => document.getElementById("fs-" + k).classList.remove("on"));
+  document.querySelectorAll("#found > .pagehead, #found > .tcard, #found > .seg").forEach(e => { e.style.display = on ? "none" : ""; });
+  if (on) { const p = document.getElementById("found"); if (p) p.scrollTop = 0; }
+}
+function fpBack() { fsub("i"); }
+async function openPlan(x, force) {
+  const key = fpKey(x);
+  fpCur = key;
+  if (force || !fplans[key]) fplans[key] = { ts: Date.now(), idea: { name: x.name, desc: x.desc || "" }, secs: {}, mk: {} };
+  fpShow(true);
+  drawPlan(key);
+  const pl = fplans[key];
+  const redraw = () => { save("jarvis_fplans", fplans); try { fpSaved(); } catch (e) {} if (document.getElementById("fplanv").style.display === "block" && fpCur === key) drawPlan(key); };
+  if (FPS.some(d => !(pl.secs[d.k] && pl.secs[d.k].txt))) { fpBusy = true; await fpRun(FPS, pl.idea, pl.secs, redraw); fpBusy = false; redraw(); }
+}
+function drawPlan(key) {
+  const h = fpHost(), pl = fplans[key]; if (!pl) return;
+  const keep = document.getElementById("found") ? document.getElementById("found").scrollTop : 0;
+  h.innerHTML = "";
+  const bk = document.createElement("button"); bk.className = "smallbtn"; bk.textContent = "‹ Ideen"; bk.onclick = fpBack; bk.style.margin = "8px 0"; h.appendChild(bk);
+  const hd = document.createElement("div"); hd.className = "pagehead";
+  hd.innerHTML = "<h2>" + esc(pl.idea.name) + "</h2><div class=\"hsub\">Dein Komplettplan · " + new Date(pl.ts).toLocaleDateString("de-DE") + "</div>";
+  h.appendChild(hd);
+  const done = FPS.filter(d => pl.secs[d.k] && pl.secs[d.k].txt).length;
+  const loading = FPS.some(d => !pl.secs[d.k]);
+  if (loading) { const pr = document.createElement("div"); pr.className = "th"; pr.style.margin = "4px 0 10px"; pr.innerHTML = '<span class="dot"></span>Jarvis schreibt deinen Plan: ' + done + " von " + FPS.length + " Teilen fertig"; h.appendChild(pr); }
+  const ac = document.createElement("div"); ac.className = "acts";
+  const mkb = (l, fn) => { const b = document.createElement("button"); b.className = "smallbtn"; b.textContent = l; b.onclick = () => fn(b); ac.appendChild(b); };
+  const parts = () => FPS.filter(d => pl.secs[d.k] && pl.secs[d.k].txt).map(d => ({ t: d.t, txt: pl.secs[d.k].txt }));
+  mkb("PDF teilen", async b => { if (!parts().length) return; b.disabled = true; try { await buShare(fpPdf(pl.idea.name + ": Startplan", "Erstellt von Jarvis am " + new Date(pl.ts).toLocaleDateString("de-DE"), parts()), "Startplan_" + pl.idea.name.replace(/[^\wäöüÄÖÜß-]+/g, "_") + ".pdf", "Startplan"); } catch (e) { b.textContent = "Fehler"; } b.disabled = false; });
+  mkb("Prompt kopieren", b => copyTxt(fpPrompt(pl.idea), b));
+  mkb("In Notizen", b => { const p = parts(); if (!p.length) return; notes.unshift({ text: "Startplan: " + pl.idea.name + "\n\n" + p.map(x => x.t.toUpperCase() + "\n" + x.txt.replace(/\*\*/g, "")).join("\n\n") }); saveData(); renderNotes(); b.textContent = "Gespeichert"; b.disabled = true; });
+  mkb("30-Tage-Aufgaben", b => makePlan(pl.idea, b));
+  mkb("Neu erstellen", () => { if (confirm("Plan wirklich neu erstellen? Der alte wird ersetzt.")) openPlan(pl.idea, true); });
+  h.appendChild(ac);
+  FPS.forEach((d, i) => {
+    let extra = null;
+    if (d.k === "d") {
+      extra = document.createElement("button"); extra.className = "cta"; extra.style.marginTop = "10px"; extra.textContent = "Marketing-Guide öffnen";
+      extra.onclick = () => openGuide(key);
+    }
+    fpAcc(h, (i + 1) + ". " + d.t, pl.secs[d.k], i === 0, extra, () => { delete pl.secs[d.k]; openPlan(pl.idea); });
+  });
+  const dc = document.createElement("div"); dc.className = "disc"; dc.textContent = "Der Plan ist ein Entwurf der KI und keine Rechts-, Steuer- oder Anlageberatung. Zahlen sind Schätzungen. Prüfe Gewerbe, Steuern und Verträge, bei Minderjährigen immer mit den Eltern."; h.appendChild(dc);
+  const p = document.getElementById("found"); if (p) p.scrollTop = keep;
+}
+async function openGuide(key) {
+  const pl = fplans[key]; if (!pl) return;
+  const h = fpHost();
+  const draw = () => {
+    if (fpCur !== key + "#g") return;
+    h.innerHTML = "";
+    const bk = document.createElement("button"); bk.className = "smallbtn"; bk.textContent = "‹ Zurück zum Plan"; bk.onclick = () => { fpCur = key; drawPlan(key); }; bk.style.margin = "8px 0"; h.appendChild(bk);
+    const hd = document.createElement("div"); hd.className = "pagehead"; hd.innerHTML = "<h2>Marketing-Guide</h2><div class=\"hsub\">" + esc(pl.idea.name) + ": Videos, Reichweite, Werbung und Kunden.</div>"; h.appendChild(hd);
+    const done = FMS.filter(d => pl.mk[d.k] && pl.mk[d.k].txt).length;
+    if (FMS.some(d => !pl.mk[d.k])) { const pr = document.createElement("div"); pr.className = "th"; pr.style.margin = "4px 0 10px"; pr.innerHTML = '<span class="dot"></span>' + done + " von " + FMS.length + " Teilen fertig"; h.appendChild(pr); }
+    const ac = document.createElement("div"); ac.className = "acts";
+    const parts = FMS.filter(d => pl.mk[d.k] && pl.mk[d.k].txt).map(d => ({ t: d.t, txt: pl.mk[d.k].txt }));
+    const b1 = document.createElement("button"); b1.className = "smallbtn"; b1.textContent = "PDF teilen"; b1.onclick = async () => { if (parts.length) { try { await buShare(fpPdf(pl.idea.name + ": Marketing-Guide", "Erstellt von Jarvis", parts), "Marketing_" + pl.idea.name.replace(/[^\wäöüÄÖÜß-]+/g, "_") + ".pdf", "Marketing-Guide"); } catch (e) {} } }; ac.appendChild(b1);
+    const b2 = document.createElement("button"); b2.className = "smallbtn"; b2.textContent = "In Notizen"; b2.onclick = () => { if (!parts.length) return; notes.unshift({ text: "Marketing-Guide: " + pl.idea.name + "\n\n" + parts.map(x => x.t.toUpperCase() + "\n" + x.txt.replace(/\*\*/g, "")).join("\n\n") }); saveData(); renderNotes(); b2.textContent = "Gespeichert"; b2.disabled = true; }; ac.appendChild(b2);
+    h.appendChild(ac);
+    FMS.forEach((d, i) => fpAcc(h, d.t, pl.mk[d.k], i === 0, null, () => { delete pl.mk[d.k]; openGuide(key); }));
+    const dc = document.createElement("div"); dc.className = "disc"; dc.textContent = "Keine Garantie für Reichweite oder Verkäufe. Werbung kostet echtes Geld, starte klein. Werbekonten gibt es meist erst ab 18."; h.appendChild(dc);
+  };
+  fpCur = key + "#g";
+  draw();
+  const p = document.getElementById("found"); if (p) p.scrollTop = 0;
+  if (FMS.some(d => !(pl.mk[d.k] && pl.mk[d.k].txt))) { await fpRun(FMS, pl.idea, pl.mk, () => { save("jarvis_fplans", fplans); draw(); }); save("jarvis_fplans", fplans); draw(); }
+}
+/* eigene Idee + Gespeicherte Pläne */
+function fpInit() {
+  const res = document.getElementById("fres"); if (!res || document.getElementById("fown")) return;
+  const w = document.createElement("div"); w.id = "fown"; w.className = "sumc"; w.style.cssText = "display:block;margin-top:14px";
+  w.innerHTML = '<b>Eigene Idee?</b><span>Schreibe deine Idee in einem Satz, Jarvis erstellt den Komplettplan.</span>';
+  const i = document.createElement("input"); i.className = "rin"; i.placeholder = "z. B. Nachhilfe für Mathe in der 6. Klasse"; i.style.margin = "8px 0";
+  const b = document.createElement("button"); b.className = "cta"; b.style.marginTop = "0"; b.textContent = "Komplettplan erstellen";
+  b.onclick = () => { const t = i.value.trim(); if (t.length < 3) return; openPlan({ name: t.slice(0, 60), desc: t.length > 60 ? t : "" }); };
+  w.appendChild(i); w.appendChild(b);
+  res.before(w);
+  const sp = document.createElement("div"); sp.id = "fsaved"; res.after(sp);
+  fpSaved();
+}
+function fpSaved() {
+  const h = document.getElementById("fsaved"); if (!h) return;
+  h.innerHTML = "";
+  const ks = Object.keys(fplans).sort((a, b) => fplans[b].ts - fplans[a].ts);
+  if (!ks.length) return;
+  const t = document.createElement("div"); t.className = "fq"; t.textContent = "Deine Pläne"; h.appendChild(t);
+  ks.forEach(k => { const r = document.createElement("div"); r.className = "sumc"; r.style.cursor = "pointer"; r.innerHTML = "<div><b>" + esc(fplans[k].idea.name) + "</b><span>" + new Date(fplans[k].ts).toLocaleDateString("de-DE") + "</span></div>"; const o = document.createElement("button"); o.textContent = "Öffnen"; r.appendChild(o); r.onclick = () => openPlan(fplans[k].idea); h.appendChild(r); });
+}
+try { fpInit(); } catch (e) { console.error(e); }
 
 /* ---- Einstiegsfragen ---- */
 const OQ = [
