@@ -339,7 +339,7 @@
 
   /* ---- v18: Märkte ---- */
   body[data-t="mk"] { --ar: 185,214,111; --a: #b9d66f; --a2: #e6f2c0; --bg0: #0d1204; --bg1: #26300a; --on: #151d05; --bga: .36; background: radial-gradient(130% 60% at 50% 0%, rgba(var(--ar), var(--bga)) 0%, transparent 72%), var(--bg0); }
-  #mk, #ev { flex: 1; overflow-y: auto; padding: 4px 18px 20px; min-height: 0; }
+  #mk, #ev, #bu { flex: 1; overflow-y: auto; padding: 4px 18px 20px; min-height: 0; }
   body[data-t="ev"] { --ar: 240,143,107; --a: #f0906b; --a2: #fbd3c0; --bg0: #170a06; --bg1: #3a1a0e; --on: #2a0e05; --bga: .34; background: radial-gradient(130% 55% at 50% 0%, rgba(var(--ar), var(--bga)) 0%, transparent 70%), radial-gradient(120% 45% at 50% 100%, rgba(var(--ar), .14) 0%, transparent 70%), var(--bg0); }
   .evc { margin: 12px 0; padding: 16px; border-radius: 22px; background: rgba(255,255,255,.045); border: 1px solid rgba(var(--ar), .25); }
   .evc h3 { margin: 0 0 4px; font-size: 17px; font-weight: 600; color: var(--a2); }
@@ -386,7 +386,7 @@
   .tab { min-width: 0; padding: 0; overflow: hidden; }
   body[data-t] .tab { font-size: 11px; letter-spacing: 0; }
   @media (max-width: 380px) { body[data-t] .tab { font-size: 10px; } }
-  #chat, #search, #notes, #biz, #school, #found, #mk, #ev { padding-left: max(18px, calc((100% - 680px) / 2)); padding-right: max(18px, calc((100% - 680px) / 2)); }
+  #chat, #search, #notes, #biz, #school, #found, #mk, #ev, #bu { padding-left: max(18px, calc((100% - 680px) / 2)); padding-right: max(18px, calc((100% - 680px) / 2)); }
   #schoolctl { padding-left: max(18px, calc((100% - 680px) / 2)); padding-right: max(18px, calc((100% - 680px) / 2)); }
   header { padding-left: max(16px, calc((100vw - 680px) / 2)); padding-right: max(16px, calc((100vw - 680px) / 2)); }
   #bar { margin-left: max(14px, calc((100vw - 680px) / 2)); margin-right: max(14px, calc((100vw - 680px) / 2)); }
@@ -419,6 +419,47 @@
   .lg i { display: inline-block; width: 10px; height: 3px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
   label.smallbtn { display: inline-flex; align-items: center; height: 28px; padding: 0 12px; border-radius: 14px; font-size: 12px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: var(--a2); }
   .rin { color: #fff; }
+  body[data-t="bu"] { --ar: 214,199,161; --a: #d6c7a1; --a2: #efe6cf; --bg0: #14110a; --bg1: #2e2716; --on: #1c160a; --bga: .30; background: radial-gradient(130% 55% at 50% 0%, rgba(var(--ar), var(--bga)) 0%, transparent 70%), radial-gradient(120% 45% at 50% 100%, rgba(var(--ar), .12) 0%, transparent 70%), var(--bg0); }
+  #bu { flex: 1; overflow-y: auto; padding: 4px 18px 24px; min-height: 0; padding-left: max(18px, calc((100% - 680px) / 2)); padding-right: max(18px, calc((100% - 680px) / 2)); }
+  body[data-t] .tab { font-size: 10px; }
+  #bu .bbtn { height: 32px; padding: 0 14px; margin: 6px 6px 0 0; border-radius: 16px; font-size: 13px; font-weight: 400; background: rgba(255,255,255,.06); border: 1px solid rgba(var(--ar), .4); color: var(--a2); display: inline-flex; align-items: center; }
+  #bu .bbtn.dang { border-color: rgba(242,168,160,.5); color: #f2b4ac; }
+  #bu .bbtn:disabled { opacity: .5; }
+  #bu .bu-c { background: rgba(255,255,255,.045); border: 1px solid rgba(var(--ar), .22); border-radius: 16px; padding: 14px; margin: 10px 0; }
+  #bu .bu-warn { border-color: rgba(242,200,120,.5); }
+  #bu .bu-t { font-weight: 600; font-size: 15px; margin: 10px 0 6px; color: var(--a2); }
+  #bu .bu-c > .bu-t:first-child { margin-top: 0; }
+  #bu .bu-s { font-size: 13px; opacity: .65; line-height: 1.45; margin: 4px 0; }
+  #bu .bu-g { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 8px 0; }
+  #bu .bu-k { background: rgba(255,255,255,.045); border: 1px solid rgba(var(--ar), .22); border-radius: 14px; padding: 12px; }
+  #bu .bu-k small { display: block; font-size: 11px; opacity: .6; }
+  #bu .bu-k b { display: block; font-size: 19px; font-weight: 600; margin: 3px 0; color: var(--a2); }
+  #bu .bu-k em { font-style: normal; font-size: 11px; opacity: .5; }
+  #bu .bu-k.warn b { color: #f2a8a0; }
+  #bu .bu-bar { flex: 1; height: 8px; border-radius: 4px; background: rgba(255,255,255,.08); overflow: hidden; }
+  #bu .bu-bar i { display: block; height: 100%; background: var(--a); border-radius: 4px; }
+  #bu .bu-bl { display: flex; align-items: center; gap: 8px; font-size: 12px; margin: 6px 0; }
+  #bu .bu-bl span:first-child { width: 96px; flex-shrink: 0; opacity: .75; }
+  #bu .bu-bl span:last-child { width: 82px; text-align: right; flex-shrink: 0; }
+  #bu .bu-r { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 11px 2px; border-bottom: 1px solid rgba(255,255,255,.07); font-size: 14px; cursor: pointer; }
+  #bu .bu-r .m { opacity: .55; font-size: 12px; text-align: right; }
+  #bu .bu-c > .bu-r:last-child { border-bottom: 0; }
+  #bu .bu-tag { display: block; font-size: 11px; margin-top: 2px; opacity: .65; }
+  #bu .bu-tag.bad { color: #f2a8a0; opacity: 1; }
+  #bu .bu-tag.good { color: #a8d8a8; opacity: 1; }
+  #bu .bu-f { margin: 8px 0; }
+  #bu .bu-f label { display: block; font-size: 12px; opacity: .6; margin-bottom: 3px; }
+  #bu .bu-f input, #bu .bu-f textarea, #bu .bu-f select { width: 100%; box-sizing: border-box; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); border-radius: 12px; color: #fff; font: inherit; font-size: 16px; padding: 10px 12px; min-width: 0; }
+  #bu .bu-f textarea { resize: vertical; }
+  #bu .bu-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  #bu .bu-3 { display: grid; grid-template-columns: 1fr 1.2fr 1.4fr; gap: 6px; }
+  #bu .bu-it { border: 1px solid rgba(255,255,255,.08); border-radius: 12px; padding: 8px; margin: 8px 0; }
+  #bu .lock { pointer-events: none; opacity: .6; }
+  #bu .bu-ck { font-size: 13px; margin: 3px 0; }
+  #bu .bu-ck.ok { color: #a8d8a8; }
+  #bu .bu-ck.no { color: #f2a8a0; }
+  #bu .bu-msg { font-size: 13px; margin-top: 8px; color: var(--a2); }
+  #bu .bu-big { font-size: 40px; font-weight: 300; text-align: center; margin: 8px 0; font-variant-numeric: tabular-nums; color: var(--a2); }
 </style>
 </head>
 <body>
@@ -457,6 +498,7 @@
 </div>
 <div id="mk" style="display:none"></div>
 <div id="ev" style="display:none"></div>
+<div id="bu" style="display:none"></div>
 <div id="biz" style="display:none"><div class="pagehead"><h2>Rechner-Werkstatt</h2><div class="hsub">Tippe einen Rechner an, trage Werte ein und lass dir das Ergebnis von Jarvis erklären.</div></div><div class="tcard wide" id="tc-biz"></div><div id="calcs"></div></div>
 <div id="notes" style="display:none">
   <div class="pagehead"><h2>Notizen &amp; Aufgaben</h2><div class="hsub">Alles an einem Ort, auf allen Geräten synchron.</div></div>
@@ -481,6 +523,7 @@
   <button class="tab" id="tab-search" onclick="show('search')">Suche</button>
   <button class="tab" id="tab-school" onclick="show('school')">Schule</button>
   <button class="tab" id="tab-biz" onclick="show('biz')">BWL</button>
+  <button class="tab" id="tab-bu" onclick="show('bu')">Büro</button>
   <button class="tab" id="tab-found" onclick="show('found')">Startup</button>
   <button class="tab" id="tab-mk" onclick="show('mk')">Märkte</button>
   <button class="tab" id="tab-ev" onclick="show('ev')">Events</button>
@@ -943,6 +986,7 @@ function fillToday() {
     const ix = mq && mq.idx && mq.idx.items && mq.idx.items.filter(x => x.s === "^GDAXI")[0];
     if (ix) rows.push(["DAX " + nf(ix.p, 0), ix.c == null ? "" : (ix.c >= 0 ? "+" : "") + nf(ix.c, 2) + " %", () => show("mk")]);
   } catch (e) {}
+  try { const ov = bu.docs.filter(buOverdue); if (ov.length) rows.push(["Büro: " + ov.length + " Rechnung" + (ov.length > 1 ? "en" : "") + " überfällig", eur(ov.reduce((a, d) => a + buTot(d).gross, 0)), () => { show("bu"); buGo("fu"); }]); } catch (e) {}
   const nowc = lst.days[tdy] || 0, st = streak();
   if (nowc || st) rows.push(["Karteikarten", nowc + " / " + DAYGOAL + " · Serie " + st, () => { show("school"); }]);
   h.innerHTML = "<h3>Heute</h3>";
@@ -1036,8 +1080,8 @@ function newChat() {
   renderTab(cur);
 }
 
-const TITLES = { chat: "Chat", search: "Suche", school: "Schule", biz: "BWL", found: "Startup", mk: "Märkte", ev: "Events", notes: "Notizen" };
-const PANES = { chat: "chat", search: "search", school: "schoolwrap", biz: "biz", found: "found", mk: "mk", ev: "ev", notes: "notes" };
+const TITLES = { chat: "Chat", search: "Suche", school: "Schule", biz: "BWL", found: "Startup", mk: "Märkte", ev: "Events", bu: "Büro", notes: "Notizen" };
+const PANES = { chat: "chat", search: "search", school: "schoolwrap", biz: "biz", found: "found", mk: "mk", ev: "ev", bu: "bu", notes: "notes" };
 const PLACE = { chat: "Sag etwas zu Jarvis...", search: "Was soll ich suchen?", school: "Thema, Aufgabe oder Antwort..." };
 
 function show(t) {
@@ -1049,13 +1093,14 @@ function show(t) {
     document.getElementById(PANES[k]).style.display = k === t ? (k === "school" ? "flex" : "block") : "none";
     document.getElementById("tab-" + k).classList.toggle("on", k === t);
   });
-  document.getElementById("bar").style.display = (t === "notes" || t === "biz" || t === "found" || t === "mk" || t === "ev") ? "none" : "flex";
+  document.getElementById("bar").style.display = (t === "notes" || t === "biz" || t === "found" || t === "mk" || t === "ev" || t === "bu") ? "none" : "flex";
   document.querySelector(".photo").style.display = (t === "chat" || t === "school") ? "flex" : "none";
   document.getElementById("newbtn").style.visibility = tabs[t] ? "visible" : "hidden";
   document.getElementById("in").placeholder = PLACE[t] || "";
   const p = document.getElementById(t);
-  if (p) p.scrollTop = (t === "notes" || t === "biz" || t === "found" || t === "mk" || t === "ev") ? 0 : p.scrollHeight;
+  if (p) p.scrollTop = (t === "notes" || t === "biz" || t === "found" || t === "mk" || t === "ev" || t === "bu") ? 0 : p.scrollHeight;
   if (t === "mk") mkEnter();
+  if (t === "bu") { try { buEnter(); } catch (e) { console.error(e); } }
   try { fillAll(); } catch (e) {}
 }
 
@@ -2349,7 +2394,7 @@ function initLock() {
 }
 
 function exportAll() {
-  const o = { app: "jarvis", v: 25, t: Date.now(), notes: notes, todos: todos, facts: facts, inv: inv, fav: fav, sp: sp, wl: load("jarvis_wl", []), ideas: fideas, decks: decks, lst: lst, prof: prof, subj: extraSubj, arch: arch };
+  const o = { app: "jarvis", v: 25, t: Date.now(), notes: notes, todos: todos, facts: facts, inv: inv, fav: fav, sp: sp, wl: load("jarvis_wl", []), ideas: fideas, decks: decks, lst: lst, prof: prof, subj: extraSubj, arch: arch, bu: bu };
   const blob = new Blob([JSON.stringify(o, null, 1)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -2377,6 +2422,7 @@ function importAll(file) {
       if (o.prof && typeof o.prof === "object") { prof = o.prof; save("jarvis_profile", prof); }
       if (Array.isArray(o.subj)) extraSubj = o.subj;
       if (Array.isArray(o.arch)) { arch = o.arch; save("jarvis_arch", arch); }
+      if (o.bu && typeof o.bu === "object" && Array.isArray(o.bu.docs)) { bu = o.bu; save("jarvis_bu", bu); }
       save("jarvis_subj_x", extraSubj); saveDecks(); try { drawChips(); } catch (e) {}
       saveData();
       renderNotes();
@@ -2399,7 +2445,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v41</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v42</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -3310,6 +3356,982 @@ function fillEvT() {
   if (evRes && evRes.items && evRes.items.length) rows.push(["Letzte Suche: " + evRes.city, evRes.items.length + " Events", () => evsub("e")]);
   tFill("tc-ev", "Als Nächstes", rows);
 }
+
+/* ---- Mini-PDF-Erzeugung (A4, Helvetica, ohne Fremdbibliothek) ---- */
+const PDFW = {
+  r: [278,278,355,556,556,889,667,191,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,278,278,584,584,584,556,1015,667,667,722,722,667,611,778,722,278,500,667,556,833,722,778,667,778,722,667,611,722,667,944,667,667,611,278,278,278,469,556,333,556,556,500,556,556,278,556,556,222,222,500,222,833,556,556,556,556,333,500,278,556,500,722,500,500,500,334,260,334,584],
+  b: [278,333,474,556,556,889,722,238,333,333,389,584,278,333,278,278,556,556,556,556,556,556,556,556,556,556,333,333,584,584,584,611,975,722,722,722,722,667,611,778,722,278,556,722,611,833,722,778,667,778,722,667,611,722,667,944,667,667,611,333,278,333,584,556,333,556,611,556,611,556,333,611,611,278,278,556,278,889,611,611,611,611,389,556,333,611,556,778,556,556,500,389,280,389,584]
+};
+function pdfCh(c) {
+  const m = { "€": 128, "„": 132, "…": 133, "‘": 145, "’": 146, "“": 147, "”": 148, "•": 149, "–": 150, "—": 151, "·": 183 };
+  if (m[c]) return m[c];
+  const n = c.charCodeAt(0);
+  return n < 256 ? n : 63;
+}
+function pdfW(str, size, bold) {
+  const t = bold ? PDFW.b : PDFW.r;
+  let w = 0;
+  for (const ch of String(str)) {
+    const n = pdfCh(ch);
+    let u = n >= 32 && n <= 126 ? t[n - 32] : 556;
+    if (n === 128) u = 556;
+    if (n === 196 || n === 214 || n === 220) u = bold ? 722 : 667;
+    if (n === 223) u = 611;
+    if (n === 183 || n === 149) u = 350;
+    if (n === 150) u = 556;
+    if (n === 151) u = 1000;
+    w += u;
+  }
+  return w * size / 1000;
+}
+function pdfWrap(str, width, size, bold) {
+  const out = [];
+  String(str == null ? "" : str).split(/\r?\n/).forEach(par => {
+    const words = par.split(/\s+/).filter(Boolean);
+    if (!words.length) { out.push(""); return; }
+    let line = "";
+    words.forEach(w => {
+      let cand = line ? line + " " + w : w;
+      if (pdfW(cand, size, bold) <= width) { line = cand; return; }
+      if (line) out.push(line);
+      while (pdfW(w, size, bold) > width && w.length > 1) {
+        let k = w.length - 1;
+        while (k > 1 && pdfW(w.slice(0, k), size, bold) > width) k--;
+        out.push(w.slice(0, k));
+        w = w.slice(k);
+      }
+      line = w;
+    });
+    out.push(line);
+  });
+  return out;
+}
+class Pdf {
+  constructor() { this.pages = []; this.cur = null; this.newPage(); }
+  newPage() { this.cur = []; this.pages.push(this.cur); }
+  esc(s) {
+    let o = "";
+    for (const ch of String(s)) { const n = pdfCh(ch); const c = String.fromCharCode(n); o += (c === "(" || c === ")" || c === "\\") ? "\\" + c : c; }
+    return o;
+  }
+  text(x, y, str, size, bold, align, gray) {
+    str = String(str == null ? "" : str);
+    if (!str) return;
+    const w = pdfW(str, size, bold);
+    let px = x;
+    if (align === "r") px = x - w; else if (align === "c") px = x - w / 2;
+    this.cur.push((gray != null ? gray + " g " : "0 g ") + "BT /" + (bold ? "F2" : "F1") + " " + size + " Tf " + px.toFixed(2) + " " + (842 - y).toFixed(2) + " Td (" + this.esc(str) + ") Tj ET");
+  }
+  line(x1, y1, x2, y2, w, gray) { this.cur.push((gray != null ? gray : 0) + " G " + (w || 0.5) + " w " + x1.toFixed(2) + " " + (842 - y1).toFixed(2) + " m " + x2.toFixed(2) + " " + (842 - y2).toFixed(2) + " l S"); }
+  rect(x, y, w, h, gray) { this.cur.push(gray + " g " + x.toFixed(2) + " " + (842 - y - h).toFixed(2) + " " + w.toFixed(2) + " " + h.toFixed(2) + " re f"); }
+  build() {
+    const objs = [];
+    const add = s => { objs.push(s); return objs.length; };
+    add("<< /Type /Catalog /Pages 2 0 R >>");
+    add(""); // pages placeholder
+    add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>");
+    add("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>");
+    const kids = [];
+    this.pages.forEach(ops => {
+      const stream = ops.join("\n");
+      const cid = objs.length + 2;
+      const pid = add("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents " + cid + " 0 R >>");
+      add("<< /Length " + stream.length + " >>\nstream\n" + stream + "\nendstream");
+      kids.push(pid + " 0 R");
+    });
+    objs[1] = "<< /Type /Pages /Kids [" + kids.join(" ") + "] /Count " + kids.length + " >>";
+    let out = "%PDF-1.4\n";
+    const offs = [];
+    objs.forEach((o, i) => { offs.push(out.length); out += (i + 1) + " 0 obj\n" + o + "\nendobj\n"; });
+    const xr = out.length;
+    out += "xref\n0 " + (objs.length + 1) + "\n0000000000 65535 f \n";
+    offs.forEach(o => { out += String(o).padStart(10, "0") + " 00000 n \n"; });
+    out += "trailer\n<< /Size " + (objs.length + 1) + " /Root 1 0 R >>\nstartxref\n" + xr + "\n%%EOF";
+    const u = new Uint8Array(out.length);
+    for (let i = 0; i < out.length; i++) u[i] = out.charCodeAt(i) & 255;
+    return u;
+  }
+}
+
+/* ---- Büro: Daten & Hilfsfunktionen ---- */
+const BUCATS = ["Material & Waren", "Fahrzeug & Tanken", "Büro & Technik", "Telefon & Internet", "Werbung", "Software & Abos", "Bewirtung", "Reisekosten", "Versicherung & Gebühren", "Sonstiges"];
+const BUUNITS = ["Std.", "Stk.", "pauschal", "Tag", "m²", "m", "km", "kg"];
+let bu = load("jarvis_bu", null);
+if (!bu || typeof bu !== "object") bu = {};
+bu.firm = Object.assign({ name: "", owner: "", addr1: "", addr2: "", mail: "", tel: "", taxno: "", vatid: "", bank: "", iban: "", bic: "", small: false, field: "", know: "", payDays: 14, offDays: 30, rate: 60, preRe: "RE", preAn: "AN", noteRe: "Vielen Dank für Ihren Auftrag!", noteAn: "Wir freuen uns auf Ihre Rückmeldung." }, bu.firm || {});
+["cust", "cat", "docs", "rec", "tm"].forEach(k => { if (!Array.isArray(bu[k])) bu[k] = []; });
+if (!bu.cnt || typeof bu.cnt !== "object") bu.cnt = {};
+if (!("run" in bu)) bu.run = null;
+function buSave() { save("jarvis_bu", bu); try { fillAll(); } catch (e) {} }
+const buId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+const buToday = () => dkey(new Date());
+const buAdd = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return dkey(d); };
+const buD = iso => iso && iso.length >= 10 ? iso.slice(8, 10) + "." + iso.slice(5, 7) + "." + iso.slice(0, 4) : "";
+const buCents = x => Math.round((+x || 0) * 100) / 100;
+const buCust = id => bu.cust.filter(c => c.id === id)[0] || null;
+function buTot(d) {
+  const net = buCents(d.items.reduce((a, x) => a + buCents((+x.q || 0) * (+x.p || 0)), 0));
+  const vat = bu.firm.small ? 0 : (+d.vat || 0);
+  const v = buCents(net * vat / 100);
+  return { net: net, vat: vat, v: v, gross: buCents(net + v) };
+}
+function buNo(type) {
+  const y = String(new Date().getFullYear()), key = type + "-" + y;
+  bu.cnt[key] = (bu.cnt[key] || 0) + 1;
+  return (type === "RE" ? bu.firm.preRe : bu.firm.preAn) + "-" + y + "-" + String(bu.cnt[key]).padStart(3, "0");
+}
+function buNewDoc(type, cid) {
+  const F = bu.firm, t = buToday();
+  const d = { id: buId(), type: type, no: buNo(type), cid: cid || "", date: t, svc: t, due: type === "RE" ? buAdd(t, +F.payDays || 14) : buAdd(t, +F.offDays || 30), subject: "", intro: type === "RE" ? "für die folgenden Leistungen erlauben wir uns zu berechnen:" : "vielen Dank für Ihre Anfrage. Gerne unterbreiten wir Ihnen das folgende Angebot:", items: [], vat: 19, note: type === "RE" ? F.noteRe : F.noteAn, status: "draft", ts: Date.now(), rem: [] };
+  bu.docs.unshift(d);
+  buSave();
+  return d;
+}
+const BUSTAT = { draft: "Entwurf", sent: "Gesendet", accepted: "Angenommen", declined: "Abgelehnt", paid: "Bezahlt", storno: "Storniert" };
+function buOverdue(d) { return d.type === "RE" && d.status === "sent" && d.due && d.due < buToday(); }
+function buDays(a, b) { return Math.round((new Date(b + "T12:00:00") - new Date(a + "T12:00:00")) / 86400000); }
+function buCheck(d) {
+  const F = bu.firm, c = buCust(d.cid) || {}, r = [];
+  const add = (ok, t) => r.push({ ok: !!ok, t: t });
+  add(F.name && F.addr1 && F.addr2, "Name und Anschrift des Leistenden (Setup)");
+  add(c.name && c.addr1 && c.addr2, "Name und Anschrift des Kunden");
+  add(F.taxno || F.vatid, "Steuernummer oder USt-IdNr. (Setup)");
+  add(d.date, "Ausstellungsdatum");
+  add(d.no, "Fortlaufende Rechnungsnummer");
+  add(d.items.length && d.items.every(x => String(x.d).trim() && +x.q > 0), "Menge und Art der Leistung bei jeder Position");
+  add(d.svc, "Leistungsdatum oder Leistungszeitraum");
+  add(d.items.length && buTot(d).net !== 0, "Entgelt (netto) ist berechnet");
+  add(F.small || +d.vat > 0 || true, F.small ? "Hinweis auf Kleinunternehmerregelung (§ 19 UStG) steht auf der Rechnung" : "Steuersatz und Steuerbetrag stehen auf der Rechnung");
+  add(F.iban, "Bankverbindung (empfohlen)");
+  add(d.due, "Zahlungsziel (empfohlen)");
+  return r;
+}
+
+/* ---- PDF-Layout ---- */
+function buHead(P, F, c, big) {
+  P.text(50, 56, F.name || "Ihr Unternehmen", 15, true);
+  const info = [F.owner, F.addr1, F.addr2, F.tel, F.mail].filter(Boolean);
+  info.forEach((t, i) => P.text(545, 50 + i * 11, t, 8.5, false, "r", 0.35));
+  const snd = [F.name, F.addr1, F.addr2].filter(Boolean).join(" · ");
+  P.text(50, 122, snd, 7, false, "l", 0.45);
+  P.line(50, 125, 250, 125, 0.4, 0.6);
+  const rc = [c.name, c.addr1, c.addr2].filter(Boolean);
+  rc.forEach((t, i) => P.text(50, 142 + i * 13, t, 11, i === 0));
+}
+function buFoot(P, F) {
+  const n = P.pages.length;
+  P.pages.forEach((ops, i) => {
+    P.cur = ops;
+    P.line(50, 792, 545, 792, 0.5, 0.7);
+    P.text(297.5, 803, [F.name, F.addr1, F.addr2].filter(Boolean).join(" · "), 7.5, false, "c", 0.4);
+    const l2 = [F.taxno ? "Steuernr. " + F.taxno : "", F.vatid ? "USt-IdNr. " + F.vatid : "", F.iban ? (F.bank ? F.bank + " " : "") + "IBAN " + F.iban : "", F.bic ? "BIC " + F.bic : ""].filter(Boolean).join(" · ");
+    P.text(297.5, 813, l2, 7.5, false, "c", 0.4);
+    if (n > 1) P.text(545, 828, "Seite " + (i + 1) + " von " + n, 7, false, "r", 0.5);
+  });
+}
+function buDocPdf(d) {
+  const F = bu.firm, c = buCust(d.cid) || {}, isRe = d.type === "RE", T = buTot(d);
+  const P = new Pdf();
+  buHead(P, F, c);
+  const meta = [[isRe ? "Rechnungs-Nr." : "Angebots-Nr.", d.no], ["Datum", buD(d.date)]];
+  if (isRe) { meta.push(["Leistungsdatum", buD(d.svc)]); meta.push(["Zahlbar bis", buD(d.due)]); } else meta.push(["Gültig bis", buD(d.due)]);
+  meta.forEach((m, i) => { P.text(450, 142 + i * 13, m[0], 9, false, "r", 0.4); P.text(545, 142 + i * 13, m[1], 9, true, "r"); });
+  let y = 232;
+  P.text(50, y, (isRe ? "Rechnung " : "Angebot ") + d.no, 17, true);
+  y += 24;
+  if (d.subject) { pdfWrap(d.subject, 495, 11, true).forEach(l => { P.text(50, y, l, 11, true); y += 14; }); y += 4; }
+  P.text(50, y, "Sehr geehrte Damen und Herren,", 10);
+  y += 15;
+  pdfWrap(d.intro, 495, 10).forEach(l => { P.text(50, y, l, 10); y += 12.5; });
+  y += 10;
+  const header = () => {
+    P.rect(50, y - 11, 495, 18, 0.93);
+    P.text(54, y + 1, "Pos.", 8.5, true);
+    P.text(82, y + 1, "Beschreibung", 8.5, true);
+    P.text(352, y + 1, "Menge", 8.5, true, "r");
+    P.text(358, y + 1, "Einheit", 8.5, true);
+    P.text(472, y + 1, "Einzelpreis", 8.5, true, "r");
+    P.text(541, y + 1, "Gesamt", 8.5, true, "r");
+    y += 20;
+  };
+  header();
+  d.items.forEach((x, i) => {
+    const lines = pdfWrap(x.d, 255, 10);
+    const h = Math.max(1, lines.length) * 12.5 + 7;
+    if (y + h > 715) { P.newPage(); y = 60; header(); }
+    P.text(54, y + 1, String(i + 1), 10);
+    lines.forEach((l, k) => P.text(82, y + 1 + k * 12.5, l, 10));
+    P.text(352, y + 1, nf(+x.q || 0, (+x.q % 1) ? 2 : 0), 10, false, "r");
+    P.text(358, y + 1, x.u || "", 10);
+    P.text(472, y + 1, eur(+x.p || 0), 10, false, "r");
+    P.text(541, y + 1, eur(buCents((+x.q || 0) * (+x.p || 0))), 10, false, "r");
+    y += h;
+    P.line(50, y - 11, 545, y - 11, 0.3, 0.85);
+  });
+  if (y > 640) { P.newPage(); y = 60; }
+  y += 8;
+  const row = (l, v, bold) => { P.text(450, y, l, bold ? 11 : 10, bold, "r"); P.text(545, y, v, bold ? 11 : 10, bold, "r"); y += bold ? 16 : 14; };
+  if (F.small) row("Gesamtbetrag", eur(T.gross), true);
+  else { row("Nettobetrag", eur(T.net)); row("zzgl. " + nf(T.vat, 0) + " % MwSt.", eur(T.v)); P.line(380, y - 10, 545, y - 10, 0.6, 0.3); y += 2; row("Gesamtbetrag", eur(T.gross), true); }
+  y += 8;
+  const para = t => { pdfWrap(t, 495, 9.5).forEach(l => { if (y > 770) { P.newPage(); y = 60; } P.text(50, y, l, 9.5); y += 12; }); y += 4; };
+  if (F.small) para("Gemäß § 19 UStG wird keine Umsatzsteuer berechnet.");
+  if (isRe) para("Bitte überweisen Sie den Betrag bis zum " + buD(d.due) + (F.iban ? " auf das unten genannte Konto." : ".") + " Verwenden Sie als Verwendungszweck die Rechnungsnummer " + d.no + ".");
+  else para("Dieses Angebot ist gültig bis zum " + buD(d.due) + ".");
+  if (d.note) para(d.note);
+  para("Mit freundlichen Grüßen\n" + (F.owner || F.name || ""));
+  buFoot(P, F);
+  return P.build();
+}
+function buLetterPdf(subject, body, cid) {
+  const F = bu.firm, c = buCust(cid) || {};
+  const P = new Pdf();
+  buHead(P, F, c);
+  P.text(545, 142, buD(buToday()), 10, false, "r");
+  let y = 240;
+  pdfWrap(subject, 495, 12, true).forEach(l => { P.text(50, y, l, 12, true); y += 16; });
+  y += 10;
+  pdfWrap(body, 495, 10.5).forEach(l => { if (y > 765) { P.newPage(); y = 60; } P.text(50, y, l, 10.5); y += 13.5; });
+  buFoot(P, F);
+  return P.build();
+}
+async function buShare(bytes, name, text) {
+  const f = new File([bytes], name, { type: "application/pdf" });
+  try {
+    if (navigator.canShare && navigator.canShare({ files: [f] })) { await navigator.share({ files: [f], title: name.replace(/\.pdf$/, ""), text: text || "" }); return "share"; }
+  } catch (e) { if (e && e.name === "AbortError") return "abort"; }
+  const url = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 5000);
+  return "download";
+}
+async function buShareText(text, title) {
+  try { if (navigator.share) { await navigator.share({ title: title || "", text: text }); return "share"; } } catch (e) { if (e && e.name === "AbortError") return "abort"; }
+  try { await navigator.clipboard.writeText(text); return "copy"; } catch (e) { return "none"; }
+}
+function buCsv(rows) { return "﻿" + rows.map(r => r.map(v => { v = String(v == null ? "" : v); return /[;"\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(";")).join("\r\n"); }
+function buDownload(name, text, type) {
+  const url = URL.createObjectURL(new Blob([text], { type: type || "text/csv;charset=utf-8" }));
+  const a = document.createElement("a");
+  a.href = url; a.download = name;
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 5000);
+}
+
+/* ---- Büro: Oberfläche ---- */
+const BUT = [["start", "Übersicht"], ["doc", "Dokumente"], ["rec", "Belege"], ["cust", "Kunden"], ["fu", "Nachfassen"], ["ans", "Antwort"], ["tm", "Zeit"], ["set", "Setup"]];
+let bs = { tab: "start", sub: null, flt: "all", month: "", q: "", tone: "freundlich", amode: "Kundenanfrage" };
+let buTick = null;
+const E = (t, c, x) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; return e; };
+const BB = (label, fn, cls) => { const b = E("button", cls || "bbtn", label); b.onclick = () => fn(b); return b; };
+function BF(label, val, on, o) {
+  o = o || {};
+  const w = E("div", "bu-f");
+  if (label) w.appendChild(E("label", null, label));
+  const i = o.area ? E("textarea") : E("input");
+  if (o.area) i.rows = o.rows || 3; else i.type = o.type || "text";
+  if (o.mode) i.setAttribute("inputmode", o.mode);
+  if (o.ph) i.placeholder = o.ph;
+  i.value = val == null ? "" : val;
+  i.oninput = () => on(i.value, i);
+  w.appendChild(i);
+  w.input = i;
+  return w;
+}
+function BS(label, opts, val, on) {
+  const w = E("div", "bu-f");
+  if (label) w.appendChild(E("label", null, label));
+  const s = E("select");
+  opts.forEach(o => { const op = E("option", null, o[1]); op.value = o[0]; s.appendChild(op); });
+  s.value = val;
+  s.onchange = () => on(s.value);
+  w.appendChild(s);
+  return w;
+}
+const buSaveQ = () => save("jarvis_bu", bu);
+const buTag = (t, cls) => E("span", "bu-tag" + (cls ? " " + cls : ""), t);
+function buMsg(host, t) { let m = host.querySelector(".bu-msg"); if (!m) { m = E("div", "bu-msg"); host.appendChild(m); } m.textContent = t; }
+function buDictate(ta, btn) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { btn.textContent = "nicht möglich"; return; }
+  const r = new SR();
+  r.lang = "de-DE"; r.interimResults = true; r.continuous = false;
+  const base = ta.value ? ta.value.trim() + " " : "";
+  r.onstart = () => { btn.textContent = "hört zu..."; };
+  r.onresult = e => { let t = ""; for (let k = 0; k < e.results.length; k++) t += e.results[k][0].transcript; ta.value = base + t; ta.dispatchEvent(new Event("input")); };
+  r.onend = () => { btn.textContent = "Sprechen"; };
+  r.onerror = () => { btn.textContent = "Sprechen"; };
+  try { r.start(); } catch (e) {}
+}
+function buEnter() {
+  if (!document.getElementById("bu-body")) buBuild();
+  buRender();
+}
+function buBuild() {
+  const h = document.getElementById("bu");
+  h.innerHTML = '<div class="pagehead"><h2>Büro</h2><div class="hsub">Angebote, Rechnungen, Belege und Kunden an einem Ort.</div></div><div class="pills" id="bu-pills"></div><div id="bu-body"></div><div class="disc">Alle Texte und Zahlen sind Entwürfe der KI und Rechenhilfen. Sie sind keine Steuer- oder Rechtsberatung. Prüfe Rechnungen, Steuersätze und Fristen vor dem Versand. Die Büro-Daten liegen nur auf diesem Gerät, mache regelmäßig ein Backup (Notizen, Einstellungen).</div>';
+  const p = document.getElementById("bu-pills");
+  BUT.forEach(t => { const b = E("button", "pillb", t[1]); b.id = "bt-" + t[0]; b.onclick = () => buGo(t[0], null); p.appendChild(b); });
+}
+function buGo(tab, sub) {
+  bs.tab = tab; bs.sub = sub || null;
+  if (!document.getElementById("bu-body")) buBuild();
+  buRender();
+  const p = document.getElementById("bu");
+  if (p) p.scrollTop = 0;
+}
+function buRender() {
+  if (buTick) { clearInterval(buTick); buTick = null; }
+  BUT.forEach(t => { const b = document.getElementById("bt-" + t[0]); if (b) b.classList.toggle("on", t[0] === bs.tab); });
+  const host = document.getElementById("bu-body");
+  host.innerHTML = "";
+  const V = { start: vStart, doc: vDocs, rec: vRec, cust: vCust, fu: vFu, ans: vAns, tm: vTm, set: vSet }[bs.tab];
+  try { V(host); } catch (e) { host.appendChild(E("div", "empty", "Fehler in dieser Ansicht: " + e.message)); }
+}
+function buBack(host, label, fn) { const b = BB("‹ " + label, fn); b.style.margin = "4px 0 6px"; host.appendChild(b); }
+
+/* ---- Übersicht ---- */
+function vStart(h) {
+  const t = buToday(), ym = t.slice(0, 7), yr = t.slice(0, 4), F = bu.firm;
+  const inv = bu.docs.filter(d => d.type === "RE" && d.status !== "draft" && d.status !== "storno");
+  const mRev = inv.filter(d => d.date.slice(0, 7) === ym).reduce((a, d) => a + buTot(d).net, 0);
+  const yG = inv.filter(d => d.date.slice(0, 4) === yr).reduce((a, d) => a + buTot(d).gross, 0);
+  const open = inv.filter(d => d.status === "sent");
+  const ovd = open.filter(buOverdue);
+  const sum = a => a.reduce((s, d) => s + buTot(d).gross, 0);
+  const mExp = bu.rec.filter(r => r.date.slice(0, 7) === ym).reduce((a, r) => a + (+r.gross || 0) - (+r.vat || 0), 0);
+  const offers = bu.docs.filter(d => d.type === "AN" && d.status === "sent");
+  if (!F.name || !F.addr1 || !(F.taxno || F.vatid)) {
+    const w = E("div", "bu-c bu-warn");
+    w.appendChild(E("div", "bu-t", "Firmendaten fehlen"));
+    w.appendChild(E("div", "bu-s", "Für gültige Rechnungen brauchst du Name, Anschrift und Steuernummer oder USt-IdNr."));
+    w.appendChild(BB("Jetzt im Setup eintragen", () => buGo("set")));
+    h.appendChild(w);
+  }
+  const acts = E("div", "acts");
+  acts.style.margin = "8px 0";
+  acts.appendChild(BB("Neues Angebot", () => { const d = buNewDoc("AN", ""); buGo("doc", { k: "doc", id: d.id }); }));
+  acts.appendChild(BB("Neue Rechnung", () => { const d = buNewDoc("RE", ""); buGo("doc", { k: "doc", id: d.id }); }));
+  acts.appendChild(BB("Beleg scannen", () => buGo("rec", { k: "scan" })));
+  acts.appendChild(BB("Zeit", () => buGo("tm")));
+  h.appendChild(acts);
+  const g = E("div", "bu-g");
+  const K = (l, v, s, warn, go) => { const k = E("div", "bu-k" + (warn ? " warn" : "")); k.appendChild(E("small", null, l)); k.appendChild(E("b", null, v)); if (s) k.appendChild(E("em", null, s)); if (go) { k.style.cursor = "pointer"; k.onclick = go; } g.appendChild(k); };
+  K("Umsatz (Monat, netto)", eur(mRev), nf(inv.filter(d => d.date.slice(0, 7) === ym).length, 0) + " Rechn. gestellt", false, () => buGo("doc"));
+  K("Ausgaben (Monat, netto)", eur(mExp), nf(bu.rec.filter(r => r.date.slice(0, 7) === ym).length, 0) + " Belege", false, () => buGo("rec"));
+  K("Offene Rechnungen", eur(sum(open)), open.length + " Stück", false, () => buGo("fu"));
+  K("Überfällig", eur(sum(ovd)), ovd.length + " Stück", ovd.length > 0, () => buGo("fu"));
+  K("Grober Gewinn (Monat)", eur(mRev - mExp), "Umsatz minus Ausgaben, vor Steuern");
+  K("Angebote offen", eur(sum(offers)), offers.length + " warten auf Antwort", false, () => buGo("fu"));
+  h.appendChild(g);
+  // Kleinunternehmer / Umsatzsteuer
+  const c1 = E("div", "bu-c");
+  if (F.small) {
+    c1.appendChild(E("div", "bu-t", "Kleinunternehmer-Grenze"));
+    const bar = E("div", "bu-bar"); const i = E("i"); i.style.width = Math.min(100, yG / 25000 * 100) + "%"; bar.appendChild(i);
+    c1.appendChild(bar);
+    c1.appendChild(E("div", "bu-s", "Umsatz " + yr + ": " + eur(yG) + " von 25.000 €. Die Regelung gilt, wenn der Umsatz im Vorjahr unter 25.000 € blieb und im laufenden Jahr unter 100.000 € bleibt. Bitte aktuell prüfen."));
+  } else {
+    const vatIn = inv.filter(d => d.date.slice(0, 4) === yr).reduce((a, d) => a + buTot(d).v, 0);
+    const vorst = bu.rec.filter(r => r.date.slice(0, 4) === yr).reduce((a, r) => a + (+r.vat || 0), 0);
+    c1.appendChild(E("div", "bu-t", "Umsatzsteuer " + yr + " (grob)"));
+    c1.appendChild(E("div", "bu-s", "Berechnet: " + eur(vatIn) + " · Vorsteuer aus Belegen: " + eur(vorst) + " · ungefähre Zahllast: " + eur(vatIn - vorst) + ". Nur eine Orientierung, der Steuerberater rechnet verbindlich."));
+  }
+  h.appendChild(c1);
+  // Cashflow
+  const c2 = E("div", "bu-c");
+  c2.appendChild(E("div", "bu-t", "Erwartete Zahlungen (30 Tage)"));
+  const B = [["Überfällig", 0], ["Diese Woche", 0], ["Woche 2", 0], ["Woche 3", 0], ["Woche 4+", 0]];
+  open.forEach(d => { const n = buDays(t, d.due || t); const k = n < 0 ? 0 : n < 7 ? 1 : n < 14 ? 2 : n < 21 ? 3 : 4; B[k][1] += buTot(d).gross; });
+  const mx = Math.max(1, ...B.map(x => x[1]));
+  B.forEach(x => { const r = E("div", "bu-bl"); r.appendChild(E("span", null, x[0])); const bar = E("div", "bu-bar"); const i = E("i"); i.style.width = x[1] / mx * 100 + "%"; if (x[0] === "Überfällig") i.style.background = "#f2a8a0"; bar.appendChild(i); r.appendChild(bar); r.appendChild(E("span", null, eur(x[1]))); c2.appendChild(r); });
+  h.appendChild(c2);
+  // Nächste Schritte
+  const todo = [];
+  if (ovd.length) todo.push([ovd.length + " überfällige Rechnung" + (ovd.length > 1 ? "en" : ""), "Nachfassen", () => buGo("fu")]);
+  const aged = offers.filter(d => buDays(d.sentOn || d.date, t) >= 7);
+  if (aged.length) todo.push([aged.length + " Angebot" + (aged.length > 1 ? "e" : "") + " ohne Antwort", "Nachfassen", () => buGo("fu")]);
+  const drafts = bu.docs.filter(d => d.status === "draft");
+  if (drafts.length) todo.push([drafts.length + " Entwurf" + (drafts.length > 1 ? "e" : "") + " offen", "Dokumente", () => buGo("doc")]);
+  if (bu.run) todo.push(["Zeiterfassung läuft", "Zeit", () => buGo("tm")]);
+  const unb = bu.tm.filter(x => !x.billed).length;
+  if (unb) todo.push([unb + " Zeiteinträge nicht abgerechnet", "Zeit", () => buGo("tm")]);
+  if (todo.length) {
+    const c3 = E("div", "bu-c");
+    c3.appendChild(E("div", "bu-t", "Das steht an"));
+    todo.forEach(x => { const r = E("div", "bu-r"); r.appendChild(E("span", null, x[0])); r.appendChild(E("span", "m", x[1] + " ›")); r.onclick = x[2]; c3.appendChild(r); });
+    h.appendChild(c3);
+  }
+}
+
+const bn = v => v === "" || v == null ? "" : String(v).replace(".", ",");
+/* ---- KI-Helfer ---- */
+async function buAI(system, user, img, max) {
+  const content = img ? [{ type: "image", source: { type: "base64", media_type: "image/jpeg", data: img.data } }, { type: "text", text: user }] : user;
+  const data = await api({ messages: [{ role: "user", content: content }], system: system, mode: "chat" });
+  if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || "API-Fehler"));
+  return (data.content || []).filter(x => x.type === "text").map(x => x.text).join("").trim();
+}
+function buCtx() {
+  const F = bu.firm;
+  let s = "Firma: " + (F.name || "unbekannt") + (F.field ? ", Branche: " + F.field : "") + ".";
+  if (F.know) s += " Wissen über die Firma: " + F.know.slice(0, 1500);
+  if (bu.cat.length) s += " Leistungen: " + bu.cat.slice(0, 20).map(x => x.d + " " + x.p + " EUR/" + x.u).join("; ") + ".";
+  return s;
+}
+/* ---- Dokumente ---- */
+function vDocs(h) {
+  if (bs.sub && bs.sub.k === "doc") return vEdit(h, bu.docs.filter(d => d.id === bs.sub.id)[0]);
+  const top = E("div", "acts");
+  top.appendChild(BB("+ Angebot", () => { const d = buNewDoc("AN", ""); buGo("doc", { k: "doc", id: d.id }); }));
+  top.appendChild(BB("+ Rechnung", () => { const d = buNewDoc("RE", ""); buGo("doc", { k: "doc", id: d.id }); }));
+  h.appendChild(top);
+  const fl = E("div", "chips");
+  [["all", "Alle"], ["AN", "Angebote"], ["RE", "Rechnungen"], ["draft", "Entwürfe"], ["sent", "Offen"], ["paid", "Bezahlt"]].forEach(f => { const b = E("button", "chip" + (bs.flt === f[0] ? " on" : ""), f[1]); b.onclick = () => { bs.flt = f[0]; buRender(); }; fl.appendChild(b); });
+  h.appendChild(fl);
+  const q = BF("", bs.q, v => { bs.q = v; fillL(); }, { ph: "Suchen (Nummer, Kunde, Betreff)" });
+  h.appendChild(q);
+  const L = E("div"); h.appendChild(L);
+  function fillL() {
+    L.innerHTML = "";
+    const qq = bs.q.toLowerCase();
+    const list = bu.docs.filter(d => {
+      if (bs.flt === "AN" || bs.flt === "RE") { if (d.type !== bs.flt) return false; }
+      else if (bs.flt !== "all" && d.status !== bs.flt) return false;
+      const c = buCust(d.cid);
+      return !qq || (d.no + " " + (c ? c.name : "") + " " + d.subject).toLowerCase().indexOf(qq) >= 0;
+    });
+    if (!list.length) { L.appendChild(E("div", "empty", bu.docs.length ? "Nichts gefunden." : "Noch keine Dokumente. Lege oben ein Angebot oder eine Rechnung an.")); return; }
+    list.forEach(d => {
+      const c = buCust(d.cid), r = E("div", "bu-r");
+      const l = E("div"); l.style.minWidth = 0;
+      l.appendChild(E("b", null, d.no + (c ? " · " + c.name : "")));
+      l.appendChild(E("div", "bu-s", (d.subject || (d.type === "RE" ? "Rechnung" : "Angebot")) + " · " + buD(d.date)));
+      r.appendChild(l);
+      const rt = E("div"); rt.style.textAlign = "right"; rt.style.flexShrink = 0;
+      rt.appendChild(E("b", null, eur(buTot(d).gross)));
+      const od = buOverdue(d);
+      rt.appendChild(buTag(od ? "Überfällig" : BUSTAT[d.status], od ? "bad" : d.status === "paid" || d.status === "accepted" ? "good" : ""));
+      r.appendChild(rt);
+      r.onclick = () => buGo("doc", { k: "doc", id: d.id });
+      L.appendChild(r);
+    });
+  }
+  fillL();
+}
+function buSetStatus(d, st) {
+  d.status = st;
+  if (st === "sent" && !d.sentOn) d.sentOn = buToday();
+  if (st === "paid") d.paidOn = buToday();
+  buSave();
+}
+function vEdit(h, d) {
+  if (!d) { bs.sub = null; return vDocs(h); }
+  const lock = d.status !== "draft";
+  buBack(h, "Alle Dokumente", () => buGo("doc"));
+  const hd = E("div", "bu-c");
+  const row = E("div", "bu-r"); row.style.border = "0"; row.style.padding = "0";
+  row.appendChild(E("b", null, (d.type === "RE" ? "Rechnung " : "Angebot ") + d.no));
+  row.appendChild(buTag(buOverdue(d) ? "Überfällig" : BUSTAT[d.status], buOverdue(d) ? "bad" : d.status === "paid" || d.status === "accepted" ? "good" : ""));
+  hd.appendChild(row);
+  if (lock) hd.appendChild(E("div", "bu-s", "Gesendete Dokumente sind gesperrt, damit nichts nachträglich geändert wird. Zum Korrigieren: Duplizieren (neues Dokument) und das alte stornieren."));
+  h.appendChild(hd);
+  const tot = E("div", "bu-c");
+  const form = E("div"); if (lock) form.classList.add("lock");
+  h.appendChild(form);
+  form.appendChild(BS("Kunde", [["", "– wählen –"]].concat(bu.cust.map(c => [c.id, c.name || "(ohne Namen)"])), d.cid, v => { d.cid = v; buSaveQ(); }));
+  const nb = BB("+ Neuer Kunde", () => { const c = buNewCust(); buGo("cust", { k: "cust", id: c.id, back: d.id }); });
+  form.appendChild(nb);
+  const dt = E("div", "bu-2");
+  dt.appendChild(BF(d.type === "RE" ? "Rechnungsdatum" : "Angebotsdatum", d.date, v => { d.date = v; buSaveQ(); }, { type: "date" }));
+  dt.appendChild(BF(d.type === "RE" ? "Leistungsdatum" : "Gültig bis", d.type === "RE" ? d.svc : d.due, v => { if (d.type === "RE") d.svc = v; else d.due = v; buSaveQ(); }, { type: "date" }));
+  form.appendChild(dt);
+  if (d.type === "RE") form.appendChild(BF("Zahlbar bis", d.due, v => { d.due = v; buSaveQ(); }, { type: "date" }));
+  form.appendChild(BF("Betreff", d.subject, v => { d.subject = v; buSaveQ(); }, { ph: "z. B. Gartenarbeiten Mai" }));
+  form.appendChild(BF("Einleitung", d.intro, v => { d.intro = v; buSaveQ(); }, { area: true, rows: 2 }));
+  // Positionen
+  form.appendChild(E("div", "bu-t", "Positionen"));
+  const PL = E("div"); form.appendChild(PL);
+  const TT = E("div", "bu-s");
+  function totals() {
+    const t = buTot(d);
+    TT.innerHTML = "";
+    TT.appendChild(document.createTextNode("Netto " + eur(t.net) + (bu.firm.small ? " · keine USt (§ 19 UStG)" : " · USt " + t.vat + " % " + eur(t.v)) + " · "));
+    const b = E("b", null, "Brutto " + eur(t.gross)); TT.appendChild(b);
+  }
+  function drawItems() {
+    PL.innerHTML = "";
+    d.items.forEach((x, i) => {
+      const c = E("div", "bu-it");
+      c.appendChild(BF("", x.d, v => { x.d = v; buSaveQ(); }, { ph: "Beschreibung", area: true, rows: 2 }));
+      const g = E("div", "bu-3");
+      g.appendChild(BF("Menge", bn(x.q), v => { x.q = pn(v) || 0; buSaveQ(); totals(); }, { mode: "decimal" }));
+      g.appendChild(BS("Einheit", BUUNITS.map(u => [u, u]), x.u || "Stk.", v => { x.u = v; buSaveQ(); }));
+      g.appendChild(BF("Preis € (netto)", bn(x.p), v => { x.p = pn(v) || 0; buSaveQ(); totals(); }, { mode: "decimal" }));
+      c.appendChild(g);
+      const rm = BB("Entfernen", () => { d.items.splice(i, 1); buSaveQ(); drawItems(); totals(); }); c.appendChild(rm);
+      PL.appendChild(c);
+    });
+    if (!d.items.length) PL.appendChild(E("div", "empty", "Noch keine Positionen."));
+    totals();
+  }
+  // fix: BF values for numbers show raw numbers
+  form.appendChild(E("div", "bu-s", ""));
+  const ac = E("div", "acts");
+  ac.appendChild(BB("+ Position", () => { d.items.push({ d: "", q: 1, u: "Stk.", p: 0 }); buSaveQ(); drawItems(); }));
+  if (bu.cat.length) ac.appendChild(BB("Aus Katalog", () => {
+    const m = E("div", "bu-c"); m.appendChild(E("div", "bu-t", "Leistung wählen"));
+    bu.cat.forEach(k => { const r = E("div", "bu-r"); r.appendChild(E("span", null, k.d)); r.appendChild(E("span", "m", eur(k.p) + "/" + k.u)); r.onclick = () => { d.items.push({ d: k.d, q: 1, u: k.u, p: k.p }); buSaveQ(); m.remove(); drawItems(); }; m.appendChild(r); });
+    ac.after(m);
+  }));
+  form.appendChild(ac);
+  // KI Positionen
+  const ai = E("div", "bu-c");
+  ai.appendChild(E("div", "bu-t", "Positionen von Jarvis erstellen"));
+  const ta = BF("", "", () => {}, { area: true, rows: 3, ph: "Beschreibe die Leistung, z. B. „2 Tage Hecke schneiden, 3 Stunden Entsorgung, Material 80 €“" });
+  ai.appendChild(ta);
+  const ar = E("div", "acts");
+  const mic = BB("Sprechen", b => buDictate(ta.input, b));
+  const go = BB("Positionen erstellen", async b => {
+    const txt = ta.input.value.trim(); if (!txt) return;
+    b.disabled = true; b.textContent = "denkt nach...";
+    try {
+      const sys = "Du bist Büro-Assistent. " + buCtx() + " Stundensatz: " + (bu.firm.rate || 60) + " EUR netto. Wandle die Beschreibung in Rechnungspositionen um. Antworte AUSSCHLIESSLICH mit einem JSON-Array aus Objekten {\"d\":\"Beschreibung\",\"q\":Menge als Zahl,\"u\":\"Std.|Stk.|pauschal|Tag|m²|m|km|kg\",\"p\":Einzelpreis netto als Zahl}. Nutze Preise aus dem Katalog wenn passend, sonst den Stundensatz. Erfinde keine Beträge, die nicht genannt oder aus Katalog/Stundensatz ableitbar sind (dann p = 0). Kein Text davor oder danach.";
+      const t = await buAI(sys, txt);
+      const arr = fJson(t, "[", "]").filter(x => x && x.d).map(x => ({ d: String(x.d), q: +x.q || 1, u: BUUNITS.indexOf(x.u) >= 0 ? x.u : "Stk.", p: +x.p || 0 }));
+      if (!arr.length) throw new Error("Keine Positionen erkannt");
+      arr.forEach(x => d.items.push(x)); buSaveQ(); drawItems(); ta.input.value = ""; buMsg(ai, arr.length + " Positionen hinzugefügt. Bitte Preise prüfen.");
+    } catch (e) { buMsg(ai, "Fehler: " + e.message); }
+    b.disabled = false; b.textContent = "Positionen erstellen";
+  });
+  ar.appendChild(mic); ar.appendChild(go); ai.appendChild(ar);
+  form.appendChild(ai);
+  drawItems();
+  if (d.type === "RE" && !bu.firm.small) form.appendChild(BS("Umsatzsteuer", [["19", "19 %"], ["7", "7 %"], ["0", "0 %"]], String(d.vat), v => { d.vat = +v; buSaveQ(); totals(); }));
+  form.appendChild(BF("Schlusstext", d.note, v => { d.note = v; buSaveQ(); }, { area: true, rows: 2 }));
+  tot.appendChild(TT); h.appendChild(tot);
+  // Prüfung
+  if (d.type === "RE") {
+    const ck = E("div", "bu-c"); ck.appendChild(E("div", "bu-t", "Rechnungs-Check"));
+    const res = buCheck(d), bad = res.filter(x => !x.ok);
+    ck.appendChild(E("div", "bu-s", bad.length ? bad.length + " Punkt(e) offen:" : "Alle Pflichtangaben sind ausgefüllt. Bitte trotzdem selbst prüfen."));
+    res.forEach(x => { const r = E("div", "bu-ck " + (x.ok ? "ok" : "no"), (x.ok ? "✓ " : "✗ ") + x.t); ck.appendChild(r); });
+    h.appendChild(ck);
+  }
+  // Aktionen
+  const A = E("div", "bu-c"); A.appendChild(E("div", "bu-t", "Aktionen"));
+  const ab = E("div", "acts"); A.appendChild(ab);
+  ab.appendChild(BB("PDF erstellen / teilen", async b => {
+    const c = buCust(d.cid);
+    if (!c) { buMsg(A, "Bitte zuerst einen Kunden wählen."); return; }
+    if (!d.items.length) { buMsg(A, "Bitte mindestens eine Position anlegen."); return; }
+    b.disabled = true;
+    try {
+      const bytes = buDocPdf(d);
+      const nm = d.no + (c.name ? "_" + c.name.replace(/[^\wäöüÄÖÜß-]+/g, "_") : "") + ".pdf";
+      const r = await buShare(bytes, nm, (d.type === "RE" ? "Rechnung " : "Angebot ") + d.no);
+      buMsg(A, r === "download" ? "PDF wurde geladen (Dateien-App)." : r === "share" ? "PDF geteilt." : "Abgebrochen.");
+      if (r !== "abort" && d.status === "draft") { buMsg(A, (r === "download" ? "PDF geladen." : "PDF geteilt.") + " Wenn du es verschickt hast, tippe unten „Als gesendet markieren“."); }
+    } catch (e) { buMsg(A, "PDF-Fehler: " + e.message); }
+    b.disabled = false;
+  }));
+  const st = (label, s, cls) => ab.appendChild(BB(label, () => { buSetStatus(d, s); buRender(); }, cls));
+  if (d.status === "draft") st("Als gesendet markieren", "sent");
+  if (d.type === "AN" && d.status === "sent") { st("Angenommen", "accepted"); st("Abgelehnt", "declined"); }
+  if (d.type === "RE" && d.status === "sent") st("Als bezahlt markieren", "paid");
+  if (d.type === "AN" && (d.status === "accepted" || d.status === "sent")) ab.appendChild(BB("In Rechnung umwandeln", () => {
+    const n = buNewDoc("RE", d.cid);
+    n.subject = d.subject; n.items = d.items.map(x => Object.assign({}, x)); n.vat = d.vat; n.from = d.id; buSaveQ();
+    buGo("doc", { k: "doc", id: n.id });
+  }));
+  if (d.status === "paid" || d.status === "sent") ab.appendChild(BB("Zurück auf Entwurf", () => { if (confirm("Wirklich zurück auf Entwurf? Das ist nur sinnvoll, wenn du nichts verschickt hast.")) { d.status = "draft"; buSave(); buRender(); } }));
+  ab.appendChild(BB("Duplizieren", () => {
+    const n = buNewDoc(d.type, d.cid);
+    n.subject = d.subject; n.intro = d.intro; n.note = d.note; n.items = d.items.map(x => Object.assign({}, x)); n.vat = d.vat; buSaveQ();
+    buGo("doc", { k: "doc", id: n.id });
+  }));
+  if (d.type === "RE" && d.due && d.status !== "storno") ab.appendChild(BB("Fälligkeit in Kalender", () => {
+    const c = buCust(d.cid);
+    addToCal({ title: "Zahlung fällig: " + d.no + (c ? " (" + c.name + ")" : ""), start: new Date(d.due + "T09:00:00"), allDay: true, desc: "Betrag " + eur(buTot(d).gross), alarm: 540 });
+  }));
+  if (d.status === "draft") ab.appendChild(BB("Löschen", () => { if (confirm("Entwurf wirklich löschen?")) { bu.docs = bu.docs.filter(x => x.id !== d.id); buSave(); buGo("doc"); } }, "bbtn dang"));
+  else if (d.status !== "storno") ab.appendChild(BB("Stornieren", () => { if (confirm("Dokument stornieren? Es bleibt zur Dokumentation erhalten.")) { buSetStatus(d, "storno"); buRender(); } }, "bbtn dang"));
+  h.appendChild(A);
+}
+
+/* ---- Belege ---- */
+function vRec(h) {
+  if (bs.sub && bs.sub.k === "scan") return vScan(h, null);
+  if (bs.sub && bs.sub.k === "rec") return vScan(h, bu.rec.filter(r => r.id === bs.sub.id)[0]);
+  const ac = E("div", "acts");
+  ac.appendChild(BB("Beleg fotografieren", () => buGo("rec", { k: "scan" })));
+  ac.appendChild(BB("Manuell erfassen", () => buGo("rec", { k: "rec", id: "" })));
+  h.appendChild(ac);
+  const months = Array.from(new Set(bu.rec.map(r => r.date.slice(0, 7)))).sort().reverse();
+  const cur = buToday().slice(0, 7);
+  if (!bs.month) bs.month = cur;
+  const mrow = E("div", "chips");
+  [cur].concat(months.filter(m => m !== cur)).slice(0, 8).forEach(m => { const b = E("button", "chip" + (bs.month === m ? " on" : ""), m.slice(5) + "/" + m.slice(0, 4)); b.onclick = () => { bs.month = m; buRender(); }; mrow.appendChild(b); });
+  const ball = E("button", "chip" + (bs.month === "all" ? " on" : ""), "Alle"); ball.onclick = () => { bs.month = "all"; buRender(); }; mrow.appendChild(ball);
+  h.appendChild(mrow);
+  const list = bu.rec.filter(r => bs.month === "all" || r.date.slice(0, 7) === bs.month).sort((a, b) => b.date.localeCompare(a.date));
+  const sg = list.reduce((a, r) => a + (+r.gross || 0), 0), sv = list.reduce((a, r) => a + (+r.vat || 0), 0);
+  const sm = E("div", "bu-g");
+  [["Ausgaben brutto", eur(sg)], ["Vorsteuer", eur(sv)]].forEach(x => { const k = E("div", "bu-k"); k.appendChild(E("small", null, x[0])); k.appendChild(E("b", null, x[1])); sm.appendChild(k); });
+  h.appendChild(sm);
+  const cs = {};
+  list.forEach(r => { cs[r.cat || "Sonstiges"] = (cs[r.cat || "Sonstiges"] || 0) + (+r.gross || 0); });
+  const ck = Object.keys(cs).sort((a, b) => cs[b] - cs[a]);
+  if (ck.length) {
+    const c = E("div", "bu-c"); c.appendChild(E("div", "bu-t", "Nach Kategorie"));
+    const mx = Math.max.apply(null, ck.map(k => cs[k]));
+    ck.forEach(k => { const r = E("div", "bu-bl"); r.appendChild(E("span", null, k)); const bar = E("div", "bu-bar"); const i = E("i"); i.style.width = cs[k] / mx * 100 + "%"; bar.appendChild(i); r.appendChild(bar); r.appendChild(E("span", null, eur(cs[k]))); c.appendChild(r); });
+    h.appendChild(c);
+  }
+  if (!list.length) h.appendChild(E("div", "empty", "Keine Belege in diesem Zeitraum."));
+  list.forEach(r => {
+    const row = E("div", "bu-r");
+    const l = E("div"); l.style.minWidth = 0;
+    l.appendChild(E("b", null, r.vendor || "(ohne Namen)"));
+    l.appendChild(E("div", "bu-s", buD(r.date) + " · " + (r.cat || "Sonstiges") + (r.note ? " · " + r.note : "")));
+    row.appendChild(l);
+    row.appendChild(E("b", null, eur(+r.gross || 0)));
+    row.onclick = () => buGo("rec", { k: "rec", id: r.id });
+    h.appendChild(row);
+  });
+  if (bu.rec.length) {
+    const b = BB("Belege als CSV exportieren", () => buDownload("belege.csv", buCsv([["Datum", "Lieferant", "Kategorie", "Brutto", "USt", "Satz", "Notiz"]].concat(bu.rec.slice().sort((a, b) => a.date.localeCompare(b.date)).map(r => [buD(r.date), r.vendor, r.cat, nf(+r.gross || 0, 2), nf(+r.vat || 0, 2), r.rate, r.note])))));
+    b.style.marginTop = "10px"; h.appendChild(b);
+  }
+}
+function vScan(h, rec) {
+  const isNew = !rec || !rec.id;
+  const r = rec && rec.id ? rec : { id: "", vendor: "", date: buToday(), gross: 0, vat: 0, rate: 19, cat: "Sonstiges", note: "" };
+  buBack(h, "Belege", () => buGo("rec"));
+  const box = E("div", "bu-c");
+  const manual = bs.sub && bs.sub.k === "rec" && !bs.sub.id;
+  if (isNew && !manual) {
+    box.appendChild(E("div", "bu-t", "Beleg fotografieren"));
+    box.appendChild(E("div", "bu-s", "Jarvis liest Lieferant, Datum und Beträge aus dem Foto. Du prüfst und speicherst. Das Foto selbst wird nicht gespeichert, hebe den Original-Beleg auf (meist 8 Jahre, bitte prüfen)."));
+    const inp = E("input"); inp.type = "file"; inp.accept = "image/*"; inp.style.display = "none";
+    const b = BB("Foto aufnehmen / wählen", () => inp.click());
+    inp.onchange = async () => {
+      const f = inp.files[0]; if (!f) return;
+      b.disabled = true; b.textContent = "liest...";
+      try {
+        const im = await shrink(f);
+        const sys = "Du liest Kassenbons und Rechnungen. Antworte AUSSCHLIESSLICH mit einem JSON-Objekt {\"vendor\":\"Name\",\"date\":\"YYYY-MM-DD\",\"gross\":Brutto-Gesamtbetrag als Zahl,\"vat\":enthaltene Umsatzsteuer als Zahl,\"rate\":Steuersatz in Prozent als Zahl,\"cat\":\"eine von: " + BUCATS.join(" | ") + "\",\"note\":\"max 6 Wörter was gekauft wurde\"}. Unleserliches = null. Kein Text davor oder danach.";
+        const t = await buAI(sys, "Lies diesen Beleg.", im);
+        let o; try { o = fJson(t, "{", "}"); } catch (e) { o = {}; }
+        r.vendor = o.vendor || ""; r.date = /^\d{4}-\d\d-\d\d$/.test(o.date || "") ? o.date : buToday();
+        r.gross = +o.gross || 0; r.vat = +o.vat || 0; r.rate = +o.rate || 19; r.cat = BUCATS.indexOf(o.cat) >= 0 ? o.cat : "Sonstiges"; r.note = o.note || "";
+        r.scanned = true;
+        box.remove(); form(h);
+      } catch (e) { buMsg(box, "Fehler: " + e.message + " (du kannst auch manuell erfassen)"); }
+      b.disabled = false; b.textContent = "Foto aufnehmen / wählen";
+    };
+    box.appendChild(inp); box.appendChild(b);
+    box.appendChild(BB("Lieber manuell", () => { box.remove(); form(h); }));
+    h.appendChild(box);
+  } else form(h);
+  function form(host) {
+    const c = E("div", "bu-c");
+    c.appendChild(E("div", "bu-t", isNew ? "Prüfen und speichern" : "Beleg bearbeiten"));
+    if (r.scanned) c.appendChild(E("div", "bu-s", "Von der KI gelesen. Bitte Werte mit dem Beleg vergleichen."));
+    c.appendChild(BF("Lieferant", r.vendor, v => r.vendor = v));
+    const g = E("div", "bu-2");
+    g.appendChild(BF("Datum", r.date, v => r.date = v, { type: "date" }));
+    g.appendChild(BF("Brutto €", bn(r.gross), v => r.gross = pn(v) || 0, { mode: "decimal" }));
+    c.appendChild(g);
+    const g2 = E("div", "bu-2");
+    const vatF = BF("davon USt €", bn(r.vat), v => r.vat = pn(v) || 0, { mode: "decimal" });
+    g2.appendChild(vatF);
+    g2.appendChild(BS("Steuersatz", [["19", "19 %"], ["7", "7 %"], ["0", "0 %"]], String(r.rate), v => r.rate = +v));
+    c.appendChild(g2);
+    c.appendChild(BS("Kategorie", BUCATS.map(x => [x, x]), r.cat, v => r.cat = v));
+    c.appendChild(BF("Notiz", r.note, v => r.note = v));
+    const a = E("div", "acts");
+    a.appendChild(BB("USt aus Brutto rechnen", () => { r.vat = buCents(r.gross - r.gross / (1 + r.rate / 100)); vatF.input.value = bn(r.vat); }));
+    a.appendChild(BB("Speichern", () => {
+      if (!r.id) { r.id = buId(); bu.rec.unshift(r); }
+      buSave(); buGo("rec");
+    }));
+    if (r.id) a.appendChild(BB("Löschen", () => { if (confirm("Beleg löschen?")) { bu.rec = bu.rec.filter(x => x.id !== r.id); buSave(); buGo("rec"); } }, "bbtn dang"));
+    c.appendChild(a);
+    host.appendChild(c);
+  }
+}
+/* ---- Kunden ---- */
+function buNewCust() {
+  const c = { id: buId(), name: "", addr1: "", addr2: "", mail: "", tel: "", note: "" };
+  bu.cust.unshift(c); buSave(); return c;
+}
+function vCust(h) {
+  if (bs.sub && bs.sub.k === "cust") return vCustEdit(h, buCust(bs.sub.id), bs.sub.back);
+  const ac = E("div", "acts");
+  ac.appendChild(BB("+ Neuer Kunde", () => { const c = buNewCust(); buGo("cust", { k: "cust", id: c.id }); }));
+  h.appendChild(ac);
+  const L = E("div");
+  h.appendChild(BF("", bs.q, v => { bs.q = v; fill(); }, { ph: "Kunden suchen" }));
+  h.appendChild(L);
+  function fill() {
+    L.innerHTML = "";
+    const qq = bs.q.toLowerCase();
+    const list = bu.cust.filter(c => !qq || (c.name + " " + c.addr2 + " " + c.mail).toLowerCase().indexOf(qq) >= 0);
+    if (!list.length) L.appendChild(E("div", "empty", bu.cust.length ? "Nichts gefunden." : "Noch keine Kunden."));
+    list.forEach(c => {
+      const ds = bu.docs.filter(d => d.cid === c.id && d.type === "RE" && d.status !== "draft" && d.status !== "storno");
+      const open = ds.filter(d => d.status === "sent").reduce((a, d) => a + buTot(d).gross, 0);
+      const r = E("div", "bu-r");
+      const l = E("div"); l.appendChild(E("b", null, c.name || "(ohne Namen)")); l.appendChild(E("div", "bu-s", c.addr2 || c.mail || ""));
+      r.appendChild(l);
+      r.appendChild(E("span", "m", open > 0 ? "offen " + eur(open) : ds.length + " Rechn."));
+      r.onclick = () => buGo("cust", { k: "cust", id: c.id });
+      L.appendChild(r);
+    });
+  }
+  fill();
+}
+function vCustEdit(h, c, back) {
+  if (!c) { bs.sub = null; return vCust(h); }
+  buBack(h, back ? "Zurück zum Dokument" : "Alle Kunden", () => back ? buGo("doc", { k: "doc", id: back }) : buGo("cust"));
+  const f = E("div", "bu-c");
+  f.appendChild(BF("Name / Firma", c.name, v => { c.name = v; buSaveQ(); }));
+  f.appendChild(BF("Straße und Hausnummer", c.addr1, v => { c.addr1 = v; buSaveQ(); }));
+  f.appendChild(BF("PLZ und Ort", c.addr2, v => { c.addr2 = v; buSaveQ(); }));
+  f.appendChild(BF("E-Mail", c.mail, v => { c.mail = v; buSaveQ(); }, { type: "email" }));
+  f.appendChild(BF("Telefon", c.tel, v => { c.tel = v; buSaveQ(); }, { type: "tel" }));
+  f.appendChild(BF("Notiz (privat)", c.note, v => { c.note = v; buSaveQ(); }, { area: true, rows: 2 }));
+  h.appendChild(f);
+  const ds = bu.docs.filter(d => d.cid === c.id);
+  const paid = ds.filter(d => d.type === "RE" && d.status === "paid").reduce((a, d) => a + buTot(d).gross, 0);
+  const open = ds.filter(d => d.type === "RE" && d.status === "sent").reduce((a, d) => a + buTot(d).gross, 0);
+  const s = E("div", "bu-c"); s.appendChild(E("div", "bu-t", "Kundenakte"));
+  s.appendChild(E("div", "bu-s", "Bezahlt gesamt: " + eur(paid) + " · Offen: " + eur(open) + " · " + ds.length + " Dokument(e)"));
+  const a = E("div", "acts");
+  a.appendChild(BB("Neues Angebot", () => { const d = buNewDoc("AN", c.id); buGo("doc", { k: "doc", id: d.id }); }));
+  a.appendChild(BB("Neue Rechnung", () => { const d = buNewDoc("RE", c.id); buGo("doc", { k: "doc", id: d.id }); }));
+  s.appendChild(a);
+  ds.forEach(d => { const r = E("div", "bu-r"); r.appendChild(E("span", null, d.no + " · " + buD(d.date))); r.appendChild(E("span", "m", eur(buTot(d).gross) + " · " + BUSTAT[d.status])); r.onclick = () => buGo("doc", { k: "doc", id: d.id }); s.appendChild(r); });
+  h.appendChild(s);
+  const del = BB("Kunde löschen", () => {
+    if (ds.length) { alert("Dieser Kunde hat Dokumente und kann nicht gelöscht werden."); return; }
+    if (confirm("Kunde löschen?")) { bu.cust = bu.cust.filter(x => x.id !== c.id); buSave(); buGo("cust"); }
+  }, "bbtn dang");
+  h.appendChild(del);
+  h.appendChild(E("div", "disc", "Kundendaten bleiben nur auf diesem Gerät (DSGVO: speichere nur, was du für Rechnungen brauchst)."));
+}
+
+/* ---- Nachfassen ---- */
+const FUK = { pre: "Vorab-Erinnerung", rem: "Zahlungserinnerung", m1: "1. Mahnung", m2: "2. Mahnung", off: "Angebot nachfassen" };
+function buTpl(kind, d, tone) {
+  const c = buCust(d.cid) || {}, F = bu.firm, hi = c.name ? "Guten Tag " + c.name : "Guten Tag", amt = eur(buTot(d).gross), no = d.no, due = buD(d.due);
+  const bank = F.iban ? "\n\nBankverbindung: " + F.iban + (F.bic ? " (BIC " + F.bic + ")" : "") + (F.bank ? ", " + F.bank : "") + "\nVerwendungszweck: " + no : "";
+  const sign = "\n\nFreundliche Grüße\n" + (F.owner || F.name || "");
+  const T = {
+    freundlich: { pre: ["Zahlungserinnerung in Kürze: Rechnung " + no, hi + ",\n\nich möchte Sie kurz daran erinnern, dass unsere Rechnung " + no + " über " + amt + " am " + due + " fällig wird. Falls schon alles veranlasst ist, freue ich mich und bitte Sie, diese Nachricht zu übersehen." + bank],
+      rem: ["Zahlungserinnerung zu Rechnung " + no, hi + ",\n\nbei der Durchsicht meiner Unterlagen ist mir aufgefallen, dass die Rechnung " + no + " über " + amt + " (fällig am " + due + ") noch offen ist. Vielleicht ist sie untergegangen. Ich bitte Sie, den Betrag in den nächsten Tagen zu überweisen." + bank + "\n\nSollte sich unsere Nachricht mit Ihrer Zahlung überschnitten haben, betrachten Sie sie bitte als gegenstandslos."],
+      m1: ["1. Mahnung zu Rechnung " + no, hi + ",\n\nleider konnte ich zu Rechnung " + no + " über " + amt + " (fällig am " + due + ") noch keinen Zahlungseingang feststellen, auch nach meiner Erinnerung nicht. Bitte überweisen Sie den Betrag bis zum " + buD(buAdd(buToday(), 7)) + "." + bank],
+      m2: ["2. Mahnung zu Rechnung " + no, hi + ",\n\ndie Rechnung " + no + " über " + amt + " ist trotz Erinnerung und 1. Mahnung weiterhin offen. Bitte zahlen Sie bis spätestens " + buD(buAdd(buToday(), 7)) + ". Andernfalls muss ich weitere Schritte prüfen." + bank],
+      off: ["Ihr Angebot " + no, hi + ",\n\nich wollte mich kurz melden und nachfragen, ob Sie mein Angebot " + no + " vom " + buD(d.date) + " über " + amt + " in Ruhe ansehen konnten. Gerne beantworte ich offene Fragen oder passe es an. Ich freue mich auf Ihre Rückmeldung."] },
+    sachlich: { pre: ["Fälligkeit Rechnung " + no, hi + ",\n\nhiermit weise ich darauf hin, dass die Rechnung " + no + " über " + amt + " am " + due + " fällig ist." + bank],
+      rem: ["Zahlungserinnerung Rechnung " + no, hi + ",\n\ndie Rechnung " + no + " über " + amt + " war am " + due + " fällig und ist bisher nicht beglichen. Bitte überweisen Sie den Betrag umgehend." + bank],
+      m1: ["1. Mahnung Rechnung " + no, hi + ",\n\ndie Rechnung " + no + " über " + amt + " ist nach Fälligkeit am " + due + " und unserer Erinnerung weiterhin offen. Ich bitte um Zahlung bis zum " + buD(buAdd(buToday(), 7)) + "." + bank],
+      m2: ["2. Mahnung Rechnung " + no, hi + ",\n\ndie Rechnung " + no + " über " + amt + " ist weiterhin unbezahlt. Letzte Zahlungsfrist: " + buD(buAdd(buToday(), 7)) + ". Danach prüfe ich die weitere Vorgehensweise." + bank],
+      off: ["Angebot " + no + ": Rückfrage", hi + ",\n\nmein Angebot " + no + " vom " + buD(d.date) + " über " + amt + " liegt Ihnen vor. Bitte teilen Sie mir mit, ob Sie es annehmen möchten oder Änderungen wünschen."] },
+    bestimmt: { pre: ["Rechnung " + no + " wird fällig", hi + ",\n\ndie Rechnung " + no + " über " + amt + " ist am " + due + " zu zahlen. Bitte sorgen Sie für fristgerechten Eingang." + bank],
+      rem: ["Zahlungserinnerung Rechnung " + no, hi + ",\n\ndie Rechnung " + no + " über " + amt + " ist seit dem " + due + " überfällig. Ich erwarte den Zahlungseingang bis zum " + buD(buAdd(buToday(), 5)) + "." + bank],
+      m1: ["1. Mahnung Rechnung " + no, hi + ",\n\ntrotz Erinnerung ist die Rechnung " + no + " über " + amt + " nicht bezahlt. Ich fordere Sie auf, den Betrag bis zum " + buD(buAdd(buToday(), 7)) + " zu überweisen." + bank],
+      m2: ["2. und letzte Mahnung Rechnung " + no, hi + ",\n\ndie Rechnung " + no + " über " + amt + " ist trotz mehrfacher Aufforderung offen. Ich setze Ihnen eine letzte Frist bis zum " + buD(buAdd(buToday(), 5)) + ". Danach leite ich weitere Schritte ein." + bank],
+      off: ["Angebot " + no + ": bitte um Entscheidung", hi + ",\n\nmein Angebot " + no + " über " + amt + " gilt bis zum " + due + ". Bitte teilen Sie mir bis dahin Ihre Entscheidung mit."] }
+  };
+  const t = (T[tone] || T.freundlich)[kind];
+  return { subject: t[0], body: t[1] + sign };
+}
+function vFu(h) {
+  if (bs.sub && bs.sub.k === "fu") return vFuEdit(h, bu.docs.filter(d => d.id === bs.sub.id)[0], bs.sub.kind);
+  const t = buToday();
+  const od = bu.docs.filter(buOverdue).sort((a, b) => a.due.localeCompare(b.due));
+  const soon = bu.docs.filter(d => d.type === "RE" && d.status === "sent" && d.due >= t && buDays(t, d.due) <= 3);
+  const off = bu.docs.filter(d => d.type === "AN" && d.status === "sent" && buDays(d.sentOn || d.date, t) >= 7);
+  h.appendChild(E("div", "hsub", "Hier siehst du, wo du dich bei Kunden melden solltest. Jarvis schreibt dir den Text."));
+  const sec = (title, list, mk) => {
+    if (!list.length) return;
+    h.appendChild(E("div", "bu-t", title));
+    list.forEach(d => {
+      const c = buCust(d.cid), r = E("div", "bu-r");
+      const l = E("div"); l.appendChild(E("b", null, d.no + (c ? " · " + c.name : "")));
+      l.appendChild(E("div", "bu-s", mk.info(d) + (d.rem && d.rem.length ? " · " + d.rem.length + "× erinnert" : "")));
+      r.appendChild(l); r.appendChild(E("b", null, eur(buTot(d).gross)));
+      r.onclick = () => buGo("fu", { k: "fu", id: d.id, kind: mk.kind(d) });
+      h.appendChild(r);
+    });
+  };
+  sec("Überfällig", od, { info: d => buDays(d.due, t) + " Tage überfällig", kind: d => { const n = buDays(d.due, t), k = (d.rem || []).length; return n > 30 || k >= 2 ? "m2" : n > 14 || k >= 1 ? "m1" : "rem"; } });
+  sec("Wird bald fällig", soon, { info: d => "fällig am " + buD(d.due), kind: () => "pre" });
+  sec("Angebote ohne Antwort", off, { info: d => buDays(d.sentOn || d.date, t) + " Tage seit Versand", kind: () => "off" });
+  if (!od.length && !soon.length && !off.length) h.appendChild(E("div", "empty", "Alles in Ordnung, nichts zum Nachfassen. Rechnungen erscheinen hier, sobald sie als „gesendet“ markiert sind."));
+  h.appendChild(E("div", "disc", "Mahnungen sind Entwürfe. Verzugszinsen, Gebühren und Fristen bitte vorher prüfen. Das ist keine Rechtsberatung."));
+}
+function vFuEdit(h, d, kind) {
+  if (!d) { bs.sub = null; return vFu(h); }
+  buBack(h, "Nachfassen", () => buGo("fu"));
+  const c = buCust(d.cid) || {};
+  let tone = bs.tone, k = kind;
+  const kinds = d.type === "AN" ? ["off"] : ["pre", "rem", "m1", "m2"];
+  const box = E("div", "bu-c");
+  h.appendChild(box);
+  let sub = "", ta;
+  function draw() {
+    box.innerHTML = "";
+    box.appendChild(E("div", "bu-t", d.no + " · " + (c.name || "Kunde")));
+    if (kinds.length > 1) { const cr = E("div", "chips"); kinds.forEach(x => { const b = E("button", "chip" + (k === x ? " on" : ""), FUK[x]); b.onclick = () => { k = x; draw(); }; cr.appendChild(b); }); box.appendChild(cr); }
+    const tr = E("div", "chips"); ["freundlich", "sachlich", "bestimmt"].forEach(x => { const b = E("button", "chip" + (tone === x ? " on" : ""), x); b.onclick = () => { tone = x; bs.tone = x; draw(); }; tr.appendChild(b); }); box.appendChild(tr);
+    const t = buTpl(k, d, tone); sub = t.subject;
+    box.appendChild(BF("Betreff", sub, v => sub = v));
+    const f = BF("Text", t.body, () => {}, { area: true, rows: 12 }); ta = f.input; box.appendChild(f);
+    const a = E("div", "acts");
+    a.appendChild(BB("Mit KI umformulieren", async b => {
+      b.disabled = true; b.textContent = "schreibt...";
+      try {
+        const sys = "Du bist Büro-Assistent. " + buCtx() + " Überarbeite die Nachricht an den Kunden: Ton " + tone + ", höflich, klar, kurz, auf Deutsch. Behalte alle Beträge, Daten, Rechnungsnummern und die Bankverbindung exakt. Erfinde keine Gebühren oder Zinsen. Gib nur den fertigen Text aus, ohne Betreff.";
+        ta.value = await buAI(sys, ta.value);
+      } catch (e) { buMsg(box, "Fehler: " + e.message); }
+      b.disabled = false; b.textContent = "Mit KI umformulieren";
+    }));
+    a.appendChild(BB("Text teilen / kopieren", async () => { const r = await buShareText(sub + "\n\n" + ta.value, sub); buMsg(box, r === "copy" ? "In die Zwischenablage kopiert." : r === "share" ? "Geteilt." : r === "abort" ? "Abgebrochen." : "Nicht möglich, bitte Text markieren und kopieren."); }));
+    a.appendChild(BB("Als PDF-Brief", async () => { try { await buShare(buLetterPdf(sub, ta.value, d.cid), (FUK[k] + "_" + d.no).replace(/[^\wäöüÄÖÜß.-]+/g, "_") + ".pdf", sub); } catch (e) { buMsg(box, "PDF-Fehler: " + e.message); } }));
+    a.appendChild(BB("Als erledigt protokollieren", () => { d.rem = d.rem || []; d.rem.push({ ts: Date.now(), kind: k }); buSave(); buMsg(box, "Gespeichert: " + FUK[k] + " am " + buD(buToday())); }));
+    box.appendChild(a);
+    if (c.mail) box.appendChild(E("div", "bu-s", "E-Mail des Kunden: " + c.mail));
+    if (d.rem && d.rem.length) box.appendChild(E("div", "bu-s", "Bisher: " + d.rem.map(x => FUK[x.kind] + " " + buD(dkey(new Date(x.ts)))).join(", ")));
+  }
+  draw();
+}
+/* ---- Antwort ---- */
+function vAns(h) {
+  h.appendChild(E("div", "hsub", "Füge eine Nachricht ein oder sprich sie ein. Jarvis schreibt eine Antwort in deinem Firmenstil."));
+  const modes = ["Kundenanfrage", "Bewertung", "Absage / Preis", "Social-Post"];
+  const cr = E("div", "chips"); modes.forEach(m => { const b = E("button", "chip" + (bs.amode === m ? " on" : ""), m); b.onclick = () => { bs.amode = m; buRender(); }; cr.appendChild(b); }); h.appendChild(cr);
+  const hint = { "Kundenanfrage": "Nachricht des Kunden hier einfügen", "Bewertung": "Bewertung des Kunden hier einfügen", "Absage / Preis": "Anfrage oder Preisverhandlung hier einfügen", "Social-Post": "Worum soll der Post gehen? (z. B. neues Projekt, Angebot, Tipp)" }[bs.amode];
+  const inp = BF("", "", () => {}, { area: true, rows: 5, ph: hint }); h.appendChild(inp);
+  const out = E("div", "bu-c"); out.style.display = "none"; 
+  const a = E("div", "acts");
+  a.appendChild(BB("Sprechen", b => buDictate(inp.input, b)));
+  a.appendChild(BB("Antwort schreiben", async b => {
+    const t = inp.input.value.trim(); if (!t) return;
+    b.disabled = true; b.textContent = "schreibt...";
+    const extra = { "Kundenanfrage": "Schreibe eine freundliche, professionelle Antwort auf die Kundenanfrage. Stelle höchstens zwei sinnvolle Rückfragen, wenn Infos fehlen. Nenne keine Preise, die nicht im Katalog stehen.", "Bewertung": "Schreibe eine Antwort auf die Online-Bewertung. Bei Lob: herzlicher Dank. Bei Kritik: ruhig, ehrlich, lösungsorientiert, ohne Rechtfertigungen, biete ein Gespräch an.", "Absage / Preis": "Schreibe eine höfliche Antwort: bei Absage freundlich und offen für später; bei Preisverhandlung den Wert der Leistung betonen, ohne unnötig Rabatt zu geben. Keine erfundenen Zahlen.", "Social-Post": "Schreibe einen kurzen Social-Media-Post (max. 600 Zeichen) mit 3 passenden Hashtags. Keine erfundenen Fakten." }[bs.amode];
+    try {
+      const txt = await buAI("Du bist Büro-Assistent. " + buCtx() + " " + extra + " Deutsch, Absender ist " + (bu.firm.owner || bu.firm.name || "die Firma") + ". Gib nur den fertigen Text aus.", t);
+      out.style.display = "block"; out.innerHTML = "";
+      out.appendChild(E("div", "bu-t", "Entwurf"));
+      const f = BF("", txt, () => {}, { area: true, rows: 9 }); out.appendChild(f);
+      const ob = E("div", "acts");
+      ob.appendChild(BB("Teilen / kopieren", async () => { const r = await buShareText(f.input.value, ""); buMsg(out, r === "copy" ? "Kopiert." : r === "share" ? "Geteilt." : ""); }));
+      out.appendChild(ob);
+    } catch (e) { out.style.display = "block"; out.innerHTML = ""; out.appendChild(E("div", "bu-s", "Fehler: " + e.message)); }
+    b.disabled = false; b.textContent = "Antwort schreiben";
+  }));
+  h.appendChild(a); h.appendChild(out);
+  if (!bu.firm.name && !bu.firm.know) h.appendChild(E("div", "bu-s", "Tipp: Im Setup unter „Wissen“ kannst du Jarvis deine Firma, Preise und Besonderheiten erklären, dann passen die Antworten besser."));
+}
+/* ---- Zeit ---- */
+const buHM = m => Math.floor(m / 60) + ":" + String(Math.round(m % 60)).padStart(2, "0") + " h";
+function vTm(h) {
+  const box = E("div", "bu-c"); h.appendChild(box);
+  if (bu.run) {
+    box.appendChild(E("div", "bu-t", "Läuft" + (bu.run.note ? ": " + bu.run.note : "")));
+    const big = E("div", "bu-big"); box.appendChild(big);
+    const upd = () => { const s = Math.floor((Date.now() - bu.run.start) / 1000); big.textContent = String(Math.floor(s / 3600)).padStart(2, "0") + ":" + String(Math.floor(s / 60) % 60).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); };
+    upd(); buTick = setInterval(upd, 1000);
+    box.appendChild(BB("Stopp und speichern", () => {
+      const m = Math.max(1, Math.round((Date.now() - bu.run.start) / 60000));
+      bu.tm.unshift({ id: buId(), date: buToday(), mins: m, cid: bu.run.cid || "", note: bu.run.note || "", billed: false });
+      bu.run = null; buSave(); buRender();
+    }));
+    box.appendChild(BB("Verwerfen", () => { if (confirm("Zeit verwerfen?")) { bu.run = null; buSave(); buRender(); } }, "bbtn dang"));
+  } else {
+    box.appendChild(E("div", "bu-t", "Zeit erfassen"));
+    let cid = "", note = "";
+    box.appendChild(BS("Kunde", [["", "– ohne –"]].concat(bu.cust.map(c => [c.id, c.name || "(ohne Namen)"])), "", v => cid = v));
+    box.appendChild(BF("Tätigkeit", "", v => note = v, { ph: "z. B. Beratung, Aufbau" }));
+    box.appendChild(BB("Start", () => { bu.run = { start: Date.now(), cid: cid, note: note }; buSave(); buRender(); }));
+    const mm = BF("Oder Zeit nachtragen (Minuten)", "", () => {}, { mode: "numeric" });
+    box.appendChild(mm);
+    box.appendChild(BB("Eintrag hinzufügen", () => { const m = Math.round(pn(mm.input.value)); if (!(m > 0)) return; bu.tm.unshift({ id: buId(), date: buToday(), mins: m, cid: cid, note: note, billed: false }); buSave(); buRender(); }));
+  }
+  const un = bu.tm.filter(x => !x.billed);
+  const byC = {};
+  un.forEach(x => { (byC[x.cid] = byC[x.cid] || []).push(x); });
+  Object.keys(byC).forEach(cid => {
+    const l = byC[cid], mins = l.reduce((a, x) => a + x.mins, 0), c = buCust(cid);
+    const k = E("div", "bu-c");
+    k.appendChild(E("div", "bu-t", (c ? c.name : "Ohne Kunde") + " · " + buHM(mins) + " nicht abgerechnet"));
+    k.appendChild(E("div", "bu-s", "≈ " + eur(mins / 60 * (+bu.firm.rate || 60)) + " netto bei " + eur(+bu.firm.rate || 60) + " pro Stunde"));
+    k.appendChild(BB("In Rechnungsentwurf übernehmen", () => {
+      const d = buNewDoc("RE", cid);
+      l.forEach(x => { d.items.push({ d: (x.note || "Leistung") + " (" + buD(x.date) + ")", q: Math.round(x.mins / 60 * 100) / 100, u: "Std.", p: +bu.firm.rate || 60 }); x.billed = true; });
+      buSave(); buGo("doc", { k: "doc", id: d.id });
+    }));
+    h.appendChild(k);
+  });
+  if (bu.tm.length) h.appendChild(E("div", "bu-t", "Einträge"));
+  bu.tm.slice(0, 40).forEach(x => {
+    const c = buCust(x.cid), r = E("div", "bu-r");
+    const l = E("div"); l.appendChild(E("b", null, buHM(x.mins) + (x.billed ? " · abgerechnet" : ""))); l.appendChild(E("div", "bu-s", buD(x.date) + (c ? " · " + c.name : "") + (x.note ? " · " + x.note : "")));
+    r.appendChild(l);
+    const del = BB("×", () => { bu.tm = bu.tm.filter(y => y.id !== x.id); buSave(); buRender(); }); r.appendChild(del);
+    h.appendChild(r);
+  });
+}
+/* ---- Setup ---- */
+function vSet(h) {
+  const F = bu.firm;
+  const S = (title, fn) => { const c = E("div", "bu-c"); c.appendChild(E("div", "bu-t", title)); fn(c); h.appendChild(c); };
+  const fld = (c, label, key, o) => c.appendChild(BF(label, F[key], v => { F[key] = (o && o.num) ? (pn(v) || 0) : v; buSaveQ(); }, o));
+  S("Firmendaten", c => {
+    fld(c, "Firmenname", "name"); fld(c, "Inhaber / Ansprechpartner", "owner"); fld(c, "Straße und Hausnummer", "addr1"); fld(c, "PLZ und Ort", "addr2");
+    fld(c, "E-Mail", "mail", { type: "email" }); fld(c, "Telefon", "tel", { type: "tel" });
+    fld(c, "Steuernummer", "taxno"); fld(c, "USt-IdNr. (falls vorhanden)", "vatid");
+    c.appendChild(BS("Umsatzsteuer", [["0", "Normal (19 % / 7 %)"], ["1", "Kleinunternehmer (§ 19 UStG)"]], F.small ? "1" : "0", v => { F.small = v === "1"; buSaveQ(); }));
+    c.appendChild(E("div", "bu-s", "Kleinunternehmer: Umsatz im Vorjahr bis 25.000 € und im laufenden Jahr bis 100.000 €. Bitte aktuell prüfen. Dann steht auf der Rechnung der Hinweis auf § 19 UStG."));
+  });
+  S("Bank", c => { fld(c, "Bank", "bank"); fld(c, "IBAN", "iban"); fld(c, "BIC", "bic"); });
+  S("Rechnungen und Angebote", c => {
+    fld(c, "Zahlungsziel (Tage)", "payDays", { num: true, mode: "numeric" }); fld(c, "Angebot gültig (Tage)", "offDays", { num: true, mode: "numeric" });
+    fld(c, "Stundensatz netto (€)", "rate", { num: true, mode: "decimal" });
+    fld(c, "Präfix Rechnung", "preRe"); fld(c, "Präfix Angebot", "preAn");
+    fld(c, "Schlusstext Rechnung", "noteRe", { area: true, rows: 2 }); fld(c, "Schlusstext Angebot", "noteAn", { area: true, rows: 2 });
+    c.appendChild(E("div", "bu-s", "Rechnungsnummern zählen automatisch hoch (z. B. " + F.preRe + "-" + new Date().getFullYear() + "-001). Eine Rechnungsnummer darf nur einmal vergeben werden."));
+  });
+  S("Wissen für Jarvis", c => {
+    fld(c, "Branche", "field", { ph: "z. B. Gartenbau, Friseur, Webdesign" });
+    fld(c, "Was soll Jarvis über deine Firma wissen?", "know", { area: true, rows: 5, ph: "Angebot, Preise, Einzugsgebiet, Öffnungszeiten, Tonfall, was du nie anbietest..." });
+  });
+  S("Leistungskatalog", c => {
+    const L = E("div"); c.appendChild(L);
+    const draw = () => {
+      L.innerHTML = "";
+      bu.cat.forEach((k, i) => { const r = E("div", "bu-r"); r.appendChild(E("span", null, k.d)); r.appendChild(E("span", "m", eur(k.p) + "/" + k.u)); const x = BB("×", () => { bu.cat.splice(i, 1); buSaveQ(); draw(); }); r.appendChild(x); L.appendChild(r); });
+      if (!bu.cat.length) L.appendChild(E("div", "bu-s", "Noch leer. Gespeicherte Leistungen beschleunigen Angebote und die KI."));
+    };
+    draw();
+    const n = { d: "", p: 0, u: "Std." };
+    c.appendChild(BF("Neue Leistung", "", v => n.d = v)); c.appendChild(BF("Preis netto (€)", "", v => n.p = pn(v) || 0, { mode: "decimal" }));
+    c.appendChild(BS("Einheit", BUUNITS.map(u => [u, u]), "Std.", v => n.u = v));
+    c.appendChild(BB("Hinzufügen", () => { if (!n.d.trim()) return; bu.cat.push({ d: n.d.trim(), p: n.p, u: n.u }); buSave(); buRender(); }));
+  });
+  S("Export und Daten", c => {
+    c.appendChild(BB("Rechnungen als CSV", () => buDownload("rechnungen.csv", buCsv([["Nummer", "Typ", "Datum", "Kunde", "Netto", "USt", "Brutto", "Status", "Fällig"]].concat(bu.docs.map(d => { const t = buTot(d), k = buCust(d.cid); return [d.no, d.type, buD(d.date), k ? k.name : "", nf(t.net, 2), nf(t.v, 2), nf(t.gross, 2), BUSTAT[d.status], buD(d.due)]; }))))));
+    c.appendChild(BB("Belege als CSV", () => buDownload("belege.csv", buCsv([["Datum", "Lieferant", "Kategorie", "Brutto", "USt", "Satz", "Notiz"]].concat(bu.rec.map(r => [buD(r.date), r.vendor, r.cat, nf(+r.gross || 0, 2), nf(+r.vat || 0, 2), r.rate, r.note]))))));
+    c.appendChild(E("div", "bu-s", "Die CSV-Dateien kannst du an deinen Steuerberater geben. Alle Büro-Daten liegen nur auf diesem Gerät und sind im Backup unter Notizen › Einstellungen enthalten. Aufbewahrungsfristen für Rechnungen und Belege meist 8 Jahre, bitte aktuell prüfen. Seit 2025 müssen Unternehmen E-Rechnungen empfangen können, für das Versenden gelten Übergangsfristen. Lass dich dazu beraten."));
+    c.appendChild(BB("Alle Büro-Daten löschen", () => { if (confirm("Wirklich ALLE Büro-Daten löschen? Das geht nicht rückgängig.") && confirm("Sicher? Rechnungen, Belege, Kunden und Zeiten sind danach weg.")) { try { localStorage.removeItem("jarvis_bu"); } catch (e) {} location.reload(); } }, "bbtn dang"));
+  });
+}
+
 
 /* ---- Einstiegsfragen ---- */
 const OQ = [
