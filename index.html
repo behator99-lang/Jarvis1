@@ -918,6 +918,7 @@ function makeHero(t) {
     c.appendChild(b);
   });
   d.appendChild(c);
+  if (t === "chat" || t === "search" || t === "school") { const hc = document.createElement("div"); hc.className = "tcard"; hc.id = "hc-" + t; d.appendChild(hc); }
   if (t === "chat" || t === "search" || t === "school") { const tc = document.createElement("div"); tc.className = "tcard"; tc.id = t === "chat" ? "todaycard" : "tc-" + t; d.appendChild(tc); setTimeout(() => { try { fillAll(); } catch (e) {} }, 0); }
   return d;
 }
@@ -1000,8 +1001,30 @@ function renderTab(t) {
   else pane.appendChild(makeHero(t));
 }
 
+let arch = load("jarvis_arch", []);
+function archiveChat(t) {
+  const T = tabs[t];
+  if (!T || !T.h || T.h.length < 2) return;
+  const first = T.h.filter(m => m.role === "user")[0];
+  const title = first ? String(first.content).replace(/\s+/g, " ").slice(0, 50) : "Chat";
+  arch.unshift({ id: Date.now(), t: t, title: title, ts: Date.now(), h: T.h.slice(-40).map(m => ({ role: m.role, content: String(m.content).slice(0, 4000), hadImg: m.hadImg || !!m.img || false })) });
+  arch = arch.slice(0, 30);
+  save("jarvis_arch", arch);
+}
+function restoreChat(id) {
+  const e = arch.filter(x => x.id === id)[0];
+  if (!e || !tabs[e.t]) return;
+  archiveChat(cur === e.t ? e.t : null);
+  arch = arch.filter(x => x.id !== id);
+  save("jarvis_arch", arch);
+  tabs[e.t].h = e.h.map(m => ({ role: m.role, content: m.content, hadImg: m.hadImg }));
+  saveHistory(e.t);
+  if (cur !== e.t) show(e.t);
+  renderTab(e.t);
+}
 function newChat() {
   if (!tabs[cur]) return;
+  try { archiveChat(cur); } catch (e) {}
   tabs[cur].h = [];
   saveHistory(cur);
   renderTab(cur);
@@ -2267,7 +2290,7 @@ function initLock() {
 }
 
 function exportAll() {
-  const o = { app: "jarvis", v: 25, t: Date.now(), notes: notes, todos: todos, facts: facts, inv: inv, fav: fav, sp: sp, wl: load("jarvis_wl", []), ideas: fideas, decks: decks, lst: lst, prof: prof, subj: extraSubj };
+  const o = { app: "jarvis", v: 25, t: Date.now(), notes: notes, todos: todos, facts: facts, inv: inv, fav: fav, sp: sp, wl: load("jarvis_wl", []), ideas: fideas, decks: decks, lst: lst, prof: prof, subj: extraSubj, arch: arch };
   const blob = new Blob([JSON.stringify(o, null, 1)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -2294,6 +2317,7 @@ function importAll(file) {
       if (o.lst && o.lst.days) lst = o.lst;
       if (o.prof && typeof o.prof === "object") { prof = o.prof; save("jarvis_profile", prof); }
       if (Array.isArray(o.subj)) extraSubj = o.subj;
+      if (Array.isArray(o.arch)) { arch = o.arch; save("jarvis_arch", arch); }
       save("jarvis_subj_x", extraSubj); saveDecks(); try { drawChips(); } catch (e) {}
       saveData();
       renderNotes();
@@ -2316,7 +2340,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v39</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v40</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -3075,6 +3099,45 @@ try { if (calUrl) calRefresh(false); } catch (e) {}
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") { try { calRefresh(false); } catch (e) {} } });
 
 
+
+/* ---- Chat-Verlauf ---- */
+function fmtTs(ts) { const d = new Date(ts), p = n => String(n).padStart(2, "0"); return p(d.getDate()) + "." + p(d.getMonth() + 1) + ". " + p(d.getHours()) + ":" + p(d.getMinutes()); }
+function fillHist(t) {
+  const h = document.getElementById("hc-" + t);
+  if (!h) return;
+  const mine = arch.filter(x => x.t === t);
+  if (!mine.length) { h.style.display = "none"; return; }
+  h.style.display = "block";
+  h.innerHTML = "<h3>Frühere Chats</h3>";
+  let q = h._q || "";
+  if (mine.length > 3) {
+    const inp = document.createElement("input");
+    inp.placeholder = "Verlauf durchsuchen...";
+    inp.value = q;
+    inp.style.cssText = "width:100%;padding:9px 12px;margin:0 0 6px;border-radius:14px;font-size:15px;border:1px solid rgba(var(--ar),.3);background:rgba(255,255,255,.05);color:#e8f1ea;outline:none";
+    inp.oninput = () => { h._q = inp.value; const pos = inp.selectionStart; fillHist(t); const n = document.querySelector("#hc-" + t + " input"); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch (e) {} } };
+    h.appendChild(inp);
+  }
+  const ql = q.trim().toLowerCase();
+  let list = mine.filter(x => !ql || x.title.toLowerCase().indexOf(ql) >= 0 || x.h.some(m => String(m.content).toLowerCase().indexOf(ql) >= 0));
+  if (!list.length) { const e = document.createElement("div"); e.className = "tr"; e.style.cursor = "default"; e.innerHTML = "<span>Nichts gefunden.</span><span></span>"; h.appendChild(e); }
+  list.slice(0, ql ? 8 : 4).forEach(x => {
+    const e = document.createElement("div");
+    e.className = "tr";
+    e.innerHTML = "<span></span><span></span>";
+    e.children[0].textContent = x.title;
+    e.children[0].style.cssText = "overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;flex:1";
+    e.children[1].textContent = fmtTs(x.ts);
+    e.onclick = () => restoreChat(x.id);
+    const del = document.createElement("span");
+    del.textContent = "✕";
+    del.style.cssText = "padding-left:10px;opacity:.5";
+    del.onclick = ev => { ev.stopPropagation(); arch = arch.filter(y => y.id !== x.id); save("jarvis_arch", arch); fillHist(t); };
+    e.appendChild(del);
+    h.appendChild(e);
+  });
+}
+
 /* ---- Eigene Tagesübersichten ---- */
 let rq = load("jarvis_rq", { search: [], school: [] });
 function rememberQ(t, text) {
@@ -3135,6 +3198,7 @@ function tFill(id, title, rows, head) {
 }
 function fillAll() {
   [fillToday, fillSearchT, fillSchoolT, fillBizT, fillFoundT, fillEvT].forEach(f => { try { f(); } catch (e) {} });
+  ["chat", "search", "school"].forEach(t => { try { fillHist(t); } catch (e) {} });
 }
 function fillSearchT() {
   const L = (rq.search || []).slice(0, 4);
