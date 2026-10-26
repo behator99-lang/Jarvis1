@@ -6,6 +6,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Jarvis">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
 <meta name="theme-color" content="#04100a">
 <meta name="color-scheme" content="dark">
 <script>try{if(localStorage.getItem("jarvis_fid"))document.documentElement.classList.add("locked")}catch(e){}</script>
@@ -2500,7 +2502,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v44</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v45</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -4561,6 +4563,110 @@ function fpSaved() {
   ks.forEach(k => { const r = document.createElement("div"); r.className = "sumc"; r.style.cursor = "pointer"; r.innerHTML = "<div><b>" + esc(fplans[k].idea.name) + "</b><span>" + new Date(fplans[k].ts).toLocaleDateString("de-DE") + "</span></div>"; const o = document.createElement("button"); o.textContent = "Öffnen"; r.appendChild(o); r.onclick = () => openPlan(fplans[k].idea); h.appendChild(r); });
 }
 try { fpInit(); } catch (e) { console.error(e); }
+
+/* ---- Erinnerungen (Push) ---- */
+let pcfg = Object.assign({ on: false, id: "", t: 1, c: 1, b: 1, l: 1, taskAt: "08:00", learnAt: "17:00", last: "" }, load("jarvis_push", {}));
+const pSave = () => save("jarvis_push", pcfg);
+const pSupported = () => "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+const pStandalone = () => window.navigator.standalone === true || (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches);
+const pAdd = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return dkey(d); };
+const pAt = (iso, hm) => { const a = iso.split("-").map(Number), b = String(hm || "08:00").split(":").map(Number); return new Date(a[0], a[1] - 1, a[2], b[0] || 0, b[1] || 0, 0).getTime(); };
+const pHash = s => { let h = 5; s = String(s); for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+function pRems() {
+  const out = [], now = Date.now(), today = dkey();
+  const push = (id, at, t, b) => { if (at > now - 3600000 && at < now + 15 * 86400000) out.push({ id: id, at: at, t: String(t).slice(0, 70), b: String(b || "").slice(0, 170) }); };
+  if (pcfg.t) todos.forEach(x => {
+    if (x.done || !x.due || !/^\d{4}-\d\d-\d\d$/.test(x.due)) return;
+    const k = pHash(x.text);
+    push("t0:" + k + x.due, pAt(x.due, pcfg.taskAt), "Heute fällig", x.text);
+    push("t1:" + k + x.due, pAt(pAdd(x.due, -1), "18:00"), "Morgen fällig", x.text);
+  });
+  if (pcfg.c && calUrl && calC && calC.items) calC.items.forEach(x => {
+    const day = String(x.s).slice(0, 10), k = pHash(x.t + x.s);
+    if (x.a) push("c:" + k, pAt(day, pcfg.taskAt), "Heute: " + x.t, x.l || "ganztägig");
+    else push("c:" + k, pAt(day, String(x.s).slice(11, 16)) - 30 * 60000, x.t, "In 30 Minuten, um " + String(x.s).slice(11, 16) + (x.l ? " · " + x.l : ""));
+  });
+  if (pcfg.b) { try {
+    bu.docs.filter(d => d.type === "RE" && d.status === "sent" && d.due).forEach(d => {
+      const c = buCust(d.cid), who = (c ? c.name + ", " : "") + eur(buTot(d).gross);
+      push("b:" + d.id + ":due", pAt(d.due, "09:00"), "Rechnung fällig: " + d.no, who);
+      push("b:" + d.id + ":od", pAt(pAdd(d.due, 3), "09:00"), "Rechnung überfällig: " + d.no, who + ". Zeit zum Nachfassen.");
+    });
+    bu.docs.filter(d => d.type === "AN" && d.status === "sent").forEach(d => { const c = buCust(d.cid); push("b:" + d.id + ":an", pAt(pAdd(d.sentOn || d.date, 7), "09:00"), "Angebot ohne Antwort: " + d.no, (c ? c.name + ". " : "") + "Nachfassen?"); });
+    const od = bu.docs.filter(buOverdue);
+    if (od.length) for (let i = 1; i <= 3; i++) push("b:od:" + pAdd(today, i), pAt(pAdd(today, i), "09:00"), od.length + " Rechnung" + (od.length > 1 ? "en" : "") + " überfällig", eur(od.reduce((a, d) => a + buTot(d).gross, 0)) + " offen");
+  } catch (e) {} }
+  if (pcfg.l && decks.length) {
+    const st = streak();
+    for (let i = 0; i < 7; i++) {
+      const day = pAdd(today, i), cnt = lst.days[today] || 0;
+      if (i === 0 && cnt >= DAYGOAL) continue;
+      const left = i === 0 ? DAYGOAL - cnt : DAYGOAL;
+      push("l:" + day, pAt(day, pcfg.learnAt), "Lernziel: noch " + left + " Karteikarten", st > 0 && i === 0 ? "Halte deine Serie von " + st + " Tagen." : "Kurz üben, dann ist es geschafft.");
+    }
+  }
+  return out.sort((a, b) => a.at - b.at).slice(0, 120);
+}
+async function rmSync(force) {
+  if (!pcfg.on || !pcfg.id) return;
+  const arr = pRems(), h = JSON.stringify(arr);
+  if (!force && h === pcfg.last) return;
+  try {
+    const r = await api({ action: "push_set", id: pcfg.id, reminders: arr });
+    if (r && r.gone) { pcfg.on = false; pcfg.id = ""; pSave(); try { buildSettings(); } catch (e) {} }
+    else if (r && r.ok) { pcfg.last = h; pSave(); }
+  } catch (e) {}
+}
+const pU8 = s => { s = s.replace(/-/g, "+").replace(/_/g, "/"); while (s.length % 4) s += "="; const b = atob(s), a = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) a[i] = b.charCodeAt(i); return a; };
+async function pEnable() {
+  if (!pSupported()) throw new Error(pStandalone() ? "Dieses Gerät unterstützt keine Erinnerungen." : "Öffne Jarvis vom Home-Bildschirm (iOS 16.4 oder neuer), nicht im Browser.");
+  const perm = await Notification.requestPermission();
+  if (perm !== "granted") throw new Error("Erlaubnis fehlt. Erlaube Mitteilungen für Jarvis unter Einstellungen › Mitteilungen.");
+  const reg = await navigator.serviceWorker.register("sw.js");
+  await navigator.serviceWorker.ready;
+  const k = await api({ action: "push_key" });
+  if (!k || !k.key) throw new Error("Der Worker kennt Erinnerungen noch nicht. Bitte den neuen Worker einspielen.");
+  let sub = await reg.pushManager.getSubscription();
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: pU8(k.key) });
+  const r = await api({ action: "push_sub", sub: sub.toJSON(), reminders: pRems() });
+  if (!r || !r.id) throw new Error((r && r.error && r.error.message) || "Anmeldung fehlgeschlagen");
+  pcfg.on = true; pcfg.id = r.id; pcfg.last = ""; pSave();
+  rmSync(true);
+}
+async function pDisable() {
+  try { await api({ action: "push_off", id: pcfg.id }); } catch (e) {}
+  try { const reg = await navigator.serviceWorker.getRegistration(); const s = reg && await reg.pushManager.getSubscription(); if (s) await s.unsubscribe(); } catch (e) {}
+  pcfg.on = false; pcfg.id = ""; pcfg.last = ""; pSave();
+}
+function pushSettingsUI() {
+  const b = document.getElementById("setbox"); if (!b) return;
+  const old = document.getElementById("pushbox"); if (old) old.remove();
+  const w = document.createElement("div"); w.id = "pushbox";
+  const msg = document.createElement("div"); msg.className = "hsub"; msg.style.cssText = "font-size:13px;margin:6px 0";
+  w.innerHTML = '<div class="mh" style="margin-top:14px">Erinnerungen</div><div class="hsub" style="font-size:13px;opacity:.6">Jarvis meldet sich von selbst bei fälligen Aufgaben, Kalenderterminen, Rechnungen und deinem Lernziel, auch wenn die App zu ist.</div>';
+  const acts = document.createElement("div"); acts.className = "acts"; w.appendChild(acts);
+  const mkb = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = () => fn(x); host.appendChild(x); return x; };
+  if (!pcfg.on) {
+    mkb(acts, "Erinnerungen aktivieren", async x => { x.disabled = true; msg.textContent = "richtet ein..."; try { await pEnable(); buildSettings(); } catch (e) { msg.textContent = e.message; x.disabled = false; } });
+    if (!pSupported()) msg.textContent = pStandalone() ? "Dieses Gerät unterstützt keine Erinnerungen." : "Zum Aktivieren Jarvis vom Home-Bildschirm öffnen (iOS 16.4 oder neuer).";
+  } else {
+    mkb(acts, "Test senden", async x => { x.disabled = true; msg.textContent = "sendet..."; try { const r = await api({ action: "push_test", id: pcfg.id }); msg.textContent = r.gone ? "Gerät nicht mehr angemeldet. Bitte neu aktivieren." : (r.status >= 200 && r.status < 300) ? "Test gesendet. Es sollte gleich eine Mitteilung erscheinen. (" + (r.n || 0) + " Erinnerungen geplant)" : "Fehler beim Senden (Status " + r.status + (r.err ? ", " + r.err : "") + ")."; } catch (e) { msg.textContent = e.message; } x.disabled = false; });
+    mkb(acts, "Ausschalten", async x => { x.disabled = true; await pDisable(); buildSettings(); });
+    const cr = document.createElement("div"); cr.className = "chips"; cr.style.cssText = "flex-wrap:wrap;margin:8px 0";
+    [["t", "Aufgaben"], ["c", "Kalender"], ["b", "Büro"], ["l", "Lernziel"]].forEach(o => { const c = document.createElement("button"); c.className = "chip" + (pcfg[o[0]] ? " on" : ""); c.textContent = o[1]; c.onclick = () => { pcfg[o[0]] = pcfg[o[0]] ? 0 : 1; pSave(); c.classList.toggle("on", !!pcfg[o[0]]); rmSync(true); }; cr.appendChild(c); });
+    w.appendChild(cr);
+    const tr = document.createElement("div"); tr.style.cssText = "display:flex;gap:10px;flex-wrap:wrap;font-size:13px;align-items:center";
+    const tf = (l, k) => { const lb = document.createElement("label"); lb.textContent = l + " "; const i = document.createElement("input"); i.type = "time"; i.value = pcfg[k]; i.style.cssText = "padding:6px 8px;border-radius:10px;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.06);color:#fff;font:inherit;font-size:14px"; i.onchange = () => { if (i.value) { pcfg[k] = i.value; pSave(); rmSync(true); } }; lb.appendChild(i); tr.appendChild(lb); };
+    tf("Aufgaben um", "taskAt"); tf("Lernziel um", "learnAt");
+    w.appendChild(tr);
+    msg.textContent = "Aktiv auf diesem Gerät. Der Kalender wird beim Öffnen der App aktualisiert.";
+  }
+  w.appendChild(msg);
+  const ref = document.getElementById("fidmsg");
+  if (ref) b.insertBefore(w, ref); else b.appendChild(w);
+}
+{ const _bs = buildSettings; buildSettings = function () { _bs(); try { pushSettingsUI(); } catch (e) { console.error(e); } }; }
+try { if (pcfg.on && pSupported()) { navigator.serviceWorker.register("sw.js").catch(() => {}); setTimeout(() => rmSync(true), 4000); setInterval(() => rmSync(false), 90000); document.addEventListener("visibilitychange", () => { if (document.hidden) rmSync(false); }); } } catch (e) {}
 
 /* ---- Einstiegsfragen ---- */
 const OQ = [
