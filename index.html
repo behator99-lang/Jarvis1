@@ -2214,7 +2214,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v34</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v35</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -2738,11 +2738,13 @@ function drawEvE() {
 
 async function findEvents() {
   const go = document.getElementById("evgo"), res = document.getElementById("evres"), core = document.getElementById("core");
+  if (!go || !res) return;
+  const st = t => { res.innerHTML = '<div class="th" style="margin-top:18px"><span class="dot"></span>' + esc(t) + "</div>"; };
   if (!evCity) { res.innerHTML = '<div class="empty">Gib zuerst eine Stadt ein oder tippe auf „Standort“.</div>'; res.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
   go.disabled = true;
   go.textContent = "Suche läuft...";
-  core.classList.add("busy");
-  res.innerHTML = '<div class="th" style="margin-top:18px"><span class="dot"></span>Jarvis sucht Events in ' + esc(evCity) + '... das kann bis zu 30 Sekunden dauern.</div>';
+  try { core.classList.add("busy"); } catch (e) {}
+  st("1/3 Suche wird gestartet (bis zu 30 Sekunden)...");
   res.scrollIntoView({ behavior: "smooth", block: "center" });
   try {
     const rg = evRange();
@@ -2755,21 +2757,28 @@ async function findEvents() {
       }
     }
     const sys = "Du suchst mit der Websuche echte Veranstaltungen. Ort: " + evCity + " und Umgebung (bis etwa 30 km). Zeitraum: " + rg[0] + " bis " + rg[1] + ". Interessen: " + (evI.join(", ") || "alles Interessante") + ". Nimm nur Veranstaltungen, die du in den Suchergebnissen gefunden hast und die im Zeitraum liegen; erfinde nichts. Passe die Auswahl an das Alter im Nutzerprofil an."+ party + " Antworte AUSSCHLIESSLICH mit einem JSON-Array aus höchstens 6 Objekten: {\"t\":\"Titel\",\"d\":\"Datum und Uhrzeit lesbar, zum Beispiel Sa 31.10., 19 Uhr\",\"iso\":\"YYYY-MM-DDTHH:MM Startzeit oder leer\",\"o\":\"Ort\",\"w\":\"höchstens 15 Wörter, worum es geht\",\"u\":\"URL der Quelle aus den Suchergebnissen oder leer\"}. Keine Anführungszeichen innerhalb der Texte. Wenn du nichts findest: [].";
+    st("2/3 Anfrage an Jarvis gesendet, Websuche läuft...");
     const data = await api({ messages: [{ role: "user", content: "Heute ist " + new Date().toLocaleDateString("de-DE") + ". Suche Events." }], system: sys, mode: "search" });
     if (data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || "API-Fehler"));
     const txt = (data.content || []).filter(b => b.type === "text").map(b => b.text).join("");
-    let arr = [];
-    try { arr = fJson(txt, "[", "]").filter(x => x && x.t); } catch (e) { if (!/\[\s*\]/.test(txt)) throw e; }
-    evRes = { t: Date.now(), city: evCity, items: arr.slice(0, 6) };
-    save("jarvis_evres", evRes);
-    drawEvRes(evRes);
+    st("3/3 Antwort erhalten (" + txt.length + " Zeichen), wird ausgewertet...");
+    if (!txt.trim()) throw new Error("Jarvis hat keine Antwort geliefert (Grund: " + (data.stop_reason || "unbekannt") + "). Bitte nochmal tippen.");
+    let arr = null;
+    try { arr = fJson(txt, "[", "]").filter(x => x && x.t); } catch (e) { if (/\[\s*\]/.test(txt)) arr = []; }
+    if (arr === null) {
+      res.innerHTML = '<div class="evc"><h3>Jarvis schreibt</h3><p>' + fmt(txt) + '</p></div><div class="empty">Die Antwort war nicht als Liste lesbar. Tippe nochmal auf „Events suchen“.</div>';
+    } else {
+      evRes = { t: Date.now(), city: evCity, items: arr.slice(0, 6) };
+      save("jarvis_evres", evRes);
+      drawEvRes(evRes);
+    }
     res.scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (e) {
-    res.innerHTML = '<div class="empty">Fehler: ' + esc(e.message) + ". Tippe nochmal auf „Events suchen“.</div>";
+    res.innerHTML = '<div class="empty">Fehler: ' + esc(e && e.message ? e.message : String(e)) + ". Tippe nochmal auf „Events suchen“.</div>";
   }
   go.disabled = false;
   go.textContent = "Events suchen";
-  core.classList.remove("busy");
+  try { core.classList.remove("busy"); } catch (e) {}
 }
 
 function evCard(x) {
@@ -3014,6 +3023,8 @@ document.getElementById("onbskip").onclick = () => closeOnb(false);
 try { if (!prof || !prof.done) openOnb(); } catch (e) {}
 try { initLock(); } catch (e) {}
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pullSync(); });
+window.addEventListener("error", ev => { try { const r = document.getElementById("evres"); if (r && cur === "ev") r.innerHTML = '<div class="empty">Technischer Fehler: ' + esc(ev.message || "unbekannt") + "</div>"; } catch (e) {} });
+window.addEventListener("unhandledrejection", ev => { try { const r = document.getElementById("evres"); if (r && cur === "ev") r.innerHTML = '<div class="empty">Technischer Fehler: ' + esc((ev.reason && ev.reason.message) || "unbekannt") + "</div>"; } catch (e) {} });
 </script>
 </body>
 </html>
