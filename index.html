@@ -481,15 +481,37 @@
   .fprich p.fph { font-weight: 600; margin-top: 12px; color: var(--a2); }
   .fprich ul { margin: 4px 0 8px; padding-left: 20px; }
   .fprich li { font-size: 14px; line-height: 1.5; margin: 3px 0; }
+
+  .hg { display: flex; gap: 6px; align-items: center; min-width: 80px; }
+  .hg.r { justify-content: flex-end; }
+  header .mini .ic { width: 17px; height: 17px; }
+  #vc { display: none; position: fixed; inset: 0; z-index: 7000; flex-direction: column; align-items: center; justify-content: space-between; padding: calc(env(safe-area-inset-top) + 18px) 22px calc(env(safe-area-inset-bottom) + 26px); background: radial-gradient(120% 60% at 50% 25%, rgba(143,191,159,.35) 0%, transparent 70%), #04100a; color: #eef2ee; }
+  #vc.on { display: flex; }
+  .vctop { width: 100%; max-width: 560px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
+  #vcweb { height: 30px; padding: 0 14px; border-radius: 15px; font-size: 13px; letter-spacing: 0; text-transform: none; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.16); color: #eef2ee; }
+  #vcweb.on { background: #8fbf9f; border-color: #8fbf9f; color: #04100a; font-weight: 600; }
+  .vcmid { display: flex; flex-direction: column; align-items: center; }
+  .vcorb { width: 170px; height: 170px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #cfe8d6 0%, #8fbf9f 30%, rgba(143,191,159,.45) 65%, #04100a 100%); box-shadow: 0 0 60px rgba(143,191,159,.45), 0 0 110px rgba(143,191,159,.2), inset -12px -16px 34px rgba(0,0,0,.35); cursor: pointer; }
+  .vcorb.listen { animation: vcl 1.8s ease-in-out infinite; }
+  .vcorb.think { animation: vct 1.1s ease-in-out infinite; opacity: .75; }
+  .vcorb.speak { animation: vcs .7s ease-in-out infinite; }
+  @keyframes vcl { 50% { transform: scale(1.05); box-shadow: 0 0 80px rgba(143,191,159,.6), 0 0 130px rgba(143,191,159,.25); } }
+  @keyframes vct { 50% { transform: scale(.94); opacity: .5; } }
+  @keyframes vcs { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+  #vcst { text-align: center; opacity: .7; margin-top: 26px; font-size: 15px; min-height: 22px; }
+  .vctx { width: 100%; max-width: 560px; text-align: center; min-height: 130px; }
+  #vcyou { opacity: .55; font-size: 15px; margin-bottom: 10px; }
+  #vcre { font-size: 17px; line-height: 1.45; }
+  .vcend { height: 48px; padding: 0 38px; border-radius: 24px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.22); color: #fff; font-size: 16px; }
 </style>
 </head>
 <body>
 <div id="onb"><div class="in"><div class="orb" style="margin:0 auto"></div><h2>Willkommen</h2><div class="hsub" style="text-align:center">Ein paar kurze Fragen, damit Jarvis besser zu dir passt. Die Angaben bleiben auf deinem Gerät und du kannst sie jederzeit ändern.</div><div id="onbf"></div><button class="cta" id="onbgo" style="margin-top:26px">Los geht's</button><button class="smallbtn" id="onbskip" style="display:block;margin:14px auto 0">Überspringen</button></div></div>
 <div id="lock"><div class="orb"></div><h2>Jarvis</h2><div class="hsub">Gesperrt</div><button class="cta" id="unlockbtn" style="max-width:280px;margin-top:22px">Mit Face ID entsperren</button><button class="smallbtn" id="lockoff" style="margin-top:14px">Face ID ausschalten (Zugangscode)</button><div class="hsub" id="lockmsg" style="margin-top:12px;max-width:300px"></div></div>
 <header>
-  <button class="mini spk" id="spk" onclick="toggleSpeak()"></button>
+  <div class="hg"><button class="mini spk" id="spk" onclick="toggleSpeak()"></button><button class="mini" id="vcb" onclick="vcStart()" aria-label="Gespräch starten"><svg class="ic" viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg></button></div>
   <div class="pill"><span class="core" id="core"></span><h1 id="ttl">JARVIS</h1></div>
-  <button class="mini" id="newbtn" onclick="newChat()">＋</button>
+  <div class="hg r"><button class="mini" id="newbtn" onclick="newChat()">＋</button><span style="width:40px"></span></div>
 </header>
 <div id="chat"></div>
 <div id="search" style="display:none"></div>
@@ -533,6 +555,7 @@
   <div id="ncal" style="display:none"><div class="tcard wide" id="tc-ev"></div><div id="ev-c"></div><div class="fq" style="margin-top:20px">Neuer Termin</div><div id="ev-t"></div></div>
   <div class="addrow"><input id="nin" placeholder="Neue Notiz..."><input type="date" id="ndue" style="display:none" title="Fällig am"><button onclick="addItem()">+</button></div>
 </div>
+<div id="vc"><div class="vctop"><span>Gespräch</span><button id="vcweb" onclick="vcToggleWeb()">Websuche aus</button></div><div class="vcmid"><div class="vcorb" id="vcorb" onclick="vcTap()"></div><div id="vcst"></div></div><div class="vctx"><div id="vcyou"></div><div id="vcre"></div></div><button class="vcend" onclick="vcEnd()">Beenden</button></div>
 <div id="preview"><img id="pimg"><button class="x" onclick="clearImg()">✕</button></div>
 <div id="bar">
   <label class="photo" for="file"><svg class="ic" viewBox="0 0 24 24"><path d="M4 8h3l2-2.5h6L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/><circle cx="12" cy="13" r="3.5"/></svg></label>
@@ -800,6 +823,7 @@ function addItem() {
   renderNotes();
 }
 
+var vcOn = false, vcWeb = false;
 let speakOn = load("jarvis_speak", false) === true;
 let rec = null;
 let recOn = false;
@@ -817,6 +841,7 @@ function toggleSpeak() {
 }
 
 function speak(text, force) {
+  if (vcOn) return;
   if ((!speakOn && !force) || !window.speechSynthesis) return;
   speechSynthesis.cancel();
   const clean = String(text).replace(/\*\*/g, "").replace(/`/g, "").replace(/https?:\/\/\S+/g, "");
@@ -965,7 +990,7 @@ function saveHistory(t) {
 function greetWord() { const h = new Date().getHours(); return h < 11 ? "Guten Morgen" : h < 18 ? "Guten Tag" : "Guten Abend"; }
 const HERO = {
   chat: { sub: "Wobei kann ich dir helfen?", chips: [
-    { l: "📝 Notiz speichern", fill: "Notiz: " }, { l: "✅ Aufgabe anlegen", fill: "Aufgabe: " },
+    { l: "🎙️ Gespräch starten", voice: true }, { l: "📝 Notiz speichern", fill: "Notiz: " }, { l: "✅ Aufgabe anlegen", fill: "Aufgabe: " },
     { l: "📰 Nachrichten heute", fill: "Was sind heute die wichtigsten Nachrichten?", auto: true, web: true }, { l: "🌦️ Wetter", fill: "Wetter in ", web: true },
     { l: "💡 Erkläre mir…", fill: "Erkläre mir " }, { l: "🧠 Was weißt du über mich?", fill: "Was weißt du über mich?", auto: true }] },
   search: { sub: "Was soll ich für dich nachschlagen?", chips: [
@@ -989,6 +1014,7 @@ function makeHero(t) {
     b.onclick = () => {
       if (x.mode) { schoolMode = x.mode; save("jarvis_mode", x.mode); drawChips(); }
       if (x.pick) { try { document.getElementById("file").click(); } catch (e) {} return; }
+      if (x.voice) { vcStart(); return; }
       if (x.web) { webOn = true; webUi(); }
       const i = document.getElementById("in");
       i.value = x.fill;
@@ -1127,6 +1153,7 @@ function show(t) {
   document.getElementById("bar").style.display = (t === "notes" || t === "biz" || t === "found" || t === "mk" || t === "ev" || t === "bu") ? "none" : "flex";
   document.querySelector(".photo").style.display = (t === "chat" || t === "school") ? "flex" : "none";
   document.getElementById("webb").style.display = t === "chat" ? "flex" : "none";
+  document.getElementById("vcb").style.visibility = t === "chat" ? "visible" : "hidden";
   try { webUi(); } catch (e) {}
   document.getElementById("newbtn").style.visibility = tabs[t] ? "visible" : "hidden";
   document.getElementById("in").placeholder = PLACE[t] || "";
@@ -1244,7 +1271,7 @@ async function send() {
   add(text, "user", img ? img.url : null);
   T.h.push(img ? { role: "user", content: text, img: img.data, hadImg: true } : { role: "user", content: text });
   clearImg();
-  const web = t === "chat" && webOn && !img;
+  const web = t === "chat" && (webOn || vcWeb) && !img;
   if (web) { webOn = false; webUi(); }
   const wait = addWait(t === "search" || web ? "sucht..." : t === "school" ? "überlegt..." : "denkt nach...", "bot");
   btn.disabled = true;
@@ -1253,7 +1280,7 @@ async function send() {
     const res = await fetch(API_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", "X-Jarvis-Code": getCode() },
-      body: JSON.stringify({ messages: buildMsgs(T.h), system: buildSystem(web ? "search" : t) + (function () { try { var e = profCtx(), b = buildSystem(web ? "search" : t); return e && b.length + e.length < 11500 ? e : ""; } catch (x) { return ""; } })(), mode: t === "search" || web ? "search" : "chat" })
+      body: JSON.stringify({ messages: buildMsgs(T.h), system: buildSystem(web ? "search" : t) + (vcOn ? VCHINT : "") + (function () { try { var e = profCtx(), b = buildSystem(web ? "search" : t); return e && b.length + e.length < 11500 ? e : ""; } catch (x) { return ""; } })(), mode: t === "search" || web ? "search" : "chat" })
     });
     if (res.status === 401) {
       try { localStorage.removeItem("jarvis_code"); } catch (e) {}
@@ -2502,7 +2529,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v45</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v46</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -4667,6 +4694,120 @@ function pushSettingsUI() {
 }
 { const _bs = buildSettings; buildSettings = function () { _bs(); try { pushSettingsUI(); } catch (e) { console.error(e); } }; }
 try { if (pcfg.on && pSupported()) { navigator.serviceWorker.register("sw.js").catch(() => {}); setTimeout(() => rmSync(true), 4000); setInterval(() => rmSync(false), 90000); document.addEventListener("visibilitychange", () => { if (document.hidden) rmSync(false); }); } } catch (e) {}
+
+/* ---- Sprachgespräch ---- */
+const VCHINT = "\n\nDu führst gerade ein Sprachgespräch. Antworte in höchstens 2-3 kurzen, natürlich gesprochenen Sätzen. Keine Listen, keine Sternchen, keine Formatierung, keine Links, keine Emojis.";
+let vcRec = null, vcEmpty = 0, vcBusy = false, vcWake = null, vcTok = 0, vcMode = "";
+const vcEl = id => document.getElementById(id);
+function vcSet(mode, text) {
+  vcMode = mode;
+  const o = vcEl("vcorb"); if (o) o.className = "vcorb " + mode;
+  if (text != null && vcEl("vcst")) vcEl("vcst").textContent = text;
+}
+function vcClean(t) { return String(t).replace(/\*\*/g, "").replace(/`/g, "").replace(/https?:\/\/\S+/g, "").replace(/^[-•*]\s+/gm, "").replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}]/gu, "").replace(/\s+/g, " ").trim(); }
+function vcVoice() {
+  const vs = (window.speechSynthesis ? speechSynthesis.getVoices() : []).filter(v => v.lang && v.lang.toLowerCase().indexOf("de") === 0);
+  return vs.find(v => /premium|enhanced|siri/i.test(v.name)) || vs.find(v => /de[-_]DE/i.test(v.lang)) || vs[0] || null;
+}
+async function vcStart() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR || !window.speechSynthesis) { alert("Das Sprachgespräch wird in diesem Browser nicht unterstützt. Öffne Jarvis in Safari oder vom Home-Bildschirm."); return; }
+  if (vcOn) return;
+  show("chat");
+  vcOn = true; vcEmpty = 0; vcBusy = false;
+  vcEl("vc").classList.add("on");
+  vcEl("vcyou").textContent = ""; vcEl("vcre").textContent = "";
+  vcWebUi();
+  try { if (navigator.wakeLock) vcWake = await navigator.wakeLock.request("screen"); } catch (e) {}
+  vcSpeak("Ich höre zu.", true);
+}
+function vcEnd() {
+  vcOn = false; vcTok++;
+  try { if (vcRec) { vcRec.onend = null; vcRec.onerror = null; vcRec.abort(); } } catch (e) {}
+  vcRec = null;
+  try { speechSynthesis.cancel(); } catch (e) {}
+  try { if (vcWake) vcWake.release(); } catch (e) {}
+  vcWake = null;
+  vcEl("vc").classList.remove("on");
+  try { document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight; } catch (e) {}
+}
+function vcWebUi() { const b = vcEl("vcweb"); if (b) { b.classList.toggle("on", vcWeb); b.textContent = vcWeb ? "Websuche an" : "Websuche aus"; } }
+function vcToggleWeb() { vcWeb = !vcWeb; vcWebUi(); }
+function vcTap() {
+  if (!vcOn) return;
+  if (vcMode === "speak") { vcTok++; try { speechSynthesis.cancel(); } catch (e) {} vcListen(); }
+  else if (vcMode === "idle") { vcEmpty = 0; vcListen(); }
+}
+function vcListen() {
+  if (!vcOn) return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  vcSet("listen", "Ich höre zu...");
+  let heard = "", done = false;
+  const r = new SR();
+  vcRec = r;
+  r.lang = "de-DE"; r.interimResults = true; r.continuous = false;
+  r.onresult = e => { let t = ""; for (let k = 0; k < e.results.length; k++) t += e.results[k][0].transcript; heard = t; vcEl("vcyou").textContent = t; };
+  const fin = () => {
+    if (done || !vcOn || vcRec !== r) return;
+    done = true;
+    if (heard.trim()) { vcEmpty = 0; vcAsk(heard.trim()); }
+    else if (++vcEmpty >= 3) vcSet("idle", "Ich höre nichts. Tippe auf den Kreis, um weiterzusprechen.");
+    else setTimeout(vcListen, 250);
+  };
+  r.onend = fin;
+  r.onerror = e => {
+    if (e && (e.error === "not-allowed" || e.error === "service-not-allowed")) { done = true; vcEnd(); alert("Mikrofon nicht erlaubt. Erlaube Mikrofon und Spracherkennung für Jarvis in den iPhone-Einstellungen."); return; }
+    fin();
+  };
+  try { r.start(); } catch (e) { setTimeout(vcListen, 500); }
+}
+async function vcAsk(text) {
+  vcBusy = true;
+  vcSet("think", "Denke nach...");
+  vcEl("vcyou").textContent = text;
+  const T = tabs.chat, before = T.h.length;
+  vcEl("in").value = text;
+  try { await send(); } catch (e) {}
+  vcBusy = false;
+  if (!vcOn) return;
+  let reply = "";
+  const last = T.h[T.h.length - 1];
+  if (T.h.length > before && last && last.role === "assistant") reply = last.content;
+  else {
+    const bots = document.querySelectorAll("#chat .msg.bot");
+    const b = bots[bots.length - 1];
+    reply = b ? b.textContent : "";
+    if (/^Fehler/.test(reply)) reply = "Da ist ein Fehler passiert. Versuch es gleich nochmal.";
+  }
+  vcSpeak(reply || "Erledigt.");
+}
+function vcChunks(t) {
+  const out = []; let cur = "";
+  t.split(/(?<=[.!?])\s+/).forEach(s => { if ((cur + " " + s).length > 170 && cur) { out.push(cur); cur = s; } else cur = cur ? cur + " " + s : s; });
+  if (cur) out.push(cur);
+  return out;
+}
+function vcSpeak(text, quick) {
+  if (!vcOn) return;
+  let t = vcClean(text);
+  if (!quick && t.length > 520) { t = t.slice(0, 520); const p = Math.max(t.lastIndexOf(". "), t.lastIndexOf("! "), t.lastIndexOf("? ")); if (p > 200) t = t.slice(0, p + 1); t += " Den Rest siehst du im Chat."; }
+  vcEl("vcre").textContent = quick ? "" : t;
+  vcSet("speak", "Jarvis spricht... (tippen zum Unterbrechen)");
+  const tok = ++vcTok;
+  const next = () => { if (tok === vcTok && vcOn) { vcTok++; vcListen(); } };
+  const parts = vcChunks(t);
+  if (!parts.length || !window.speechSynthesis) { next(); return; }
+  try { speechSynthesis.cancel(); } catch (e) {}
+  const voice = vcVoice();
+  parts.forEach((p, i) => {
+    const u = new SpeechSynthesisUtterance(p);
+    u.lang = "de-DE"; u.rate = 1.03;
+    if (voice) u.voice = voice;
+    if (i === parts.length - 1) { u.onend = next; u.onerror = next; }
+    speechSynthesis.speak(u);
+  });
+  setTimeout(() => { if (tok === vcTok && vcOn && vcMode === "speak") next(); }, t.length * 95 + 4000);
+}
 
 /* ---- Einstiegsfragen ---- */
 const OQ = [
