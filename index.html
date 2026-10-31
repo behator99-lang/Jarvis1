@@ -521,7 +521,7 @@
 <div id="chat"></div>
 <div id="search" style="display:none"></div>
 <div id="schoolwrap">
-  <div id="schoolctl"><div class="chips" id="subjchips"></div><div class="chips" id="modechips"></div></div>
+  <div id="schoolctl"><div class="chips" id="subjchips"></div><div class="chips" id="modechips"></div><div class="chips" id="hwrow" style="display:none"></div></div>
   <div id="school"></div>
 </div>
 <div id="found" style="display:none">
@@ -574,7 +574,7 @@
   <button class="tab on" id="tab-chat" onclick="show('chat')">Chat</button>
   <button class="tab" id="tab-search" onclick="show('search')" style="display:none">Suche</button>
   <button class="tab" id="tab-school" onclick="show('school')">Schule</button>
-  <button class="tab" id="tab-bu" onclick="show('bu')">Büro</button>
+  <button class="tab" id="tab-bu" onclick="show('bu')" style="display:none">Büro</button>
   <button class="tab" id="tab-found" onclick="show('found')">Startup</button>
   <button class="tab" id="tab-mk" onclick="show('mk')">Märkte</button>
   <button class="tab" id="tab-ev" onclick="show('ev')" style="display:none">Events</button>
@@ -617,24 +617,37 @@ function saveData() {
   syncTimer = setTimeout(pushSync, 800);
 }
 
+const AGE_U16 = ["unter 14", "14–15", "unter 16"];
+const AGE_MINOR = AGE_U16.concat(["16–17"]);
+const ageU16 = () => !!(prof && AGE_U16.indexOf(prof.age) >= 0);
+const ageMinor = () => !!(prof && AGE_MINOR.indexOf(prof.age) >= 0);
 function profCtx() {
   if (!prof) return "";
   const P = [];
   if (prof.name) P.push("Name: " + prof.name);
-  if (prof.age) P.push("Altersgruppe: " + prof.age);
+  if (prof.age) P.push("Alter: " + prof.age);
   if (prof.role) P.push("Tätigkeit: " + prof.role);
-  if (prof.field) P.push("Bereich/Branche: " + prof.field);
+  if (prof.stype) P.push("Schulform: " + prof.stype);
+  if (prof.grade) P.push((/Schule/.test(prof.role || "") ? "Klasse: " : /Ausbildung/.test(prof.role || "") ? "Lehrjahr: " : "Semester: ") + prof.grade);
+  if (prof.field) P.push((/Schule/.test(prof.role || "") ? "Fächer: " : /Studium/.test(prof.role || "") ? "Studienfach: " : "Bereich/Branche: ") + prof.field);
+  if (prof.goal) P.push("Ziel: " + prof.goal);
   if (prof.level) P.push("Vorwissen: " + prof.level);
   if (prof.use && prof.use.length) P.push("nutzt die KI für: " + prof.use.join(", "));
   if (!P.length && !prof.tone && !prof.len) return "";
   let t = "\n\nNUTZERPROFIL (passe Inhalt, Beispiele, Wortwahl und Tiefe daran an, ohne das Profil aufzuzählen): " + P.join("; ") + ".";
   if (prof.tone) t += " Ton: " + prof.tone + ".";
   if (prof.len) t += " Antwortlänge: " + prof.len + ".";
-  if (prof.age === "unter 16") t += " Der Nutzer ist minderjährig: einfache, freundliche Sprache; bei Geld, Investieren oder Risiken auf Eltern oder Lehrkräfte hinweisen; keine konkreten Anlage- oder Handelsanleitungen.";
+  if (ageU16()) t += " Der Nutzer ist unter 16 und minderjährig: einfache, freundliche Sprache, kurze Sätze, Beispiele aus dem Schulalltag; bei Geld, Verträgen, Gewerbe oder Risiken auf Eltern oder Lehrkräfte hinweisen; keine konkreten Anlage-, Handels- oder Krypto-Anleitungen; keine Gewinnversprechen; bei Startup-Ideen nur altersgerechte Projekte (z. B. Schülerfirma, Hobby-Projekt, Taschengeld-Jobs).";
+  else if (ageMinor()) t += " Der Nutzer ist 16 oder 17 und minderjährig: klare, respektvolle Sprache wie bei einem Jugendlichen; keine konkreten Anlage-, Trading- oder Krypto-Anleitungen, nur Grundlagen; bei Verträgen, Gewerbe oder Gründung auf die Zustimmung der Eltern hinweisen; keine Gewinnversprechen.";
+  else if (/25–30|über 30|31–39|40–59|60\+/.test(prof.age || "")) t += " Der Nutzer ist erwachsen: sachlich, auf Augenhöhe.";
+  else if (/18–24|16–24/.test(prof.age || "")) t += " Der Nutzer ist junger Erwachsener: praxisnah, ohne Belehrung; bei Geld Risiken ehrlich nennen.";
+  if (/Schule/.test(prof.role || "") && (prof.grade || prof.stype)) t += " Passe den Stoff an Lehrplan und Niveau der Klasse/Schulform in Deutschland an: nicht über das Niveau hinausgehen, aber auf Wunsch vertiefen.";
+  if (/Studium/.test(prof.role || "") && prof.field) t += " Nutze Fachsprache und Beispiele aus dem Studienfach " + prof.field + (prof.grade ? " (Semester " + prof.grade + ")" : "") + ".";
+  if (/Ausbildung/.test(prof.role || "")) t += " Nutze Beispiele aus dem Ausbildungsalltag und achte auf Prüfungsrelevanz (IHK/HWK).";
   if (prof.level === "Anfänger") t += " Erkläre Fachbegriffe kurz beim ersten Gebrauch.";
   if (prof.level === "Profi") t += " Komm direkt zum Punkt, Fachbegriffe sind bekannt.";
   if (/Unternehmen|Selbstständig/.test(prof.role || "")) t += " Denke geschäftlich: Aufwand, Kosten, Kunden, Zeitersparnis.";
-  if (/Schule|Studium/.test(prof.role || "")) t += " Erkläre lernfreundlich, mit kleinen Beispielen.";
+  if (/Schule|Studium|Ausbildung/.test(prof.role || "")) t += " Erkläre lernfreundlich, mit kleinen Beispielen.";
   return t;
 }
 async function api(body) {
@@ -927,7 +940,7 @@ function addSources(el, list) {
 }
 
 const SUBJECTS = ["Mathe", "Wirtschaft", "Deutsch", "Englisch", "Geschichte", "Bio", "Chemie", "Physik", "Informatik", "Frei"];
-const MODES = { explain: "Erklären", quiz: "Quiz", cards: "Karten", plan: "Lernplan", talk: "Referat" };
+const MODES = { explain: "Erklären", hw: "Hausaufgabe", quiz: "Quiz", cards: "Karten", plan: "Lernplan", talk: "Referat" };
 let schoolSubject = load("jarvis_subject", "Mathe");
 let schoolMode = load("jarvis_mode", "explain");
 let useNotes = load("jarvis_usenotes", false) === true;
@@ -950,6 +963,7 @@ function notesText() { return notes.map(n => "- " + n.text).join("\n").slice(0, 
 function schoolSystem() {
   let s = "Du bist Jarvis im Lernmodus, ein geduldiger, motivierender Nachhilfelehrer. Du sprichst Deutsch und duzt den Nutzer. Fach: " + schoolSubject + ". Grundregel: Du hilfst beim Verstehen und gibst nicht einfach nur die fertige Lösung ab. Bei Aufgaben lässt du den Nutzer zuerst den nächsten Schritt versuchen, gibst gestufte Hinweise und zeigst die volle Lösung erst, wenn er es ausdrücklich verlangt oder nach zwei Versuchen nicht weiterkommt. Rechne sauber und prüfe Zwischenergebnisse. Kurze Absätze, keine Tabellen. Schreibe Formeln als Klartext, zum Beispiel 3x + 2 = 11. Wenn der Nutzer ein Foto schickt, lies die Aufgabe daraus ab und fasse sie kurz zusammen, bevor du hilfst.";
   if (schoolMode === "explain") s += "\n\nModus Erklären: Erkläre das Thema in einfachen Worten mit einem Alltagsbeispiel und stelle am Ende genau eine Kontrollfrage.";
+  if (schoolMode === "hw") s += "\n\nModus Hausaufgabe: Der Nutzer macht eine Hausaufgabe und soll sie selbst lösen können. Wenn er ein Foto oder den Aufgabentext schickt: 1) Fasse die Aufgabe in einem Satz zusammen. 2) Sage in einem Satz, welches Thema oder Verfahren dahintersteckt. 3) Gib NUR den ersten Hinweis (Stufe 1, ein Denkanstoß) und frage, was er als Nächstes versuchen würde. Gib nie mehrere Stufen auf einmal. Stufen: Hinweis 1 = Denkanstoß, Hinweis 2 = konkreter Ansatz oder Formel, Hinweis 3 = erster Rechenschritt gezeigt, dann Lösung. Bei Eingabe 'Hinweis' gehst du genau eine Stufe weiter, bei 'Nächster Schritt' zeigst du genau einen Schritt, bei 'Lösung zeigen' gibst du den vollständigen, nachvollziehbaren Lösungsweg mit Erklärung und am Ende eine ähnliche Übungsaufgabe. Schickt der Nutzer seinen eigenen Lösungsversuch (Text oder Foto), prüfe ihn Schritt für Schritt, lobe das Richtige, zeige nur den ERSTEN Fehler und frage, ob er ihn selbst findet. Schreibe nie ganze Aufsätze oder Texte, die der Nutzer als eigene Leistung abgeben könnte. Gib bei Textaufgaben Struktur und Fragen statt fertiger Sätze.";
   if (schoolMode === "quiz") s += "\n\nModus Quiz: Stelle immer nur EINE Frage und warte auf die Antwort. Bewerte sie knapp mit Begründung, dann kommt die nächste Frage, die Schwierigkeit steigt langsam. Nach 5 Fragen gibst du eine Auswertung mit Punkten und sagst, was wiederholt werden sollte. Nennt der Nutzer nur ein Thema, starte direkt mit Frage 1.";
   if (schoolMode === "plan") s += "\n\nModus Lernplan: Frage knapp nach Prüfungstermin, Themen und verfügbarer Zeit pro Tag, falls das noch fehlt. Erstelle dann einen realistischen Plan Tag für Tag mit Wiederholungen und Pausen.";
   if (schoolMode === "talk") s += "\n\nModus Referat: Führe Schritt für Schritt: erst Thema eingrenzen, dann Gliederung, dann Stichpunkte je Abschnitt, dann Einstieg und Schluss. Schreibe nicht das ganze Referat aus, biete Formulierungshilfen an und frage am Ende, ob du ihn zum Vortrag abfragen sollst.";
@@ -1050,6 +1064,7 @@ function fillToday() {
   try { const ov = bu.docs.filter(buOverdue); if (ov.length) rows.push(["Büro: " + ov.length + " Rechnung" + (ov.length > 1 ? "en" : "") + " überfällig", eur(ov.reduce((a, d) => a + buTot(d).gross, 0)), () => { show("bu"); buGo("fu"); }]); } catch (e) {}
   const nowc = lst.days[tdy] || 0, st = streak();
   if (nowc || st) rows.push(["Karteikarten", nowc + " / " + DAYGOAL + " · Serie " + st, () => { show("school"); }]);
+  try { if (bkDue()) rows.push(["Backup fällig", bkLast() ? "zuletzt " + buD(dkey(new Date(bkLast()))) : "noch nie", () => { exportAll(); }]); } catch (e) {}
   h.innerHTML = "<h3>Heute</h3>";
   if (!rows.length) { const e = document.createElement("div"); e.className = "tr"; e.style.cursor = "default"; e.innerHTML = "<span>Nichts geplant. Verbinde den Kalender oder lege Aufgaben an.</span>"; h.appendChild(e); }
   try {
@@ -1326,7 +1341,26 @@ function addSaveBtn(el, text) {
   el.appendChild(b);
 }
 
+function drawHw() {
+  const h = document.getElementById("hwrow");
+  if (!h) return;
+  h.innerHTML = "";
+  h.style.display = schoolMode === "hw" ? "flex" : "none";
+  if (schoolMode !== "hw") return;
+  [["Hinweis", "Hinweis"], ["Nächster Schritt", "Nächster Schritt"], ["Mein Versuch prüfen", "Prüfe meinen Lösungsversuch: "], ["Lösung zeigen", "Lösung zeigen"], ["Anders erklärt", "Erkläre den letzten Schritt anders und einfacher."]].forEach(x => {
+    const b = document.createElement("button");
+    b.className = "chip"; b.textContent = x[0];
+    b.onclick = () => {
+      const i = document.getElementById("in");
+      i.value = x[1];
+      if (x[0] === "Mein Versuch prüfen") { i.focus(); return; }
+      send();
+    };
+    h.appendChild(b);
+  });
+}
 function drawChips() {
+  try { setTimeout(drawHw, 0); } catch (e) {}
   const sc = document.getElementById("subjchips"), mc = document.getElementById("modechips");
   sc.innerHTML = ""; mc.innerHTML = "";
   SUBJECTS.concat(extraSubj).forEach(s => {
@@ -1353,7 +1387,7 @@ function drawChips() {
     const b = document.createElement("button");
     b.className = "chip" + (k === schoolMode ? " on" : "");
     b.textContent = MODES[k];
-    b.onclick = () => { schoolMode = k; save("jarvis_mode", k); drawChips(); };
+    b.onclick = () => { schoolMode = k; save("jarvis_mode", k); drawChips(); if (k === "plan") { try { examHome(); } catch (e) { console.error(e); } } };
     mc.appendChild(b);
   });
   const n = document.createElement("button");
@@ -2484,7 +2518,7 @@ function initLock() {
   if (document.documentElement.classList.contains("locked")) unlock();
 }
 
-function exportAll() {
+function exportAllOld() {
   const o = { app: "jarvis", v: 25, t: Date.now(), notes: notes, todos: todos, facts: facts, inv: inv, fav: fav, sp: sp, wl: load("jarvis_wl", []), ideas: fideas, decks: decks, lst: lst, prof: prof, subj: extraSubj, arch: arch, bu: bu };
   const blob = new Blob([JSON.stringify(o, null, 1)], { type: "application/json" });
   const a = document.createElement("a");
@@ -2496,7 +2530,7 @@ function exportAll() {
   fidMsg("Backup erstellt. Du findest die Datei in Dateien unter Downloads.");
 }
 
-function importAll(file) {
+function importAllOld(file) {
   const rd = new FileReader();
   rd.onload = () => {
     try {
@@ -2536,7 +2570,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v47</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v51</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -2555,6 +2589,9 @@ function buildSettings() {
   fi.onchange = e => { if (e.target.files[0]) importAll(e.target.files[0]); };
   lab.appendChild(fi);
   acts[2].appendChild(lab);
+  const bl = document.createElement("div"); bl.className = "hsub"; bl.style.cssText = "font-size:13px;opacity:.6;margin-top:8px";
+  bl.textContent = "Letztes Backup: " + (bkLast() ? new Date(bkLast()).toLocaleDateString("de-DE") : "noch nie") + ". Speichere die Datei in iCloud Drive (Dateien), nicht nur auf dem Gerät.";
+  acts[2].after(bl);
 }
 
 try { drawForm(); } catch (e) {}
@@ -2847,7 +2884,7 @@ function buildPlan() {
     if (year > 20000) tips.push("Bei etwa " + eur(year) + " Umsatz im Jahr musst du wahrscheinlich Umsatzsteuer abführen, die Kleinunternehmer-Regel gilt nur bis etwa 25.000 € (bitte aktuell prüfen).");
     const h1 = scen(1).hourly;
     if (h1 != null && h1 < 13.9) tips.push("Pro Stunde bleibt dir weniger, als ein Angestellter mit Mindestlohn bekommt (2026: 13,90 €, bitte prüfen). Am Anfang ist das normal. Auf Dauer solltest du Preis, Menge oder Zeitaufwand verbessern.");
-    if (prof && prof.age === "unter 16") tips.push("Du bist noch unter 16: Sprich vorher mit deinen Eltern. Für ein Gewerbe und Verträge brauchst du ihre Zustimmung.");
+    if (ageU16()) tips.push("Du bist noch unter 16: Sprich vorher mit deinen Eltern. Für ein Gewerbe und Verträge brauchst du ihre Zustimmung.");
     tips.push("Noch nicht eingerechnet: Steuern, Versicherungen und Zeit für Kundensuche. Plane dafür etwas Puffer ein.");
     note.innerHTML = tips.map(t => "• " + esc(t)).join("<br>");
     out.appendChild(note);
@@ -2907,7 +2944,7 @@ let evSub = "e";
 let evOpen = null;
 let evClubs = load("jarvis_clubs", "");
 let evAge = load("jarvis_evage", "");
-const evMinor = () => !!(prof && prof.age === "unter 16");
+const evMinor = () => ageU16();
 const EVI = ["Party & Clubs", "Konzerte", "Flohmärkte", "Messen", "Gründer & Business", "Sport", "Kultur & Kunst", "Feste & Märkte", "Workshops", "Familie & Kinder"];
 const EVT = ["Heute", "Wochenende", "7 Tage", "Dieser Monat"];
 
@@ -3019,7 +3056,7 @@ function drawEvE() {
       fh.appendChild(n);
     } else {
       lbl(fh, "Party-Alter");
-      chipRow(fh, ["ab 16", "ab 18", "egal"], o => (evAge || (prof && prof.age === "16–24" ? "ab 16" : "egal")) === o, o => { evAge = o; save("jarvis_evage", o); drawEvE(); });
+      chipRow(fh, ["ab 16", "ab 18", "egal"], o => (evAge || (prof && (prof.age === "16–24" || prof.age === "16–17") ? "ab 16" : "egal")) === o, o => { evAge = o; save("jarvis_evage", o); drawEvE(); });
       lbl(fh, "Clubs oder Veranstalter, die du kennst (optional)");
       const ci = document.createElement("input");
       ci.className = "rin"; ci.placeholder = "z. B. Name eines Clubs, durch Komma getrennt"; ci.value = evClubs;
@@ -3074,7 +3111,7 @@ async function findEvents() {
     if (evI.indexOf("Party & Clubs") >= 0) {
       if (evMinor()) party = " Der Nutzer ist unter 16: keine Club- oder Alkoholpartys, nur Jugendveranstaltungen (Jugenddisco, Schulfeste, Jugendzentrum).";
       else {
-        const ag = evAge || (prof && prof.age === "16–24" ? "ab 16" : "egal");
+        const ag = evAge || (prof && (prof.age === "16–24" || prof.age === "16–17") ? "ab 16" : "egal");
         party = " Suche auch Club- und Party-Veranstaltungen (Quellen zum Beispiel Club-Webseiten, Eventim, Ticketmaster, Resident Advisor, Partyguide, Facebook-Events; Instagram nur, wenn es in den Suchergebnissen steht). Mindestalter: " + ag + (ag === "ab 16" ? " (nur Veranstaltungen, bei denen 16-Jährige laut Ankündigung hinein dürfen)" : "") + ". Nenne das Mindestalter im Feld w, falls bekannt, und sage ehrlich, wenn es nicht angegeben ist." + (evClubs ? " Suche gezielt nach aktuellen Terminen dieser Orte: " + evClubs + "." : "");
       }
     }
@@ -3410,6 +3447,11 @@ function fillSchoolT() {
     const ex = calC.items.filter(x => /klausur|prüfung|pruefung|klassenarbeit|test|abitur|referat|vokabel/i.test(x.t) && x.s.slice(0, 10) >= tdy && x.s.slice(0, 10) <= lim)[0];
     if (ex) { const dd = Math.round((new Date(ex.s.slice(0, 10) + "T12:00:00") - new Date(tdy + "T12:00:00")) / 86400000); rows.unshift([ex.t, dd === 0 ? "heute" : dd === 1 ? "morgen" : "in " + dd + " Tagen", () => { show("notes"); subTab("c"); }]); }
   }
+  try {
+    const up = exams.filter(x => exDays(x.date) >= 0).sort((a, b) => a.date.localeCompare(b.date)).slice(0, 2);
+    up.slice().reverse().forEach(x => { const dd = exDays(x.date); rows.unshift([x.title, (dd === 0 ? "heute" : dd === 1 ? "morgen" : "in " + dd + " Tagen") + " · " + exProg(x) + "/" + x.days.length, () => { schoolMode = "plan"; save("jarvis_mode", "plan"); try { drawChips(); } catch (e) {} examHome(x.id); }]); });
+    if (!exams.length) rows.push(["Klausurplan anlegen", "→", () => { schoolMode = "plan"; save("jarvis_mode", "plan"); try { drawChips(); } catch (e) {} examHome(); }]);
+  } catch (e) {}
   (rq.school || []).slice(0, 2).forEach(q => rows.push([q, "weiter", () => { const i = document.getElementById("in"); i.value = q.replace(/^[^:]*:\s*/, ""); i.focus(); }]));
   tFill("tc-school", "Heute lernen", rows);
 }
@@ -3538,8 +3580,8 @@ const BUCATS = ["Material & Waren", "Fahrzeug & Tanken", "Büro & Technik", "Tel
 const BUUNITS = ["Std.", "Stk.", "pauschal", "Tag", "m²", "m", "km", "kg"];
 let bu = load("jarvis_bu", null);
 if (!bu || typeof bu !== "object") bu = {};
-bu.firm = Object.assign({ name: "", owner: "", addr1: "", addr2: "", mail: "", tel: "", taxno: "", vatid: "", bank: "", iban: "", bic: "", small: false, field: "", know: "", payDays: 14, offDays: 30, rate: 60, preRe: "RE", preAn: "AN", noteRe: "Vielen Dank für Ihren Auftrag!", noteAn: "Wir freuen uns auf Ihre Rückmeldung." }, bu.firm || {});
-["cust", "cat", "docs", "rec", "tm"].forEach(k => { if (!Array.isArray(bu[k])) bu[k] = []; });
+bu.firm = Object.assign({ name: "", owner: "", addr1: "", addr2: "", mail: "", tel: "", taxno: "", vatid: "", bank: "", iban: "", bic: "", small: false, field: "", know: "", payDays: 14, offDays: 30, rate: 60, base: 1.52, dunFee: 0, preRe: "RE", preAn: "AN", noteRe: "Vielen Dank für Ihren Auftrag!", noteAn: "Wir freuen uns auf Ihre Rückmeldung." }, bu.firm || {});
+["cust", "cat", "docs", "rec", "tm", "ign"].forEach(k => { if (!Array.isArray(bu[k])) bu[k] = []; });
 if (!bu.cnt || typeof bu.cnt !== "object") bu.cnt = {};
 if (!("run" in bu)) bu.run = null;
 function buSave() { save("jarvis_bu", bu); try { fillAll(); } catch (e) {} }
@@ -3790,6 +3832,7 @@ function vStart(h) {
     w.appendChild(BB("Jetzt im Setup eintragen", () => buGo("set")));
     h.appendChild(w);
   }
+  try { if ((bu.docs.length || bu.rec.length) && bkDue()) { const w = E("div", "bu-c bu-warn"); w.appendChild(E("div", "bu-t", "Backup fällig")); w.appendChild(E("div", "bu-s", "Deine Büro-Daten liegen nur auf diesem Gerät. Sichere sie jetzt, am besten in iCloud Drive.")); w.appendChild(BB("Backup jetzt speichern", async () => { buMsg(w, await exportAll()); })); h.appendChild(w); } } catch (e) {}
   const acts = E("div", "acts");
   acts.style.margin = "8px 0";
   acts.appendChild(BB("Neues Angebot", () => { const d = buNewDoc("AN", ""); buGo("doc", { k: "doc", id: d.id }); }));
@@ -3797,6 +3840,7 @@ function vStart(h) {
   acts.appendChild(BB("Beleg scannen", () => buGo("rec", { k: "scan" })));
   acts.appendChild(BB("Zeit", () => buGo("tm")));
   acts.appendChild(BB("E-Rechnung lesen", () => buGo("rec", { k: "ere" })));
+  acts.appendChild(BB("Kontoauszug", () => buGo("rec", { k: "bank" })));
   h.appendChild(acts);
   const g = E("div", "bu-g");
   const K = (l, v, s, warn, go) => { const k = E("div", "bu-k" + (warn ? " warn" : "")); k.appendChild(E("small", null, l)); k.appendChild(E("b", null, v)); if (s) k.appendChild(E("em", null, s)); if (go) { k.style.cursor = "pointer"; k.onclick = go; } g.appendChild(k); };
@@ -4047,11 +4091,13 @@ function vEdit(h, d) {
 /* ---- Belege ---- */
 function vRec(h) {
   if (bs.sub && bs.sub.k === "ere") return vEre(h);
+  if (bs.sub && bs.sub.k === "bank") return vBank(h);
   if (bs.sub && bs.sub.k === "scan") return vScan(h, null);
   if (bs.sub && bs.sub.k === "rec") return vScan(h, bu.rec.filter(r => r.id === bs.sub.id)[0]);
   const ac = E("div", "acts");
   ac.appendChild(BB("Beleg fotografieren", () => buGo("rec", { k: "scan" })));
   ac.appendChild(BB("E-Rechnung lesen", () => buGo("rec", { k: "ere" })));
+  ac.appendChild(BB("Kontoauszug abgleichen", () => buGo("rec", { k: "bank" })));
   ac.appendChild(BB("Manuell erfassen", () => buGo("rec", { k: "rec", id: "" })));
   h.appendChild(ac);
   const months = Array.from(new Set(bu.rec.map(r => r.date.slice(0, 7)))).sort().reverse();
@@ -4188,6 +4234,7 @@ function vCustEdit(h, c, back) {
   f.appendChild(BF("PLZ und Ort", c.addr2, v => { c.addr2 = v; buSaveQ(); }));
   f.appendChild(BF("E-Mail", c.mail, v => { c.mail = v; buSaveQ(); }, { type: "email" }));
   f.appendChild(BF("Telefon", c.tel, v => { c.tel = v; buSaveQ(); }, { type: "tel" }));
+  f.appendChild(BS("Kunde ist", [["", "Privatperson"], ["1", "Unternehmen (B2B)"]], c.biz ? "1" : "", v => { c.biz = v === "1"; buSaveQ(); }));
   f.appendChild(BF("Leitweg-ID / Käuferreferenz (nur wenn der Kunde eine vorgibt)", c.ref || "", v => { c.ref = v.trim(); buSaveQ(); }));
   f.appendChild(BF("Notiz (privat)", c.note, v => { c.note = v; buSaveQ(); }, { area: true, rows: 2 }));
   h.appendChild(f);
@@ -4276,8 +4323,10 @@ function vFuEdit(h, d, kind) {
     if (kinds.length > 1) { const cr = E("div", "chips"); kinds.forEach(x => { const b = E("button", "chip" + (k === x ? " on" : ""), FUK[x]); b.onclick = () => { k = x; draw(); }; cr.appendChild(b); }); box.appendChild(cr); }
     const tr = E("div", "chips"); ["freundlich", "sachlich", "bestimmt"].forEach(x => { const b = E("button", "chip" + (tone === x ? " on" : ""), x); b.onclick = () => { tone = x; bs.tone = x; draw(); }; tr.appendChild(b); }); box.appendChild(tr);
     const t = buTpl(k, d, tone); sub = t.subject;
+    let bodyTxt = t.body;
+    if (k === "m1" || k === "m2") { const dc = dunCalc(d, c); box.appendChild(dunChips(dc, draw)); bodyTxt = dunInsert(t.body, dc); }
     box.appendChild(BF("Betreff", sub, v => sub = v));
-    const f = BF("Text", t.body, () => {}, { area: true, rows: 12 }); ta = f.input; box.appendChild(f);
+    const f = BF("Text", bodyTxt, () => {}, { area: true, rows: 12 }); ta = f.input; box.appendChild(f);
     const a = E("div", "acts");
     a.appendChild(BB("Mit KI umformulieren", async b => {
       b.disabled = true; b.textContent = "schreibt...";
@@ -4394,6 +4443,9 @@ function vSet(h) {
   S("Rechnungen und Angebote", c => {
     fld(c, "Zahlungsziel (Tage)", "payDays", { num: true, mode: "numeric" }); fld(c, "Angebot gültig (Tage)", "offDays", { num: true, mode: "numeric" });
     fld(c, "Stundensatz netto (€)", "rate", { num: true, mode: "decimal" });
+    c.appendChild(BF("Basiszinssatz für Verzugszinsen (%)", bn(F.base), v => { F.base = pn(v) || 0; buSaveQ(); }, { mode: "decimal" }));
+    c.appendChild(E("div", "bu-s", "Stand 1.7.2026: 1,52 %. Der Satz ändert sich jeweils zum 1.1. und 1.7. (Bundesbank). Bitte aktuell halten."));
+    c.appendChild(BF("Mahngebühr pro Mahnung (€, 0 = keine)", bn(F.dunFee), v => { F.dunFee = pn(v) || 0; buSaveQ(); }, { mode: "decimal" }));
     fld(c, "Präfix Rechnung", "preRe"); fld(c, "Präfix Angebot", "preAn");
     fld(c, "Schlusstext Rechnung", "noteRe", { area: true, rows: 2 }); fld(c, "Schlusstext Angebot", "noteAn", { area: true, rows: 2 });
     c.appendChild(E("div", "bu-s", "Rechnungsnummern zählen automatisch hoch (z. B. " + F.preRe + "-" + new Date().getFullYear() + "-001). Eine Rechnungsnummer darf nur einmal vergeben werden."));
@@ -4416,6 +4468,14 @@ function vSet(h) {
     c.appendChild(BB("Hinzufügen", () => { if (!n.d.trim()) return; bu.cat.push({ d: n.d.trim(), p: n.p, u: n.u }); buSave(); buRender(); }));
   });
   S("Export und Daten", c => {
+    { const ys = buPkgYears(), st = { y: ys[0], q: "0" };
+      c.appendChild(E("div", "bu-t", "Steuerberater-Paket"));
+      c.appendChild(BS("Jahr", ys.map(y => [y, y]).concat([["all", "Alle Jahre"]]), st.y, v => st.y = v));
+      c.appendChild(BS("Zeitraum", [["0", "Ganzes Jahr"], ["1", "1. Quartal"], ["2", "2. Quartal"], ["3", "3. Quartal"], ["4", "4. Quartal"]], "0", v => st.q = v));
+      c.appendChild(BB("Paket (ZIP) erstellen", async b => { b.disabled = true; try { const p = buPkg(st.y, st.q); const r = await buShareFile(p.bytes, "Steuerberater_" + p.per.replace(/[^\w]+/g, "_") + ".zip", "application/zip", "Steuerberater-Paket"); buMsg(c, (r === "abort" ? "Abgebrochen. " : r === "share" ? "Geteilt. " : "Geladen (Dateien-App). ") + p.docs + " Rechnungen, " + p.recs + " Belege, " + p.count + " Dateien."); } catch (e) { buMsg(c, "Fehler: " + e.message); } b.disabled = false; }));
+      c.appendChild(E("div", "bu-s", "Enthält Rechnungen und Belege als CSV, jede Rechnung als PDF, erhaltene E-Rechnungen als XML und eine Monatsübersicht. Belegfotos sind nicht enthalten."));
+      c.appendChild(E("div", "bu-t", "Einzelne Listen"));
+    }
     c.appendChild(BB("Rechnungen als CSV", () => buDownload("rechnungen.csv", buCsv([["Nummer", "Typ", "Datum", "Kunde", "Netto", "USt", "Brutto", "Status", "Fällig"]].concat(bu.docs.map(d => { const t = buTot(d), k = buCust(d.cid); return [d.no, d.type, buD(d.date), k ? k.name : "", nf(t.net, 2), nf(t.v, 2), nf(t.gross, 2), BUSTAT[d.status], buD(d.due)]; }))))));
     c.appendChild(BB("Belege als CSV", () => buDownload("belege.csv", buCsv([["Datum", "Lieferant", "Kategorie", "Brutto", "USt", "Satz", "Notiz"]].concat(bu.rec.map(r => [buD(r.date), r.vendor, r.cat, nf(+r.gross || 0, 2), nf(+r.vat || 0, 2), r.rate, r.note]))))));
     c.appendChild(E("div", "bu-s", "Die CSV-Dateien kannst du an deinen Steuerberater geben. Alle Büro-Daten liegen nur auf diesem Gerät und sind im Backup unter Notizen › Einstellungen enthalten. Aufbewahrungsfristen für Rechnungen und Belege meist 8 Jahre, bitte aktuell prüfen. Seit 2025 müssen Unternehmen E-Rechnungen empfangen können, für das Versenden gelten Übergangsfristen. Lass dich dazu beraten."));
@@ -5231,16 +5291,427 @@ function erExport(d, b, A) {
   b.disabled = false;
 }
 
+/* ---- Backup 2.0: alles sichern, teilen, erinnern ---- */
+const BKSKIP = ["jarvis_code", "jarvis_push", "jarvis_fid", "jarvis_bklast"];
+function bkData() {
+  const ls = {};
+  try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf("jarvis_") === 0 && BKSKIP.indexOf(k) < 0) ls[k] = localStorage.getItem(k); } } catch (e) {}
+  return { app: "jarvis", v: 48, t: Date.now(), ls: ls };
+}
+function bkLast() { try { return +localStorage.getItem("jarvis_bklast") || 0; } catch (e) { return 0; } }
+function bkDue() {
+  try { const has = notes.length || todos.length || bu.docs.length || bu.rec.length || decks.length; return !!has && Date.now() - bkLast() > 14 * 86400000; } catch (e) { return false; }
+}
+async function exportAll() {
+  const txt = JSON.stringify(bkData());
+  const name = "jarvis-backup-" + new Date().toISOString().slice(0, 10) + ".json";
+  const r = await buShareFile(new TextEncoder().encode(txt), name, "application/json", "Jarvis Backup");
+  let msg;
+  if (r === "abort") msg = "Abgebrochen. Das Backup wurde nicht gespeichert.";
+  else {
+    try { localStorage.setItem("jarvis_bklast", String(Date.now())); } catch (e) {}
+    msg = r === "share" ? "Backup geteilt. Speichere es in Dateien (iCloud Drive), dann ist es sicher." : "Backup geladen. Du findest die Datei in Dateien unter Downloads. Lege sie am besten in iCloud Drive ab.";
+    try { fillAll(); } catch (e) {}
+  }
+  try { fidMsg(msg); } catch (e) {}
+  return msg;
+}
+function importAll(file) {
+  const rd = new FileReader();
+  rd.onload = () => {
+    let o;
+    try { o = JSON.parse(rd.result); } catch (e) { fidMsg("Backup konnte nicht gelesen werden (" + e.message + ")."); return; }
+    if (o && o.app === "jarvis" && o.ls && typeof o.ls === "object") {
+      const keys = Object.keys(o.ls).filter(k => k.indexOf("jarvis_") === 0 && BKSKIP.indexOf(k) < 0 && typeof o.ls[k] === "string");
+      if (!confirm("Backup vom " + (o.t ? new Date(o.t).toLocaleDateString("de-DE") : "unbekanntem Datum") + " einspielen? Die Daten auf diesem Gerät werden damit überschrieben (" + keys.length + " Bereiche).")) return;
+      try { keys.forEach(k => localStorage.setItem(k, o.ls[k])); localStorage.setItem("jarvis_updated", String(Date.now())); } catch (e) { fidMsg("Backup konnte nicht gespeichert werden (" + e.message + ")."); return; }
+      fidMsg("Backup eingespielt. Die App lädt neu.");
+      setTimeout(() => { location.replace(location.pathname + "?r=" + Date.now()); }, 900);
+      return;
+    }
+    importAllOld(file);
+  };
+  rd.readAsText(file);
+}
+
+/* ---- Kontoauszug-Abgleich ---- */
+const nz = s => String(s || "").toLowerCase().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss").replace(/[^a-z0-9]/g, "");
+function bkDec(buf) {
+  try { return new TextDecoder("utf-8", { fatal: true }).decode(buf); } catch (e) { return new TextDecoder("windows-1252").decode(buf); }
+}
+function bkCsv(txt) {
+  txt = String(txt).replace(/^﻿/, "");
+  const lines = txt.split(/\r?\n/).slice(0, 25);
+  const cnt = ch => lines.reduce((a, l) => a + (l.split(ch).length - 1), 0);
+  const cands = [";", "\t", ","], best = cands.map(c => [c, cnt(c)]).sort((a, b) => b[1] - a[1])[0];
+  const dl = best[1] ? best[0] : ";";
+  const rows = []; let row = [], cur = "", q = false;
+  for (let i = 0; i < txt.length; i++) {
+    const ch = txt[i];
+    if (q) { if (ch === '"') { if (txt[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === dl) { row.push(cur); cur = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && txt[i + 1] === "\n") i++; row.push(cur); cur = ""; if (row.some(x => x.trim())) rows.push(row); row = []; }
+    else cur += ch;
+  }
+  row.push(cur); if (row.some(x => x.trim())) rows.push(row);
+  return rows;
+}
+function bkNum(s) {
+  s = String(s == null ? "" : s).replace(/[\s€$]|EUR/gi, "").replace(/^\+/, "");
+  if (!s) return NaN;
+  const c = s.lastIndexOf(","), p = s.lastIndexOf(".");
+  if (c >= 0 && p >= 0) s = c > p ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
+  else if (c >= 0) s = s.replace(",", ".");
+  else if (p >= 0 && /^-?\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, "");
+  return /^-?\d+(\.\d+)?$/.test(s) ? parseFloat(s) : NaN;
+}
+function bkDate(s) {
+  s = String(s || "").trim();
+  let m = /^(\d{1,2})\.(\d{1,2})\.(\d{4})/.exec(s); if (m) return m[3] + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
+  m = /^(\d{1,2})\.(\d{1,2})\.(\d{2})$/.exec(s); if (m) return "20" + m[3] + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
+  m = /^(\d{4})-(\d{2})-(\d{2})/.exec(s); if (m) return m[1] + "-" + m[2] + "-" + m[3];
+  m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s); if (m) return m[3] + "-" + m[2].padStart(2, "0") + "-" + m[1].padStart(2, "0");
+  return "";
+}
+function bkCols(h) {
+  const c = { date: -1, amt: -1, text: [], name: [], iban: -1 };
+  const dn = ["buchungstag", "buchungsdatum", "buchung", "datum", "valuta", "valutadatum", "wertstellung"];
+  for (let k = 0; k < dn.length && c.date < 0; k++) c.date = h.findIndex(x => x === dn[k] || (k < 2 && x.indexOf(dn[k]) === 0));
+  c.amt = h.findIndex(x => x === "betrag" || x.indexOf("betrag") === 0 || x === "umsatz" || x === "amount");
+  h.forEach((x, j) => {
+    if (/verwendungszweck|beschreibung|mitteilung|zweck|buchungstext/.test(x)) c.text.push(j);
+    if (/beguenstigter|zahlungspflichtig|auftraggeber|empfaenger|^name$|zahlungsempfaenger/.test(x)) c.name.push(j);
+    if (c.iban < 0 && /iban|^kontonummer$/.test(x) && !/auftragskonto/.test(x)) c.iban = j;
+  });
+  return c;
+}
+function bankParse(txt) {
+  const rows = bkCsv(txt);
+  let hi = -1, col = null;
+  for (let i = 0; i < Math.min(rows.length, 40); i++) { const c = bkCols(rows[i].map(nz)); if (c.date >= 0 && c.amt >= 0) { hi = i; col = c; break; } }
+  if (hi < 0) throw new Error("Die Spalten wurden nicht erkannt. Gebraucht werden mindestens Datum und Betrag. Exportiere die Umsätze als CSV aus deinem Online-Banking.");
+  const txs = [];
+  for (let i = hi + 1; i < rows.length; i++) {
+    const r = rows[i], date = bkDate(r[col.date]), amt = bkNum(r[col.amt]);
+    if (!date || isNaN(amt) || !amt) continue;
+    const name = col.name.map(j => (r[j] || "").trim()).filter(Boolean).join(" · "), text = col.text.map(j => (r[j] || "").trim()).filter(Boolean).join(" ");
+    txs.push({ date: date, amt: Math.round(amt * 100) / 100, name: name, text: text, iban: col.iban >= 0 ? (r[col.iban] || "").replace(/\s+/g, "") : "", key: date + "|" + amt.toFixed(2) + "|" + nz(name).slice(0, 16) });
+  }
+  if (!txs.length) throw new Error("Es wurden keine Buchungen gefunden.");
+  return txs;
+}
+const BKSTOP = /^(gmbh|familie|herr|frau|und|der|die|das|kg|ug|ohg|mbh|co|ev|von|inh)$/;
+function bankMatch(txs) {
+  const open = bu.docs.filter(d => d.type === "RE" && d.status === "sent"), cands = [];
+  txs.filter(t => t.amt > 0).forEach(t => open.forEach(d => {
+    if (t.date < d.date) return;
+    const g = buTot(d).gross, hay = nz(t.name + " " + t.text), c = buCust(d.cid) || {}, why = [];
+    let sc = 0;
+    const eq = Math.abs(t.amt - g) < 0.005, num = nz(d.no).length >= 4 && hay.indexOf(nz(d.no)) >= 0;
+    if (eq) { sc += 50; why.push("Betrag passt"); }
+    if (num) { sc += 60; why.push("Rechnungsnummer genannt"); }
+    const toks = String(c.name || "").toLowerCase().split(/[^a-zäöüß]+/).filter(x => x.length >= 3 && !BKSTOP.test(x));
+    if (toks.length) { const hit = toks.filter(x => hay.indexOf(nz(x)) >= 0).length; if (hit === toks.length) { sc += 25; why.push("Name passt"); } else if (hit) { sc += 10; why.push("Name teilweise"); } }
+    if (!eq && num) why.push("Betrag weicht ab: " + eur(t.amt) + " statt " + eur(g));
+    if (sc >= 40) cands.push({ t: t, d: d, sc: sc, eq: eq, why: why, sure: (eq && sc >= 75) });
+  }));
+  cands.sort((a, b) => b.sc - a.sc);
+  const ut = new Set(), ud = new Set(), out = [];
+  cands.forEach(c => { if (ut.has(c.t) || ud.has(c.d.id)) return; ut.add(c.t); ud.add(c.d.id); out.push(c); });
+  return out;
+}
+function bankMissing(txs) {
+  const ign = bu.ign || [];
+  return txs.filter(t => t.amt < 0 && ign.indexOf(t.key) < 0).filter(t => {
+    const a = -t.amt;
+    return !bu.rec.some(r => r.bk === t.key || (Math.abs(Math.abs(+r.gross || 0) - a) < 0.005 && Math.abs(buDays(r.date, t.date)) <= 14));
+  });
+}
+let bankSt = null;
+function vBank(h) {
+  buBack(h, "Belege", () => buGo("rec"));
+  const c = E("div", "bu-c");
+  c.appendChild(E("div", "bu-t", "Kontoauszug abgleichen"));
+  c.appendChild(E("div", "bu-s", "Exportiere die Umsätze als CSV aus deinem Online-Banking (z. B. Sparkasse, DKB, ING, N26) und wähle die Datei hier aus. Jarvis hakt bezahlte Rechnungen ab und zeigt Ausgaben, zu denen noch ein Beleg fehlt. Die Datei wird nur auf deinem Gerät gelesen und nicht gespeichert."));
+  const inp = E("input"); inp.type = "file"; inp.accept = ".csv,.txt,text/csv,text/plain"; inp.style.display = "none";
+  const out = E("div");
+  inp.onchange = async () => {
+    const f = inp.files[0]; if (!f) return;
+    out.innerHTML = ""; buMsg(c, "liest...");
+    try { const txs = bankParse(bkDec(await f.arrayBuffer())); bankSt = { txs: txs }; buMsg(c, txs.length + " Buchungen gelesen (" + buD(txs.map(x => x.date).sort()[0]) + " bis " + buD(txs.map(x => x.date).sort().pop()) + ")."); bankDraw(out); }
+    catch (e) { bankSt = null; buMsg(c, "Fehler: " + e.message); }
+    inp.value = "";
+  };
+  c.appendChild(inp); c.appendChild(BB("CSV-Datei wählen", () => inp.click()));
+  const ta = BF("Oder Text einfügen", "", () => {}, { area: true, rows: 3, ph: "Buchungstag;Verwendungszweck;Betrag ..." });
+  c.appendChild(ta);
+  c.appendChild(BB("Text lesen", () => { const t = ta.input.value.trim(); if (!t) return; out.innerHTML = ""; try { const txs = bankParse(t); bankSt = { txs: txs }; buMsg(c, txs.length + " Buchungen gelesen."); bankDraw(out); } catch (e) { buMsg(c, "Fehler: " + e.message); } }));
+  h.appendChild(c); h.appendChild(out);
+  if (bankSt) bankDraw(out);
+}
+function bankDraw(host) {
+  host.innerHTML = "";
+  if (!bankSt) return;
+  const txs = bankSt.txs, ms = bankMatch(txs), sure = ms.filter(x => x.sure);
+  const pay = (m) => { m.d.status = "paid"; m.d.paidOn = m.t.date; };
+  const A = E("div", "bu-c"); A.appendChild(E("div", "bu-t", "Zahlungseingänge zu offenen Rechnungen (" + ms.length + ")"));
+  if (!ms.length) A.appendChild(E("div", "bu-s", bu.docs.some(d => d.type === "RE" && d.status === "sent") ? "Keine Zahlung zu deinen offenen Rechnungen gefunden." : "Keine offenen Rechnungen (Status „gesendet“) vorhanden."));
+  if (sure.length) { const b = BB("Alle " + sure.length + " sicheren als bezahlt markieren", () => { sure.forEach(pay); buSave(); bankDraw(host); }); b.style.marginBottom = "8px"; A.appendChild(b); }
+  ms.forEach(m => {
+    const cu = buCust(m.d.cid), r = E("div", "bu-r"), l = E("div"); l.style.minWidth = 0;
+    l.appendChild(E("b", null, m.d.no + (cu ? " · " + cu.name : "")));
+    l.appendChild(E("div", "bu-s", buD(m.t.date) + " · " + eur(m.t.amt) + " von " + (m.t.name || "unbekannt")));
+    const tg = E("div", "bu-s", (m.sure ? "Sicher: " : "Bitte prüfen: ") + m.why.join(", ")); l.appendChild(tg);
+    r.appendChild(l); r.appendChild(BB("Bezahlt", () => { pay(m); buSave(); bankDraw(host); }));
+    A.appendChild(r);
+  });
+  host.appendChild(A);
+  const miss = bankMissing(txs), B = E("div", "bu-c");
+  B.appendChild(E("div", "bu-t", "Ausgaben ohne Beleg (" + miss.length + ")"));
+  B.appendChild(E("div", "bu-s", "Zu diesen Abbuchungen gibt es noch keinen Beleg in Jarvis. Wenn dein Konto auch privat genutzt wird, ignoriere private Buchungen."));
+  miss.slice(0, 40).forEach(t => {
+    const r = E("div", "bu-r"), l = E("div"); l.style.minWidth = 0;
+    l.appendChild(E("b", null, (t.name || t.text || "Buchung").slice(0, 60)));
+    l.appendChild(E("div", "bu-s", buD(t.date) + " · " + eur(-t.amt) + (t.text ? " · " + t.text.slice(0, 50) : "")));
+    const a = E("div", "acts"); a.style.margin = "4px 0 0";
+    a.appendChild(BB("Beleg anlegen", () => { const rec = { id: buId(), vendor: (t.name || t.text || "Buchung").slice(0, 60), date: t.date, gross: -t.amt, vat: 0, rate: 19, cat: "Sonstiges", note: "aus Kontoauszug, USt bitte ergänzen", bk: t.key }; bu.rec.unshift(rec); buSave(); buGo("rec", { k: "rec", id: rec.id }); }));
+    a.appendChild(BB("Ignorieren", () => { bu.ign = bu.ign || []; bu.ign.push(t.key); buSave(); bankDraw(host); }));
+    l.appendChild(a); r.appendChild(l); B.appendChild(r);
+  });
+  if (miss.length > 40) B.appendChild(E("div", "bu-s", "… und " + (miss.length - 40) + " weitere."));
+  if (!miss.length) B.appendChild(E("div", "bu-s", "Alles hat einen Beleg."));
+  host.appendChild(B);
+  const still = bu.docs.filter(buOverdue).length;
+  if (still) { const C = E("div", "bu-c"); C.appendChild(E("div", "bu-s", still + " Rechnung(en) sind überfällig und weiterhin offen.")); C.appendChild(BB("Zum Nachfassen", () => buGo("fu"))); host.appendChild(C); }
+}
+
+/* ---- Steuerberater-Paket (ZIP) ---- */
+const crcT = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(u8) { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = crcT[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zipBuild(files) {
+  const enc = new TextEncoder(), now = new Date();
+  const tm = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1), dt = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+  const parts = [], cen = []; let off = 0;
+  files.forEach(f => {
+    const nb = enc.encode(f.name), data = f.data, crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true); lh.setUint16(10, tm, true); lh.setUint16(12, dt, true);
+    lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true); lh.setUint16(26, nb.length, true); lh.setUint16(28, 0, true);
+    parts.push(new Uint8Array(lh.buffer), nb, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true); ch.setUint16(12, tm, true); ch.setUint16(14, dt, true);
+    ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true); ch.setUint16(28, nb.length, true); ch.setUint32(42, off, true);
+    cen.push(new Uint8Array(ch.buffer), nb);
+    off += 30 + nb.length + data.length;
+  });
+  const cs = cen.reduce((a, x) => a + x.length, 0), end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true); end.setUint32(12, cs, true); end.setUint32(16, off, true);
+  const all = parts.concat(cen, [new Uint8Array(end.buffer)]), tot = all.reduce((a, x) => a + x.length, 0), out = new Uint8Array(tot);
+  let p = 0; all.forEach(x => { out.set(x, p); p += x.length; });
+  return out;
+}
+function buPkgYears() {
+  const ys = new Set([String(new Date().getFullYear())]);
+  bu.docs.forEach(d => ys.add(d.date.slice(0, 4))); bu.rec.forEach(r => ys.add(r.date.slice(0, 4)));
+  return Array.from(ys).sort().reverse();
+}
+function buPkg(year, q) {
+  const enc = new TextEncoder(), files = [], notes = [];
+  const inP = iso => !!iso && (year === "all" || (iso.slice(0, 4) === year && (q === "0" || Math.ceil(+iso.slice(5, 7) / 3) === +q)));
+  const fn = s => String(s || "").replace(/[^\wäöüÄÖÜß.-]+/g, "_").slice(0, 60);
+  const docs = bu.docs.filter(d => d.type === "RE" && d.status !== "draft" && inP(d.date)).sort((a, b) => a.date.localeCompare(b.date));
+  const recs = bu.rec.filter(r => inP(r.date)).sort((a, b) => a.date.localeCompare(b.date));
+  const csv = rows => enc.encode(buCsv(rows));
+  files.push({ name: "Rechnungen.csv", data: csv([["Nummer", "Datum", "Leistungsdatum", "Kunde", "Netto", "USt-Satz", "USt", "Brutto", "Status", "Fällig", "Bezahlt am"]].concat(docs.map(d => { const t = buTot(d), k = buCust(d.cid); return [d.no, buD(d.date), buD(d.svc), k ? k.name : "", nf(t.net, 2), t.vat, nf(t.v, 2), nf(t.gross, 2), BUSTAT[d.status] || d.status, buD(d.due), buD(d.paidOn)]; }))) });
+  files.push({ name: "Belege.csv", data: csv([["Datum", "Lieferant", "Kategorie", "Brutto", "USt", "Satz", "Notiz", "Rechnungsnr. (E-Rechnung)"]].concat(recs.map(r => [buD(r.date), r.vendor, r.cat, nf(+r.gross || 0, 2), nf(+r.vat || 0, 2), r.rate, r.note, r.eno || ""]))) });
+  const mo = {};
+  const M = k => mo[k] || (mo[k] = { n: 0, v: 0, g: 0, c: 0, e: 0, vs: 0, cr: 0 });
+  docs.filter(d => d.status !== "storno").forEach(d => { const t = buTot(d), m = M(d.date.slice(0, 7)); m.n += t.net; m.v += t.v; m.g += t.gross; m.c++; });
+  recs.forEach(r => { const m = M(r.date.slice(0, 7)); m.e += +r.gross || 0; m.vs += +r.vat || 0; m.cr++; });
+  const tot = { n: 0, v: 0, g: 0, c: 0, e: 0, vs: 0, cr: 0 };
+  const srows = Object.keys(mo).sort().map(k => { const m = mo[k]; Object.keys(tot).forEach(x => { tot[x] += m[x]; }); return [k.slice(5) + "/" + k.slice(0, 4), nf(m.n, 2), nf(m.v, 2), nf(m.g, 2), nf(m.e, 2), nf(m.vs, 2), m.c, m.cr]; });
+  srows.push(["Summe", nf(tot.n, 2), nf(tot.v, 2), nf(tot.g, 2), nf(tot.e, 2), nf(tot.vs, 2), tot.c, tot.cr]);
+  files.push({ name: "Zusammenfassung.csv", data: csv([["Monat", "Umsatz netto", "USt (berechnet)", "Umsatz brutto", "Ausgaben brutto", "Vorsteuer", "Anzahl Rechnungen", "Anzahl Belege"]].concat(srows)) });
+  docs.forEach(d => {
+    const c = buCust(d.cid);
+    if (!c || !d.items.length) { notes.push("Ohne PDF (Kunde oder Positionen fehlen): " + d.no); return; }
+    try { files.push({ name: "Rechnungen/" + fn(d.no + "_" + c.name) + ".pdf", data: buDocPdf(d) }); } catch (e) { notes.push("PDF-Fehler bei " + d.no); }
+  });
+  let nx = 0;
+  recs.forEach(r => { if (r.xml) { files.push({ name: "E-Rechnungen/" + fn((r.vendor || "Lieferant") + "_" + (r.eno || nx)) + ".xml", data: enc.encode(r.xml) }); nx++; } });
+  const per = year === "all" ? "alle Jahre" : q === "0" ? year : "Q" + q + "/" + year;
+  files.push({ name: "LIESMICH.txt", data: enc.encode(["Steuerberater-Paket aus Jarvis", "Zeitraum: " + per, "Erstellt am " + buD(buToday()), "", "Inhalt:", "- Rechnungen.csv: ausgestellte Rechnungen (ohne Entwürfe)", "- Belege.csv: erfasste Ausgaben mit Umsatzsteuer", "- Zusammenfassung.csv: Umsatz und Ausgaben pro Monat (Orientierung, keine Steuererklärung)", "- Rechnungen/: jede Rechnung als PDF", "- E-Rechnungen/: erhaltene E-Rechnungen als XML (" + nx + ")", "", "Hinweise:", "- Fotos von Belegen sind nicht enthalten, die Originale müssen aufgehoben werden.", "- Alle Zahlen stammen aus den Eingaben in Jarvis und sind nicht geprüft.", "- Umsatzsteuer-Sätze und Kleinunternehmer-Status bitte mit dem Steuerberater klären."].concat(notes.length ? ["", "Auffälligkeiten:"].concat(notes) : []).join("\r\n")) });
+  return { bytes: zipBuild(files), count: files.length, docs: docs.length, recs: recs.length, per: per };
+}
+
+/* ---- Mahnung: Verzugszinsen und Pauschale ---- */
+function dunCalc(d, c) {
+  const F = bu.firm, t = buToday(), days = Math.max(0, buDays(d.due, t)), gross = buTot(d).gross, base = +F.base || 0, biz = !!(c && c.biz);
+  const pp = biz ? 9 : 5, rate = Math.round((base + pp) * 100) / 100;
+  const on = bs.dun = bs.dun || { i: true, p: true, f: true };
+  const int = buCents(gross * rate / 100 * days / 365), pau = biz ? 40 : 0, fee = buCents(+F.dunFee || 0);
+  return { days: days, gross: gross, base: base, biz: biz, pp: pp, rate: rate, int: int, pau: pau, fee: fee, on: on };
+}
+function dunChips(dc, redraw) {
+  const w = E("div", "chips"), lab = E("span", "bu-s", "Forderungsaufstellung im Text: "); lab.style.alignSelf = "center"; w.appendChild(lab);
+  const add = (k, t) => { const b = E("button", "chip" + (dc.on[k] ? " on" : ""), t); b.onclick = () => { dc.on[k] = !dc.on[k]; redraw(); }; w.appendChild(b); };
+  add("i", "Verzugszinsen");
+  if (dc.biz) add("p", "Pauschale 40 €");
+  if (dc.fee > 0) add("f", "Mahngebühr");
+  return w;
+}
+function dunInsert(body, dc) {
+  const L = [];
+  let sum = dc.gross;
+  L.push("Rechnungsbetrag: " + eur(dc.gross));
+  if (dc.on.i && dc.days > 0 && dc.int > 0) { L.push("Verzugszinsen " + nf(dc.rate, 2) + " % p. a. (Basiszinssatz " + nf(dc.base, 2) + " % + " + dc.pp + " Prozentpunkte) für " + dc.days + " Tage: " + eur(dc.int)); sum += dc.int; }
+  if (dc.biz && dc.on.p && dc.pau) { L.push("Pauschale nach § 288 Abs. 5 BGB: " + eur(dc.pau)); sum += dc.pau; }
+  if (dc.fee > 0 && dc.on.f) { L.push("Mahngebühr: " + eur(dc.fee)); sum += dc.fee; }
+  if (L.length < 2) return body;
+  L.push("Gesamtforderung: " + eur(buCents(sum)));
+  const blk = "Forderungsaufstellung (Stand " + buD(buToday()) + "):\n" + L.join("\n") + "\n\nBitte überweisen Sie die Gesamtforderung bis zum " + buD(buAdd(buToday(), 7)) + ".";
+  const i = body.lastIndexOf("\n\nFreundliche Grüße");
+  return i < 0 ? body + "\n\n" + blk : body.slice(0, i) + "\n\n" + blk + body.slice(i);
+}
+
+/* ---- Klausur-Lernplan ---- */
+let exams = load("jarvis_exams", []);
+if (!Array.isArray(exams)) exams = [];
+const exSave = () => { save("jarvis_exams", exams); try { fillAll(); } catch (e) {} };
+const exDays = d => Math.round((new Date(d + "T12:00:00") - new Date(dkey() + "T12:00:00")) / 86400000);
+const exAdd = (iso, n) => { const d = new Date(iso + "T12:00:00"); d.setDate(d.getDate() + n); return dkey(d); };
+const exTodo = (x, i) => { const k = x.id + ":" + i; return todos.filter(t => t.ex === k)[0] || null; };
+const exProg = x => x.days.reduce((a, _, i) => { const t = exTodo(x, i); return a + (t && t.done ? 1 : 0); }, 0);
+function exLocal(f, n) {
+  const tp = String(f.topics || "").split(/[\n,;]+/).map(s => s.trim()).filter(Boolean), out = [];
+  const work = n >= 4 ? n - 2 : n;
+  for (let i = 0; i < work; i++) { const t = tp.length ? tp[Math.floor(i * tp.length / work)] : "Stoff durchgehen"; out.push(t + ": lesen, Beispiele rechnen oder aufschreiben"); }
+  if (n >= 4) { out.push("Alles wiederholen und Karteikarten üben"); out.push("Probeaufgaben lösen, leicht lernen"); }
+  return out;
+}
+async function exCreate(f) {
+  const left = exDays(f.date);
+  if (!f.date || left < 1) throw new Error("Das Datum muss in der Zukunft liegen (mindestens morgen).");
+  const n = Math.min(left, 21);
+  let arr = [];
+  try {
+    const sys = "Du bist ein Lerncoach für Schüler. Erstelle einen Lernplan als JSON-Array aus genau " + n + " Strings, einer pro Lerntag in zeitlicher Reihenfolge. Jeder String ist eine konkrete Lernaufgabe in höchstens 14 Wörtern, passend für " + f.mins + " Minuten. Verteile den Stoff sinnvoll und plane Wiederholungen ein. Wenn n mindestens 4 ist, sind die letzten zwei Tage Wiederholung und Probeaufgaben, der letzte Tag eher leicht. Fach: " + f.subj + ". Schreibe auf Deutsch. Antworte AUSSCHLIESSLICH mit dem JSON-Array.";
+    const t = await fAsk(sys, "Stoff für die Klausur: " + (f.topics || "nicht angegeben, nimm typische Inhalte für das Fach"));
+    arr = fJson(t, "[", "]").filter(s => typeof s === "string" && s.trim()).map(s => s.trim().slice(0, 140));
+  } catch (e) { arr = []; }
+  if (arr.length < Math.ceil(n / 2)) arr = exLocal(f, n);
+  while (arr.length < n) arr.push("Wiederholen und Fragen klären");
+  arr = arr.slice(0, n);
+  const x = { id: String(Date.now()), subj: f.subj, title: f.title || f.subj + "-Klausur", date: f.date, mins: f.mins, topics: f.topics, days: arr.map((t, i) => ({ d: exAdd(dkey(), left - n + i), t: t })) };
+  x.days.forEach((dd, i) => todos.push({ text: "Lernen | " + f.subj + ": " + dd.t, done: false, due: dd.d, ex: x.id + ":" + i }));
+  todos.push({ text: "Klausur: " + x.title, done: false, due: x.date, ex: x.id + ":exam" });
+  exams.unshift(x);
+  saveData(); try { renderNotes(); } catch (e) {}
+  exSave();
+  return x;
+}
+function exDel(x) {
+  todos = todos.filter(t => !(t.ex && t.ex.indexOf(x.id + ":") === 0));
+  exams = exams.filter(e => e.id !== x.id);
+  saveData(); try { renderNotes(); } catch (e) {}
+  exSave();
+}
+function examHome(openId) {
+  const m = add("", "bot", null, "school"); m.classList.add("deckmsg");
+  const inpCss = "width:100%;box-sizing:border-box;margin:4px 0 8px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06);color:inherit;font:inherit";
+  let open = openId || "";
+  const el = (t, c, x, s) => { const e = document.createElement(t); if (c) e.className = c; if (x != null) e.textContent = x; if (s) e.style.cssText = s; return e; };
+  const wd = ["So", "Mo", "Di", "Mi", "Do", "Fr", "Sa"];
+  function draw() {
+    m.innerHTML = "";
+    m.appendChild(el("b", null, "Klausurplan"));
+    m.appendChild(el("div", "dkhint", "Trage Fach, Datum und Stoff ein. Jarvis verteilt den Stoff auf die Tage davor. Jeder Tag wird eine Aufgabe in Notizen und erinnert dich per Push.", "text-align:left;margin:4px 0 10px"));
+    exams.slice().sort((a, b) => a.date.localeCompare(b.date)).forEach(x => {
+      const dd = exDays(x.date), r = el("div", "li2", null, "padding:9px 0;border-top:1px solid rgba(255,255,255,.08)");
+      r.appendChild(el("div", null, x.title));
+      r.appendChild(el("div", "dkhint", x.subj + " · " + (dd < 0 ? "vorbei" : dd === 0 ? "heute" : dd === 1 ? "morgen" : "in " + dd + " Tagen") + " · " + exProg(x) + " / " + x.days.length + " Lerntage erledigt", "text-align:left"));
+      const bt = el("div", null, null, "display:flex;gap:6px;flex-wrap:wrap;margin-top:6px");
+      const mkb = (l, fn) => { const b = el("button", "smallbtn", l); b.onclick = fn; bt.appendChild(b); };
+      mkb(open === x.id ? "Plan zuklappen" : "Plan ansehen", () => { open = open === x.id ? "" : x.id; draw(); });
+      mkb("Karteikarten", () => { schoolSubject = x.subj; save("jarvis_subject", x.subj); schoolMode = "cards"; save("jarvis_mode", "cards"); try { drawChips(); } catch (e) {} makeCards((x.topics || x.title).slice(0, 300)); });
+      mkb("In Kalender", () => addToCal({ title: x.title, start: new Date(x.date + "T08:00:00"), allDay: true, desc: x.subj + ": " + (x.topics || ""), alarm: 540 }));
+      mkb("Löschen", () => { if (confirm("Klausurplan und die zugehörigen Aufgaben löschen?")) { exDel(x); draw(); } });
+      r.appendChild(bt);
+      if (open === x.id) {
+        const L = el("div", null, null, "margin-top:8px");
+        x.days.forEach((day, i) => {
+          const t = exTodo(x, i), row = el("label", null, null, "display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:14px;line-height:1.35");
+          const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = !!(t && t.done); cb.style.cssText = "margin-top:3px;flex-shrink:0";
+          cb.onchange = () => { if (t) { t.done = cb.checked; saveData(); try { renderNotes(); } catch (e) {} } exSave(); draw(); };
+          const dt = new Date(day.d + "T12:00:00"), late = day.d < dkey() && !(t && t.done);
+          row.appendChild(cb); row.appendChild(el("span", null, wd[dt.getDay()] + " " + buD(day.d).slice(0, 5) + ": " + day.t + (late ? " (nachholen)" : ""), (t && t.done) ? "opacity:.5;text-decoration:line-through" : late ? "color:#e9b27a" : ""));
+          L.appendChild(row);
+        });
+        r.appendChild(L);
+      }
+      m.appendChild(r);
+    });
+    const fm = el("div", null, null, "margin-top:12px;border-top:1px solid rgba(255,255,255,.08);padding-top:10px");
+    fm.appendChild(el("b", null, "Neue Klausur"));
+    const sel = document.createElement("select"); sel.style.cssText = inpCss; SUBJECTS.concat(extraSubj).forEach(s => { const o = document.createElement("option"); o.value = s; o.textContent = s; sel.appendChild(o); }); sel.value = SUBJECTS.concat(extraSubj).indexOf(schoolSubject) >= 0 ? schoolSubject : "Mathe";
+    const ti = document.createElement("input"); ti.placeholder = "Titel (optional), z. B. Mathe-Klausur Funktionen"; ti.style.cssText = inpCss;
+    const da = document.createElement("input"); da.type = "date"; da.min = exAdd(dkey(), 1); da.style.cssText = inpCss;
+    const mi = document.createElement("select"); mi.style.cssText = inpCss; [20, 30, 45, 60, 90].forEach(v => { const o = document.createElement("option"); o.value = v; o.textContent = v + " Minuten pro Tag"; mi.appendChild(o); }); mi.value = "30";
+    const tp = document.createElement("textarea"); tp.rows = 3; tp.placeholder = "Stoff, z. B. Quadratische Funktionen, Parabeln, Nullstellen, Textaufgaben"; tp.style.cssText = inpCss;
+    const lb = (t) => el("div", "dkhint", t, "text-align:left;margin-top:4px");
+    fm.appendChild(lb("Fach")); fm.appendChild(sel); fm.appendChild(ti); fm.appendChild(lb("Datum der Klausur")); fm.appendChild(da); fm.appendChild(lb("Lernzeit")); fm.appendChild(mi); fm.appendChild(lb("Stoff")); fm.appendChild(tp);
+    const go = el("button", "smallbtn", "Plan erstellen"); const msg = el("div", "dkhint", "", "text-align:left;margin-top:6px");
+    go.onclick = async () => {
+      go.disabled = true; go.textContent = "plant..."; msg.textContent = "";
+      try { const x = await exCreate({ subj: sel.value, title: ti.value.trim(), date: da.value, mins: +mi.value, topics: tp.value.trim() }); open = x.id; draw(); }
+      catch (e) { msg.textContent = "Fehler: " + e.message; go.disabled = false; go.textContent = "Plan erstellen"; }
+    };
+    fm.appendChild(go); fm.appendChild(msg); m.appendChild(fm);
+  }
+  draw();
+}
+
 /* ---- Einstiegsfragen ---- */
 const OQ = [
-  { k: "age", q: "Altersgruppe", multi: false, o: ["unter 16", "16–24", "25–39", "40–59", "60+"] },
-  { k: "role", q: "Was machst du?", multi: false, o: ["Schule", "Studium / Ausbildung", "Angestellt", "Selbstständig / Gründer", "Kleines Unternehmen"] },
-  { k: "use", q: "Wofür willst du die KI nutzen?", multi: true, o: ["Lernen", "Business / BWL", "Geld & Märkte", "Reselling", "Texte & Mails", "Büro-Alltag", "Alltag & Ideen"] },
+  { k: "age", q: "Wie alt bist du?", multi: false, o: ["unter 14", "14–15", "16–17", "18–24", "25–30", "über 30"] },
+  { k: "role", q: "Was machst du?", multi: false, o: ["Schule", "Ausbildung", "Studium", "Angestellt", "Selbstständig / Gründer", "Kleines Unternehmen"] },
+  { k: "use", q: "Wofür willst du Jarvis nutzen? (mehrere möglich)", multi: true, o: ["Hausaufgaben & Lernen", "Prüfungen & Klausuren", "Referate & Texte", "Eigene Startup-Idee", "Geld & Wirtschaft verstehen", "Alltag & Organisation"] },
   { k: "level", q: "Wie viel Vorwissen hast du bei deinen Themen?", multi: false, o: ["Anfänger", "Fortgeschritten", "Profi"] },
   { k: "tone", q: "Wie soll Jarvis klingen?", multi: false, o: ["locker und freundlich", "sachlich und professionell", "motivierend", "ruhig wie ein Butler"] },
   { k: "len", q: "Wie ausführlich sollen Antworten sein?", multi: false, o: ["sehr kurz", "kurz mit Details auf Nachfrage", "ausführlich"] }
 ];
 let onbSel = null;
+const SCHOOLS = ["Grundschule", "Hauptschule", "Realschule", "Gymnasium", "Gesamtschule", "Berufsschule / Berufskolleg", "Andere"];
+const GRADES = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13"];
+function onbChips(host, label, opts, key) {
+  const l = document.createElement("div"); l.className = "oq"; l.textContent = label; host.appendChild(l);
+  const row = document.createElement("div"); row.className = "ch";
+  opts.forEach(o => {
+    const b = document.createElement("button"); b.textContent = o; if (onbSel[key] === o) b.className = "on";
+    b.onclick = () => { onbSel[key] = onbSel[key] === o ? "" : o; drawOnb(); };
+    row.appendChild(b);
+  });
+  host.appendChild(row);
+}
+function onbExtra(host) {
+  const r = onbSel.role || "";
+  if (/Schule/.test(r)) { onbChips(host, "Welche Schulform?", SCHOOLS, "stype"); onbChips(host, "Welche Klasse?", GRADES, "grade"); }
+  else if (/Studium/.test(r)) onbChips(host, "Welches Semester?", ["1", "2", "3", "4", "5", "6", "7+"], "grade");
+  else if (/Ausbildung/.test(r)) onbChips(host, "Welches Lehrjahr?", ["1", "2", "3", "3,5"], "grade");
+  if (onbSel.age === "unter 14" || onbSel.age === "14–15") {
+    const n = document.createElement("div"); n.className = "hsub"; n.style.cssText = "margin-top:16px;font-size:13px;opacity:.75"; n.textContent = "Du bist noch unter 16: Bitte sprich vor der Nutzung mit deinen Eltern. Jarvis erklärt dir dann einfacher und ist bei Geld und Verträgen vorsichtig.";
+    host.appendChild(n);
+  }
+}
+function onbField(host) {
+  const rr = onbSel.role || "";
+  const fl = /Schule/.test(rr) ? ["Lieblingsfächer oder Problemfächer (optional)", "z. B. Mathe, Englisch"] : /Studium/.test(rr) ? ["Studienfach (optional)", "z. B. Informatik, BWL, Medizin"] : /Ausbildung/.test(rr) ? ["Ausbildungsberuf (optional)", "z. B. Bankkaufmann, Fachinformatiker"] : ["Beruf oder Branche (optional)", "z. B. Handwerk, Online-Shop, Pflege"];
+  const l1 = document.createElement("div"); l1.className = "oq"; l1.textContent = fl[0];
+  const i1 = document.createElement("input"); i1.className = "oi"; i1.placeholder = fl[1]; i1.value = onbSel.field || "";
+  i1.oninput = () => { onbSel.field = i1.value.trim().slice(0, 60); };
+  host.appendChild(l1); host.appendChild(i1);
+}
 function drawOnb() {
   const host = document.getElementById("onbf");
   host.innerHTML = "";
@@ -5248,11 +5719,15 @@ function drawOnb() {
   const inp = document.createElement("input"); inp.className = "oi"; inp.placeholder = "Vorname (optional)"; inp.value = onbSel.name || "";
   inp.oninput = () => { onbSel.name = inp.value.trim().slice(0, 30); };
   host.appendChild(l0); host.appendChild(inp);
-  const l1 = document.createElement("div"); l1.className = "oq"; l1.textContent = "Bereich oder Branche (optional)";
-  const i1 = document.createElement("input"); i1.className = "oi"; i1.placeholder = "z. B. Handwerk, Online-Shop, Informatik, Pflege"; i1.value = onbSel.field || "";
-  i1.oninput = () => { onbSel.field = i1.value.trim().slice(0, 60); };
-  host.appendChild(l1); host.appendChild(i1);
+
   OQ.forEach(q => {
+    if (q.k === "use") { onbExtra(host); onbField(host); }
+    if (q.k === "level") {
+      const lg = document.createElement("div"); lg.className = "oq"; lg.textContent = "Was ist dein größtes Ziel gerade? (optional)"; host.appendChild(lg);
+      const ig = document.createElement("input"); ig.className = "oi"; ig.placeholder = "z. B. bessere Noten in Mathe, eigenes Business starten"; ig.value = onbSel.goal || "";
+      ig.oninput = () => { onbSel.goal = ig.value.trim().slice(0, 100); };
+      host.appendChild(ig);
+    }
     const l = document.createElement("div"); l.className = "oq"; l.textContent = q.q; host.appendChild(l);
     const row = document.createElement("div"); row.className = "ch";
     q.o.forEach(o => {
@@ -5269,12 +5744,12 @@ function drawOnb() {
   });
 }
 function openOnb() {
-  onbSel = { name: (prof && prof.name) || "", field: (prof && prof.field) || "", age: (prof && prof.age) || "", role: (prof && prof.role) || "", level: (prof && prof.level) || "", tone: (prof && prof.tone) || "", len: (prof && prof.len) || "", use: ((prof && prof.use) || []).slice() };
+  onbSel = { name: (prof && prof.name) || "", field: (prof && prof.field) || "", age: (prof && prof.age) || "", role: (prof && prof.role) || "", goal: (prof && prof.goal) || "", stype: (prof && prof.stype) || "", grade: (prof && prof.grade) || "", level: (prof && prof.level) || "", tone: (prof && prof.tone) || "", len: (prof && prof.len) || "", use: ((prof && prof.use) || []).slice() };
   drawOnb();
   document.getElementById("onb").classList.add("on");
 }
 function closeOnb(saveIt) {
-  if (saveIt) prof = { name: onbSel.name, field: onbSel.field, age: onbSel.age, role: onbSel.role, level: onbSel.level, tone: onbSel.tone, len: onbSel.len, use: onbSel.use, done: 1 };
+  if (saveIt) prof = { name: onbSel.name, field: onbSel.field, age: onbSel.age, role: onbSel.role, goal: onbSel.goal || "", stype: /Schule/.test(onbSel.role || "") ? onbSel.stype : "", grade: /Schule|Studium|Ausbildung/.test(onbSel.role || "") ? onbSel.grade : "", level: onbSel.level, tone: onbSel.tone, len: onbSel.len, use: onbSel.use, done: 1 };
   else if (!prof) prof = { done: 1 };
   save("jarvis_profile", prof);
   document.getElementById("onb").classList.remove("on");
