@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -158,7 +159,7 @@
   body[data-t] .src a { color: var(--a2); }
   body[data-t] .sub { border-color: rgba(var(--ar), 0.3); }
   .tab { font-size: 11px; }
-  #chat, #search, #notes, #biz, #school { flex: 1; overflow-y: auto; padding: 12px 14px; min-height: 0; }
+  #chat, #search, #notes, #biz, #school, #home { flex: 1; overflow-y: auto; padding: 12px 14px; min-height: 0; }
   #schoolwrap { flex: 1; min-height: 0; display: none; flex-direction: column; }
   #schoolctl { padding: 8px 14px 4px; border-bottom: 1px solid rgba(var(--ar), 0.18); }
   .chips { display: flex; gap: 6px; overflow-x: auto; padding: 3px 0; white-space: nowrap; -webkit-overflow-scrolling: touch; }
@@ -269,6 +270,26 @@
   .tool em { font-style: normal; font-size: 11px; padding: 4px 9px; border-radius: 12px; background: rgba(255,255,255,.07); opacity: .8; white-space: nowrap; }
   .disc { margin-top: 22px; font-size: 12px; line-height: 1.5; opacity: .5; }
 
+  /* ---- v54: Startseite ---- */
+  .nxt { margin: 14px 0; padding: 16px 18px; border-radius: 22px; background: linear-gradient(135deg, rgba(var(--ar), .38), rgba(var(--ar), .1)); border: 1px solid rgba(var(--ar), .5); cursor: pointer; }
+  .nxt small { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; opacity: .75; }
+  .nxt b { display: block; font-size: 19px; margin: 6px 0 2px; font-weight: 600; line-height: 1.3; }
+  .nxt > span { font-size: 13.5px; opacity: .78; display: block; }
+  .nxt .nb { margin-top: 12px; display: inline-block; padding: 9px 18px; border-radius: 99px; background: var(--a); color: var(--on); font-weight: 600; font-size: 14px; }
+  .ringrow { display: flex; align-items: center; gap: 16px; margin: 8px 0; padding: 14px 16px; border-radius: 22px; background: rgba(255,255,255,.045); border: 1px solid rgba(var(--ar), .25); }
+  .ringrow b { display: block; font-size: 16px; } .ringrow span { font-size: 13px; opacity: .7; }
+  /* ---- v53: Startup-Weg ---- */
+  .rm { display: flex; flex-direction: column; gap: 0; margin-top: 4px; }
+  .rm .st { display: flex; align-items: center; gap: 12px; padding: 10px 0; cursor: pointer; border-top: 1px solid rgba(255,255,255,.07); }
+  .rm .st:first-of-type { border-top: 0; }
+  .rm .n { flex: 0 0 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; border: 1.5px solid rgba(255,255,255,.25); color: #cfd4d1; }
+  .rm .st.done .n { background: var(--a); border-color: var(--a); color: var(--on, #04100a); }
+  .rm .st.now .n { border-color: var(--a); color: var(--a); box-shadow: 0 0 0 3px rgba(var(--ar), .22); }
+  .rm .t b { display: block; font-size: 15px; font-weight: 600; }
+  .rm .t span { display: block; font-size: 12.5px; opacity: .62; margin-top: 1px; }
+  .rm .go { margin-left: auto; opacity: .45; font-size: 18px; }
+  .fgrp { margin: 22px 0 6px; font-size: 18px; font-weight: 500; }
+  .fgrp small { display: block; font-size: 13px; font-weight: 400; opacity: .6; margin-top: 2px; }
   /* ---- v14: exakt wie die Vorschau + Reseller ---- */
   body[data-t] .tab { font-size: 12px; height: 42px; opacity: .55; }
   body[data-t] .tab.on { opacity: 1; font-weight: 600; box-shadow: none; }
@@ -518,6 +539,7 @@
   <div class="pill"><span class="core" id="core"></span><h1 id="ttl">JARVIS</h1></div>
   <div class="hg r"><button class="mini" id="newbtn" onclick="newChat()">＋</button><span style="width:40px"></span></div>
 </header>
+<div id="home" style="display:none"></div>
 <div id="chat"></div>
 <div id="search" style="display:none"></div>
 <div id="schoolwrap">
@@ -525,20 +547,12 @@
   <div id="school"></div>
 </div>
 <div id="found" style="display:none">
-  <div class="pagehead"><h2>Startup</h2><div class="hsub">Ideen finden, Reseller-Lager führen, im Planer durchrechnen und mit den Rechnern kalkulieren.</div></div>
+  <div class="pagehead"><h2>Startup</h2><div class="hsub">Von der Idee zum ersten Kunden, Schritt für Schritt.</div></div>
   <div class="tcard wide" id="tc-found"></div>
-  <div class="seg"><button class="sub on" id="fs-i" onclick="fsub('i')">Ideen</button><button class="sub" id="fs-r" onclick="fsub('r')">Reseller</button><button class="sub" id="fs-p" onclick="fsub('p')">Planer</button><button class="sub" id="fs-c" onclick="fsub('c')">Rechner</button></div>
+  <div class="seg"><button class="sub on" id="fs-i" onclick="fsub('i')">Idee</button><button class="sub" id="fs-p" onclick="fsub('p')">Lohnt sich?</button><button class="sub" id="fs-c" onclick="fsub('c')">Rechner</button><button class="sub" id="fs-r" onclick="fsub('r')">Verkaufen</button></div>
   <div id="fideas">
   <div id="fform"></div>
   <div id="fres"></div>
-  <div class="partner">
-    <h3>Starter-Werkzeuge <span style="font-size:11px;opacity:.5;font-weight:400">(Demo)</span></h3>
-    <div class="hsub" style="font-size:13px;opacity:.55">So könnte später das Partner-Modell aussehen: Jarvis empfiehlt passende Dienste, und bei Buchung über den Link erhält die App eine Provision. Die Links unten sind noch Platzhalter.</div>
-    <div class="tool"><div>Domain &amp; Website<small>Für Shop oder Webseite</small></div><em>Partner-Link folgt</em></div>
-    <div class="tool"><div>Zahlungen annehmen<small>Karte, PayPal, Rechnung</small></div><em>Partner-Link folgt</em></div>
-    <div class="tool"><div>Logo &amp; Design<small>Vorlagen für Social Media</small></div><em>Partner-Link folgt</em></div>
-    <div class="tool"><div>Buchhaltung<small>Rechnungen und Steuern</small></div><em>Partner-Link folgt</em></div>
-  </div>
   <div class="disc">Hinweis: Das sind Ideen und keine Gewinn-Garantie. Prüfe vor dem Start Gewerbeanmeldung, Steuern und Verträge. Empfehlungen mit Provision müssen später klar als Werbung gekennzeichnet werden.</div>
   </div>
   <div id="freseller" style="display:none"></div>
@@ -571,12 +585,13 @@
   <button id="btn" onclick="send()"><svg class="ic" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></button>
 </div>
 <div id="nav">
-  <button class="tab on" id="tab-chat" onclick="show('chat')">Chat</button>
+  <button class="tab on" id="tab-home" onclick="show('home')">Start</button>
+  <button class="tab" id="tab-chat" onclick="show('chat')">Chat</button>
   <button class="tab" id="tab-search" onclick="show('search')" style="display:none">Suche</button>
   <button class="tab" id="tab-school" onclick="show('school')">Schule</button>
   <button class="tab" id="tab-bu" onclick="show('bu')" style="display:none">Büro</button>
   <button class="tab" id="tab-found" onclick="show('found')">Startup</button>
-  <button class="tab" id="tab-mk" onclick="show('mk')">Märkte</button>
+  <button class="tab" id="tab-mk" onclick="show('mk')">Geld</button>
   <button class="tab" id="tab-ev" onclick="show('ev')" style="display:none">Events</button>
   <button class="tab" id="tab-notes" onclick="show('notes')">Notizen</button>
 </div>
@@ -1058,7 +1073,7 @@ function fillToday() {
   const open = todos.filter(x => !x.done).sort((a, b) => (a.due || "9") < (b.due || "9") ? -1 : 1).slice(0, 3);
   open.forEach(x => { const dl = dueLab(x.due); rows.push([x.text, dl ? dl[0] : "Aufgabe", () => { show("notes"); subTab("t"); }]); });
   try {
-    const ix = mq && mq.idx && mq.idx.items && mq.idx.items.filter(x => x.s === "^GDAXI")[0];
+    const ix = !ageMinor() && mq && mq.idx && mq.idx.items && mq.idx.items.filter(x => x.s === "^GDAXI")[0];
     if (ix) rows.push(["DAX " + nf(ix.p, 0), ix.c == null ? "" : (ix.c >= 0 ? "+" : "") + nf(ix.c, 2) + " %", () => show("mk")]);
   } catch (e) {}
   try { const ov = bu.docs.filter(buOverdue); if (ov.length) rows.push(["Büro: " + ov.length + " Rechnung" + (ov.length > 1 ? "en" : "") + " überfällig", eur(ov.reduce((a, d) => a + buTot(d).gross, 0)), () => { show("bu"); buGo("fu"); }]); } catch (e) {}
@@ -1160,8 +1175,8 @@ function newChat() {
   renderTab(cur);
 }
 
-const TITLES = { chat: "Chat", search: "Suche", school: "Schule", found: "Startup", mk: "Märkte", ev: "Events", bu: "Büro", notes: "Notizen" };
-const PANES = { chat: "chat", search: "search", school: "schoolwrap", found: "found", mk: "mk", ev: "ev", bu: "bu", notes: "notes" };
+const TITLES = { home: "Start", chat: "Chat", search: "Suche", school: "Schule", found: "Startup", mk: "Geld", ev: "Events", bu: "Büro", notes: "Notizen" };
+const PANES = { home: "home", chat: "chat", search: "search", school: "schoolwrap", found: "found", mk: "mk", ev: "ev", bu: "bu", notes: "notes" };
 const PLACE = { chat: "Sag etwas zu Jarvis...", search: "Was soll ich suchen?", school: "Thema, Aufgabe oder Antwort..." };
 
 function show(t) {
@@ -1173,7 +1188,7 @@ function show(t) {
     document.getElementById(PANES[k]).style.display = k === t ? (k === "school" ? "flex" : "block") : "none";
     document.getElementById("tab-" + k).classList.toggle("on", k === t);
   });
-  document.getElementById("bar").style.display = (t === "notes" || t === "found" || t === "mk" || t === "ev" || t === "bu") ? "none" : "flex";
+  document.getElementById("bar").style.display = (t === "home" || t === "notes" || t === "found" || t === "mk" || t === "ev" || t === "bu") ? "none" : "flex";
   document.querySelector(".photo").style.display = (t === "chat" || t === "school") ? "flex" : "none";
   document.getElementById("webb").style.display = t === "chat" ? "flex" : "none";
   document.getElementById("vcb").style.visibility = t === "chat" ? "visible" : "hidden";
@@ -1181,7 +1196,7 @@ function show(t) {
   document.getElementById("newbtn").style.visibility = tabs[t] ? "visible" : "hidden";
   document.getElementById("in").placeholder = PLACE[t] || "";
   const p = document.getElementById(t);
-  if (p) p.scrollTop = (t === "notes" || t === "found" || t === "mk" || t === "ev" || t === "bu") ? 0 : p.scrollHeight;
+  if (p) p.scrollTop = (t === "home" || t === "notes" || t === "found" || t === "mk" || t === "ev" || t === "bu") ? 0 : p.scrollHeight;
   if (t === "mk") mkEnter();
   if (t === "bu") { try { buEnter(); } catch (e) { console.error(e); } }
   try { fillAll(); } catch (e) {}
@@ -1782,7 +1797,7 @@ function drawForm() {
     host.appendChild(ex);
   } else {
     fOpen = true;
-    const ex = document.createElement("div"); ex.className = "expl"; ex.textContent = "Beantworte vier kurze Fragen, dann sucht Jarvis passende Ideen.";
+    const ex = document.createElement("div"); ex.className = "expl"; ex.textContent = "Wähle deine Antworten und tippe dann auf den Knopf unten.";
     host.appendChild(ex);
   }
   if (fo) FQ.forEach(q => {
@@ -1890,12 +1905,15 @@ let mq = load("jarvis_mq", {});
 let fav = load("jarvis_fav", []);
 let brief = load("jarvis_brief", null);
 let sp = load("jarvis_sp", { k0: 0, rate: 200, years: 20, r1: 3, r2: 5, r3: 7, cost: 0.2, infl: 2, tax: true, goal: 100000 });
-let mkSub = "o", mkDir = "up", mkMkt = "de", mqErr = "", mkQ = "", mkLoading = false;
+let mkSub = "g", mkDir = "up", mkMkt = "de", mqErr = "", mkQ = "", mkLoading = false;
 const STABLE = ["usdt", "usdc", "dai", "fdusd", "usde", "tusd", "usds", "pyusd", "usd1", "usdd", "busd"];
 const pfmt = p => (p >= 1 ? nf(p, 2) : p >= 0.01 ? nf(p, 4) : nf(p, 6)) + " €";
 const chg = c => '<span class="' + (c > 0.005 ? "up" : c < -0.005 ? "dn" : "fl") + '">' + (c >= 0 ? "+" : "") + nf(c, 2) + " %</span>";
 const FNG = { "Extreme Fear": "Extreme Angst", "Fear": "Angst", "Neutral": "Neutral", "Greed": "Gier", "Extreme Greed": "Extreme Gier" };
 const LEARN = [
+  ["Zinseszins verstehen", "Erkläre mir den Zinseszins einfach mit einem Rechenbeispiel zum Sparen und warum früh anfangen so viel ausmacht."],
+  ["Inflation und Sparbuch", "Erkläre mir Inflation und warum Geld auf dem Sparbuch an Kaufkraft verlieren kann, mit einem einfachen Beispiel."],
+  ["Streuen statt wetten", "Erkläre mir, warum man Geld streuen soll (Diversifikation) und wie ein Welt-ETF das macht, mit einem einfachen Beispiel."],
   ["ETF einfach erklärt", "Erkläre mir ETFs einfach: Was ist das, wie funktioniert ein Welt-ETF, was bedeutet TER und thesaurierend gegen ausschüttend?"],
   ["Sparplan sinnvoll aufbauen", "Erkläre mir, wie ich einen ETF-Sparplan sinnvoll aufbaue: Notgroschen, Höhe der Rate, Laufzeit, Kosten, Steuern in Deutschland und typische Fehler."],
   ["Aktie oder ETF?", "Was sind die Unterschiede zwischen Einzelaktien und ETFs, und für wen passt was?"],
@@ -1905,7 +1923,8 @@ const LEARN = [
   ["Charts lesen", "Erkläre mir die Basics der Chartanalyse für Anfänger: Trend, Unterstützung, Widerstand und Candlesticks."],
   ["Steuern auf Kapitalerträge", "Erkläre mir die Besteuerung von Kapitalerträgen in Deutschland: Abgeltungsteuer, Sparer-Pauschbetrag, Teilfreistellung bei ETFs, Freistellungsauftrag. Weise darauf hin, dass sich Regeln ändern können."]
 ];
-const SEGS = [["o", "Übersicht"], ["c", "Krypto"], ["a", "Aktien"], ["e", "ETFs"], ["s", "Sparplan"], ["l", "Lernen"]];
+const SEGS_ALL = [["g", "Spiel"], ["l", "Lernen"], ["s", "Sparplan"], ["o", "Übersicht"], ["c", "Krypto"], ["a", "Aktien"], ["e", "ETFs"]];
+const segs = () => ageMinor() ? SEGS_ALL.slice(0, 3) : SEGS_ALL;
 
 function cursym(c) { return c === "EUR" ? "€" : c === "USD" ? "$" : c || ""; }
 function fm(it) {
@@ -1943,11 +1962,11 @@ function mkEnter() {
 
 function buildMk() {
   const h = document.getElementById("mk");
-  h.innerHTML = '<div class="pagehead"><h2>Märkte</h2><div class="hsub" id="mkts">Kurse für Deutschland, USA und Krypto.</div></div><div class="tk" id="mktk"></div>' +
+  h.innerHTML = '<div class="pagehead"><h2>Geld</h2><div class="hsub" id="mkts">Üben mit Spielgeld, lernen und rechnen.</div></div><div class="tk" id="mktk"></div>' +
     '<div class="pills" id="mkseg"></div><div id="mkbody"></div>' +
     '<div class="disc">Keine Anlageberatung und keine Garantie auf Gewinne. Kurse können verzögert oder fehlerhaft sein. An der Börse sind Verluste möglich, bei Kryptowährungen und Hebelprodukten bis zum Totalverlust. Entscheide immer selbst und investiere nur Geld, das du entbehren kannst.</div>';
   const seg = document.getElementById("mkseg");
-  SEGS.forEach(s => {
+  segs().forEach(s => {
     const b = document.createElement("button");
     b.className = "pillb" + (s[0] === mkSub ? " on" : "");
     b.textContent = s[1];
@@ -1960,13 +1979,14 @@ function buildMk() {
 }
 
 function msub(k) {
+  if (!segs().some(x => x[0] === k)) k = "g";
   mkSub = k;
-  SEGS.forEach(s => { const e = document.getElementById("ms-" + s[0]); if (e) e.classList.toggle("on", s[0] === k); });
+  segs().forEach(s => { const e = document.getElementById("ms-" + s[0]); if (e) e.classList.toggle("on", s[0] === k); });
   const b = document.getElementById("mkbody");
   if (!b) return;
   const keep = b.scrollTop;
   b.innerHTML = "";
-  ({ o: drawOverview, c: drawCrypto, a: drawStocks, e: drawEtfs, s: drawSparplan, l: drawLearn })[k](b);
+  ({ g: drawGame, o: drawOverview, c: drawCrypto, a: drawStocks, e: drawEtfs, s: drawSparplan, l: drawLearn })[k](b);
 }
 
 async function loadQuotes() {
@@ -2000,15 +2020,17 @@ async function loadAll() {
   mkLoading = true;
   const ts = document.getElementById("mkts");
   if (ts) ts.textContent = "Lade Kurse...";
-  await Promise.all([loadQuotes(), loadCrypto()]);
+  await Promise.all([loadQuotes(), ageMinor() ? null : loadCrypto()]);
   mkLoading = false;
   drawTicker();
   if (document.getElementById("mkbody") && mkSub !== "s" && mkSub !== "l") msub(mkSub);
+  try { fillHome(); } catch (e) {}
 }
 
 function drawTicker() {
   const h = document.getElementById("mktk"), ts = document.getElementById("mkts");
   if (!h) return;
+  if (ageMinor()) { h.innerHTML = ""; if (ts) ts.textContent = "Üben mit Spielgeld. Es wird nichts echt gekauft."; return; }
   const card = (l, v, c) => '<div class="tkc"><small>' + l + '</small><b>' + v + '</b>' + (c == null ? "" : chg(c)) + '</div>';
   let html = "";
   const idx = mq.idx ? mq.idx.items : [];
@@ -2300,7 +2322,7 @@ async function askMarket(sys, user, host, store, btn) {
 
 function drawLearn(b) {
   b.innerHTML = '<div class="mh">Lernen, bevor du Geld einsetzt</div><div class="hsub" style="font-size:13px;opacity:.55">Jarvis erklärt dir die Grundlagen Schritt für Schritt im Lernmodus.</div>';
-  LEARN.forEach(x => {
+  LEARN.filter(x => !ageMinor() || !/Hebel|Krypto|Stop-Loss|Charts|Steuern/.test(x[0])).forEach(x => {
     const r = document.createElement("button");
     r.className = "lrow";
     r.style.cssText = "display:flex;justify-content:space-between;align-items:center;width:100%;height:auto;padding:15px 0;border-radius:0;background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.08);color:#eef2ee;font-size:15px;font-weight:400;text-align:left";
@@ -2570,7 +2592,7 @@ function buildSettings() {
   if (!b) return;
   let on = false;
   try { on = !!localStorage.getItem("jarvis_fid"); } catch (e) {}
-  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v51</div>';
+  b.innerHTML = '<div class="mh" style="margin-top:6px">Sicherheit</div><div class="hsub" style="font-size:13px;opacity:.6">Face ID sperrt die App auf diesem Gerät. Der Zugangscode bleibt der eigentliche Schutz der Daten.</div><div class="acts"></div><div class="mh">Profil</div><div class="acts"></div><div class="mh">Daten</div><div class="acts"></div><div class="hsub" id="fidmsg" style="font-size:13px;margin-top:8px"></div><div class="hsub" style="font-size:11px;opacity:.4;margin-top:6px">Jarvis v54</div>';
   const acts = b.querySelectorAll(".acts");
   const mk = (host, l, fn) => { const x = document.createElement("button"); x.className = "smallbtn"; x.textContent = l; x.onclick = fn; host.appendChild(x); };
   mk(acts[0], on ? "Face ID ausschalten" : "Face ID einschalten", on ? fidOff : enableFid);
@@ -3429,14 +3451,83 @@ function tFill(id, title, rows, head) {
   });
 }
 function fillAll() {
-  [fillToday, fillSearchT, fillSchoolT, fillFoundT, fillEvT].forEach(f => { try { f(); } catch (e) {} });
+  [fillToday, fillSearchT, fillSchoolT, fillFoundT, fillEvT, fillHome].forEach(f => { try { f(); } catch (e) {} });
   ["chat", "search", "school"].forEach(t => { try { fillHist(t); } catch (e) {} });
 }
 function fillSearchT() {
   const L = (rq.search || []).slice(0, 4);
   tFill("tc-search", "Zuletzt gesucht", L.length ? L.map(q => [q, "", () => { const i = document.getElementById("in"); i.value = q; i.focus(); }]) : [["Noch nichts gesucht. Frag zum Beispiel nach aktuellen Preisen oder Nachrichten.", ""]]);
 }
-function fillSchoolT() {
+function hwGo() {
+  schoolMode = "hw"; save("jarvis_mode", "hw");
+  try { drawChips(); } catch (e) {}
+  show("school");
+  try { document.getElementById("file").click(); } catch (e) {}
+}
+function homeMode(m, subj) {
+  schoolMode = m; save("jarvis_mode", m);
+  if (subj) { schoolSubject = subj; save("jarvis_subject", subj); }
+  try { drawChips(); } catch (e) {}
+  show("school");
+  try { if (m === "plan") examHome(); } catch (e) {}
+}
+function tabsVis() {
+  const mkb = document.getElementById("tab-mk");
+  if (mkb) { mkb.style.display = ""; mkb.textContent = "Geld"; }
+}
+function homeNext() {
+  const tdy = dkey();
+  try {
+    const up = exams.filter(x => exDays(x.date) >= 0 && exDays(x.date) <= 7).sort((a, b) => a.date.localeCompare(b.date))[0];
+    if (up) { const d = exDays(up.date); return { k: "Nächster Termin", t: up.title, s: (d === 0 ? "heute" : d === 1 ? "morgen" : "in " + d + " Tagen") + " · Lernplan " + exProg(up) + "/" + up.days.length, b: "Weiterlernen", fn: () => { schoolMode = "plan"; save("jarvis_mode", "plan"); try { drawChips(); } catch (e) {} show("school"); examHome(up.id); } }; }
+  } catch (e) {}
+  const due = todos.filter(x => !x.done && x.due && x.due <= tdy)[0];
+  if (due) return { k: "Heute fällig", t: due.text.replace(/^[^|]*\|\s*/, ""), s: "Aus deinen Aufgaben", b: "Zu den Aufgaben", fn: () => { show("notes"); try { subTab("t"); } catch (e) {} } };
+  const dk = decks.filter(d => d.cards.some(c => (c.k || 0) < 2))[0];
+  if (dk && (lst.days[tdy] || 0) < DAYGOAL) return { k: "Karteikarten", t: dk.topic, s: dk.cards.filter(c => (c.k || 0) < 2).length + " Karten offen", b: "Üben", fn: () => { show("school"); showDecks(); } };
+  return { k: "Los geht's", t: "Hausaufgabe fotografieren", s: "Jarvis hilft dir Schritt für Schritt", b: "Foto machen", fn: hwGo };
+}
+function fillHome() {
+  const h = document.getElementById("home");
+  if (!h) return;
+  tabsVis();
+  const nm = prof && prof.name ? ", " + prof.name : "";
+  h.innerHTML = "";
+  const hd = document.createElement("div"); hd.className = "pagehead";
+  hd.innerHTML = "<h2>" + esc(greetWord() + nm) + "</h2><div class=\"hsub\">" + esc(new Date().toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long" })) + "</div>";
+  h.appendChild(hd);
+  const nx = homeNext();
+  const c = document.createElement("div"); c.className = "nxt";
+  c.innerHTML = "<small></small><b></b><span></span><div class=\"nb\"></div>";
+  c.children[0].textContent = nx.k; c.children[1].textContent = nx.t; c.children[2].textContent = nx.s; c.children[3].textContent = nx.b;
+  c.onclick = nx.fn; h.appendChild(c);
+  const tdy = dkey(), nowc = lst.days[tdy] || 0, st = streak(), pc = Math.min(1, nowc / DAYGOAL), R = 30, C = 2 * Math.PI * R;
+  const rr = document.createElement("div"); rr.className = "ringrow";
+  rr.innerHTML = '<svg width="76" height="76" viewBox="0 0 76 76"><circle cx="38" cy="38" r="' + R + '" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="7"/><circle cx="38" cy="38" r="' + R + '" fill="none" stroke="var(--a)" stroke-width="7" stroke-linecap="round" stroke-dasharray="' + (C * pc) + " " + C + '" transform="rotate(-90 38 38)"/><text x="38" y="44" text-anchor="middle" fill="currentColor" font-size="18" font-weight="600">' + nowc + '</text></svg><div><b>Tagesziel</b><span>' + nowc + ' von ' + DAYGOAL + ' Karteikarten</span><br><span>Serie: ' + st + (st === 1 ? " Tag" : " Tage") + '</span></div>';
+  rr.onclick = () => { show("school"); try { showDecks(); } catch (e) {} };
+  h.appendChild(rr);
+  const qb = document.createElement("div"); qb.style.cssText = "display:flex;gap:10px;margin:10px 0";
+  [["Foto-Hilfe", hwGo], ["Etwas erklären", () => homeMode("explain")]].forEach(x => { const b = document.createElement("button"); b.className = "smallbtn"; b.style.cssText = "flex:1;height:auto;padding:12px"; b.textContent = x[0]; b.onclick = x[1]; qb.appendChild(b); });
+  h.appendChild(qb);
+  const rows = [];
+  try {
+    const dn = new Date(), doy = Math.floor((dn - new Date(dn.getFullYear(), 0, 0)) / 86400000), bx = BWLT[doy % BWLT.length];
+    rows.push(["Begriff des Tages", bx[0], () => { schoolSubject = "Wirtschaft"; schoolMode = "explain"; save("jarvis_subject", schoolSubject); save("jarvis_mode", schoolMode); try { drawChips(); } catch (e) {} show("school"); document.getElementById("in").value = "Erkläre mir den Begriff „" + bx[0] + "“ mit einem einfachen Beispiel."; send(); }]);
+  } catch (e) {}
+  try {
+    const hasIdea = !!((fideas && fideas.length) || Object.keys(fplans || {}).length), hasPlan = Object.keys(fplans || {}).length > 0, hasSale = inv.length > 0;
+    rows.push(["Startup", !hasIdea ? "Idee finden" : !hasPlan ? "Plan erstellen" : !hasSale ? "Durchrechnen" : "Ersten Kunden finden", () => { show("found"); }]);
+  } catch (e) {}
+  try {
+    const g = gSum();
+    rows.push(["Börsenspiel", g ? eur(g.v) + " (" + (g.pct >= 0 ? "+" : "") + nf(g.pct, 1) + " %)" : "Mit 10.000 € Spielgeld starten", () => { mkSub = "g"; show("mk"); try { if (document.getElementById("mkbody")) msub("g"); } catch (e) {} }]);
+  } catch (e) {}
+  const open = todos.filter(x => !x.done);
+  if (open.length) rows.push(["Offene Aufgaben", String(open.length), () => { show("notes"); try { subTab("t"); } catch (e) {} }]);
+  const tc = document.createElement("div"); tc.className = "tcard"; tc.id = "tc-more"; h.appendChild(tc);
+  tFill("tc-more", "Weiter", rows);
+}
+function fillSchoolT(id) {
   const rows = [];
   const tdy = dkey(new Date()), nowc = lst.days[tdy] || 0, st = streak();
   rows.push(["Karteikarten heute", nowc + " / " + DAYGOAL + " · Serie " + st, () => { showDecks(); }]);
@@ -3453,21 +3544,37 @@ function fillSchoolT() {
     if (!exams.length) rows.push(["Klausurplan anlegen", "→", () => { schoolMode = "plan"; save("jarvis_mode", "plan"); try { drawChips(); } catch (e) {} examHome(); }]);
   } catch (e) {}
   (rq.school || []).slice(0, 2).forEach(q => rows.push([q, "weiter", () => { const i = document.getElementById("in"); i.value = q.replace(/^[^:]*:\s*/, ""); i.focus(); }]));
-  tFill("tc-school", "Heute lernen", rows);
+  tFill(typeof id === "string" ? id : "tc-school", "Heute lernen", rows);
 }
 function fillFoundT() {
-  const rows = [];
-  if (inv.length) {
-    const b = inv.filter(x => x.st < 2), so = inv.filter(x => x.st === 2);
-    const bound = b.reduce((a, x) => a + x.ek, 0), prof2 = so.reduce((a, x) => a + x.sold - x.ek - (x.fee || 0), 0);
-    rows.push(["Im Lager: " + b.length + " Artikel", eur(bound) + " gebunden", () => fsub("r")]);
-    rows.push(["Verkauft: " + so.length + " Artikel", "Gewinn " + eur(prof2), () => fsub("r")]);
-  } else rows.push(["Reseller starten", "Ersten Artikel eintragen", () => fsub("r")]);
+  const h = document.getElementById("tc-found");
+  if (!h) return;
+  const hasIdea = !!((fideas && fideas.length) || Object.keys(fplans || {}).length);
+  const hasPlan = Object.keys(fplans || {}).length > 0;
+  const hasSale = inv.length > 0;
+  const steps = [
+    ["Idee finden", hasIdea ? "Du hast schon eine Idee gespeichert" : "Eigene Idee eintragen oder Jarvis fragen", hasIdea, () => fsub("i")],
+    ["Plan erstellen", hasPlan ? "Plan fertig, du kannst ihn weiter verfeinern" : "Zielgruppe, Preis, erste Schritte", hasPlan, () => { fsub("i"); try { document.getElementById("fown").scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {} }],
+    ["Durchrechnen", "Lohnt sich das? Kosten, Gewinn, Mindestverkäufe", false, () => fsub("p")],
+    ["Ersten Kunden finden", hasSale ? inv.length + " Artikel im Lager" : "Verkaufen und Lager führen", hasSale, () => fsub("r")]
+  ];
+  let now = steps.findIndex(x => !x[2]);
+  h.innerHTML = "<h3>Dein Weg</h3>";
+  const w = document.createElement("div"); w.className = "rm";
+  steps.forEach((x, i) => {
+    const e = document.createElement("div"); e.className = "st" + (x[2] ? " done" : i === now ? " now" : "");
+    e.innerHTML = '<div class="n">' + (x[2] ? "✓" : i + 1) + '</div><div class="t"><b></b><span></span></div><div class="go">›</div>';
+    e.querySelector("b").textContent = x[0]; e.querySelector("span").textContent = x[1];
+    e.onclick = x[3]; w.appendChild(e);
+  });
+  h.appendChild(w);
   const ot = todos.filter(x => !x.done && x.text.indexOf(" | ") > 0 && !/^Lernen \|/.test(x.text));
-  if (ot.length) rows.push([ot[0].text.length > 40 ? ot[0].text.slice(0, 40) + "…" : ot[0].text, ot.length + " offen", () => { show("notes"); subTab("t"); }]);
-  if (fideas && fideas.length) rows.push(["Deine Ideen: " + fideas[0].name, fideas.length + " gespeichert", () => fsub("i")]);
-  else rows.push(["Noch keine Ideen", "Jetzt finden", () => fsub("i")]);
-  tFill("tc-found", "Dein Stand", rows);
+  if (ot.length) {
+    const r = document.createElement("div"); r.className = "tr"; r.innerHTML = "<span></span><span></span>";
+    r.children[0].textContent = ot[0].text.length > 40 ? ot[0].text.slice(0, 40) + "…" : ot[0].text; r.children[1].textContent = ot.length + " offen";
+    r.onclick = () => { show("notes"); subTab("t"); };
+    h.appendChild(r);
+  }
 }
 function fillEvT() {
   const rows = [];
@@ -4643,12 +4750,16 @@ async function openGuide(key) {
 function fpInit() {
   const res = document.getElementById("fres"); if (!res || document.getElementById("fown")) return;
   const w = document.createElement("div"); w.id = "fown"; w.className = "sumc"; w.style.cssText = "display:block;margin-top:14px";
-  w.innerHTML = '<b>Eigene Idee?</b><span>Schreibe deine Idee in einem Satz, Jarvis erstellt den Komplettplan.</span>';
+  w.innerHTML = '';
   const i = document.createElement("input"); i.className = "rin"; i.placeholder = "z. B. Nachhilfe für Mathe in der 6. Klasse"; i.style.margin = "8px 0";
   const b = document.createElement("button"); b.className = "cta"; b.style.marginTop = "0"; b.textContent = "Komplettplan erstellen";
   b.onclick = () => { const t = i.value.trim(); if (t.length < 3) return; openPlan({ name: t.slice(0, 60), desc: t.length > 60 ? t : "" }); };
   w.appendChild(i); w.appendChild(b);
-  res.before(w);
+  const fo2 = document.getElementById("fform");
+  const g1 = document.createElement("div"); g1.className = "fgrp"; g1.innerHTML = "Ich habe eine Idee<small>Schreibe sie in einem Satz, Jarvis macht daraus einen Plan.</small>";
+  fo2.before(g1); fo2.before(w);
+  const g2 = document.createElement("div"); g2.className = "fgrp"; g2.innerHTML = "Ich habe noch keine Idee<small>Vier Fragen, dann schlägt Jarvis passende Ideen vor.</small>";
+  fo2.before(g2);
   const sp = document.createElement("div"); sp.id = "fsaved"; res.after(sp);
   fpSaved();
 }
@@ -5672,6 +5783,137 @@ function examHome(openId) {
   draw();
 }
 
+
+/* ---- Börsenspiel ---- */
+let game = load("jarvis_game", null);
+const G0 = 10000;
+let gSelK = null, gMsg = "", gQ = "", gCheck = "", gReset = false;
+function gNew() { game = { cash: G0, pos: {}, log: [], t: Date.now() }; save("jarvis_game", game); }
+function gSave() { save("jarvis_game", game); }
+function gRate() { const x = mq.idx && mq.idx.items && mq.idx.items.find(y => y.n === "EUR/USD"); return x && x.p > 0 ? x.p : 1.08; }
+function gList() { return etfList().concat(stockList()).filter(x => x.p > 0).map(x => ({ k: x.k, n: x.n, sym: x.sym, e: x.cur === "USD" ? x.p / gRate() : x.p, i: x.i })); }
+function gPrice(k) { const it = gList().find(x => x.k === k); return it ? it.e : null; }
+function gPosVal(k) { const p = game.pos[k], pr = gPrice(k); return p.q * (pr == null ? (p.last || p.avg) : pr); }
+function gValue() { let v = game.cash; Object.keys(game.pos).forEach(k => { v += gPosVal(k); }); return v; }
+function gBuy(it, euro) {
+  euro = Math.floor(euro * 100) / 100;
+  if (!(euro >= 1)) return "Mindestens 1 € eingeben.";
+  if (euro > game.cash + 0.001) return "So viel Spielgeld hast du nicht.";
+  const q = euro / it.e, p = game.pos[it.k] || { n: it.n, sym: it.sym, q: 0, avg: 0 };
+  p.avg = (p.avg * p.q + euro) / (p.q + q); p.q += q; p.last = it.e; game.pos[it.k] = p;
+  game.cash = Math.max(0, game.cash - euro);
+  game.log.unshift({ t: Date.now(), a: "Kauf", n: it.n, e: euro }); game.log = game.log.slice(0, 30);
+  gSave(); return "";
+}
+function gSell(k, frac) {
+  const p = game.pos[k]; if (!p) return "";
+  const pr = gPrice(k); if (pr == null) return "Kurs gerade nicht verfügbar.";
+  const q = frac >= 1 ? p.q : p.q * frac, euro = q * pr;
+  game.cash += euro; p.q -= q; p.last = pr;
+  if (frac >= 1 || p.q < 1e-9) delete game.pos[k];
+  game.log.unshift({ t: Date.now(), a: "Verkauf", n: p.n, e: euro }); game.log = game.log.slice(0, 30);
+  gSave(); return "";
+}
+function gSum() {
+  if (!game || !game.pos) return null;
+  const v = gValue();
+  return { v: v, pl: v - G0, pct: (v - G0) / G0 * 100 };
+}
+const gCol = x => '<span class="' + (x > 0.005 ? "up" : x < -0.005 ? "dn" : "fl") + '">' + (x >= 0 ? "+" : "") + nf(x, 2) + '</span>';
+function drawGame(b) {
+  if (!game || !game.pos) gNew();
+  b.innerHTML = "";
+  const list = gList();
+  Object.keys(game.pos).forEach(k => { const p = gPrice(k); if (p != null) game.pos[k].last = p; });
+  gSave();
+  const val = gValue(), pl = val - G0, keys = Object.keys(game.pos);
+  const top = document.createElement("div");
+  top.innerHTML = '<div class="mh">Börsenspiel</div><div class="hsub" style="font-size:13px;opacity:.6">Du startest mit 10.000 € Spielgeld und echten Kursen. Es wird nichts echt gekauft, und Gebühren gibt es im Spiel nicht.</div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0">' +
+    '<div class="sumc" style="display:block"><span>Gesamtwert</span><b style="font-size:22px">' + eur(val) + '</b></div>' +
+    '<div class="sumc" style="display:block"><span>Gewinn / Verlust</span><b style="font-size:22px">' + gCol(pl) + ' €</b><span>' + gCol(pl / G0 * 100) + ' %</span></div>' +
+    '<div class="sumc" style="display:block;grid-column:1/3"><span>Spielgeld zum Kaufen</span><b>' + eur(game.cash) + '</b></div></div>';
+  b.appendChild(top);
+  if (!list.length) {
+    const m = document.createElement("div"); m.className = "empty";
+    m.textContent = mkLoading ? "Kurse werden geladen ..." : (mqErr ? "Kurse gerade nicht erreichbar." : "Noch keine Kurse geladen.");
+    b.appendChild(m);
+    const rb = document.createElement("button"); rb.className = "smallbtn"; rb.textContent = "Kurse neu laden";
+    rb.onclick = () => { loadAll().then(() => { try { msub("g"); } catch (e) {} }); }; b.appendChild(rb);
+  }
+  const rowCss = "display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)";
+  if (keys.length) {
+    const hd = document.createElement("div"); hd.className = "mh"; hd.textContent = "Dein Depot"; b.appendChild(hd);
+    keys.forEach(k => {
+      const p = game.pos[k], v = gPosVal(k), cost = p.avg * p.q, pc = cost > 0 ? (v - cost) / cost * 100 : 0;
+      const r = document.createElement("div"); r.style.cssText = rowCss;
+      r.innerHTML = '<div style="min-width:0"><b style="font-size:14px">' + esc(p.n) + '</b><br><span style="font-size:12.5px;opacity:.65">' + eur(v) + ' · ' + gCol(pc) + ' %</span></div>';
+      const bx = document.createElement("div"); bx.style.cssText = "display:flex;gap:6px;flex-shrink:0";
+      [["½", 0.5], ["Alles", 1]].forEach(a => {
+        const bt = document.createElement("button"); bt.className = "smallbtn"; bt.textContent = a[0] + " verkaufen"; bt.style.cssText = "padding:6px 10px;font-size:12px;height:auto";
+        bt.onclick = () => { gMsg = gSell(k, a[1]); drawGame(b); }; bx.appendChild(bt);
+      });
+      r.appendChild(bx); b.appendChild(r);
+    });
+    const mx = Math.max.apply(null, keys.map(k => gPosVal(k)));
+    if (keys.length && mx / val > 0.5) { const w = document.createElement("div"); w.className = "expl"; w.style.marginTop = "10px"; w.textContent = "Über die Hälfte deines Depots steckt in einer Position. Streuen auf mehrere Werte oder einen ETF senkt das Risiko."; b.appendChild(w); }
+    const ck = document.createElement("button"); ck.className = "smallbtn"; ck.style.marginTop = "12px"; ck.textContent = "Portfolio-Check von Jarvis";
+    const ct = document.createElement("div"); ct.className = "expl"; ct.style.whiteSpace = "pre-wrap"; ct.textContent = gCheck;
+    ck.onclick = async () => {
+      ck.disabled = true; ck.textContent = "Jarvis überlegt ...";
+      try {
+        const desc = keys.map(k => game.pos[k].n + ": " + nf(gPosVal(k) / val * 100, 0) + " % des Depots").join("\n") + "\nBargeld: " + nf(game.cash / val * 100, 0) + " %\nGesamtwert " + nf(val, 0) + " € von 10.000 € Start";
+        gCheck = await fAsk("Du bist Jarvis im Lernmodus und erklärst ein Börsenspiel mit Spielgeld. Bewerte das Spiel-Depot in höchstens 6 kurzen Sätzen auf Deutsch (duzen): Streuung, Risiko, was man daraus lernen kann. Gib keine Kauf- oder Verkaufsempfehlung für echtes Geld. Keine Tabellen.", desc);
+      } catch (e) { gCheck = "Gerade nicht möglich. Versuch es später nochmal."; }
+      ct.textContent = gCheck; ck.disabled = false; ck.textContent = "Portfolio-Check von Jarvis";
+    };
+    b.appendChild(ck); b.appendChild(ct);
+  }
+  if (gMsg) { const m = document.createElement("div"); m.className = "expl"; m.style.color = "#e8a0a0"; m.textContent = gMsg; b.appendChild(m); gMsg = ""; }
+  if (list.length) {
+    const hb = document.createElement("div"); hb.className = "mh"; hb.textContent = "Kaufen"; b.appendChild(hb);
+    const inp = document.createElement("input"); inp.className = "rin"; inp.placeholder = "Suchen, z. B. Welt, SAP, Apple"; inp.value = gQ; inp.style.margin = "8px 0";
+    b.appendChild(inp);
+    const lh = document.createElement("div"); b.appendChild(lh);
+    const fill = () => {
+      lh.innerHTML = "";
+      const q = gQ.trim().toLowerCase();
+      const L = list.filter(x => !q || x.n.toLowerCase().indexOf(q) >= 0 || x.sym.toLowerCase().indexOf(q) >= 0).slice(0, 14);
+      if (!L.length) lh.innerHTML = '<div class="empty">Nichts gefunden.</div>';
+      L.forEach(it => {
+        const r = document.createElement("div"); r.style.cssText = rowCss;
+        r.innerHTML = '<div style="min-width:0"><b style="font-size:14px">' + esc(it.n) + '</b><br><span style="font-size:12.5px;opacity:.65">' + (it.i ? esc(it.i) + " · " : "") + nf(it.e, 2) + ' €</span></div>';
+        const bt = document.createElement("button"); bt.className = "smallbtn"; bt.textContent = gSelK === it.k ? "Schließen" : "Kaufen"; bt.style.cssText = "padding:6px 14px;font-size:13px;height:auto";
+        bt.onclick = () => { gSelK = gSelK === it.k ? null : it.k; fill(); };
+        r.appendChild(bt); lh.appendChild(r);
+        if (gSelK === it.k) {
+          const pn2 = document.createElement("div"); pn2.style.cssText = "padding:10px 0 14px;border-bottom:1px solid rgba(255,255,255,.08)";
+          const ai = document.createElement("input"); ai.className = "rin"; ai.placeholder = "Betrag in €"; ai.inputMode = "decimal"; ai.style.margin = "0 0 8px";
+          const cr = document.createElement("div"); cr.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px";
+          [100, 500, 1000, 0].forEach(a => {
+            const c = document.createElement("button"); c.className = "smallbtn"; c.style.cssText = "padding:6px 12px;font-size:13px;height:auto"; c.textContent = a ? a + " €" : "Alles";
+            c.onclick = () => { ai.value = String(a ? Math.min(a, Math.floor(game.cash)) : Math.floor(game.cash)); }; cr.appendChild(c);
+          });
+          const go = document.createElement("button"); go.className = "cta"; go.style.marginTop = "0"; go.textContent = "Spielgeld einsetzen";
+          go.onclick = () => { const m = gBuy(it, pn(ai.value)); if (m) { gMsg = m; } else { gSelK = null; } drawGame(b); };
+          pn2.appendChild(ai); pn2.appendChild(cr); pn2.appendChild(go); lh.appendChild(pn2);
+        }
+      });
+    };
+    inp.oninput = () => { gQ = inp.value; fill(); };
+    fill();
+  }
+  if (game.log.length) {
+    const hl = document.createElement("div"); hl.className = "mh"; hl.textContent = "Zuletzt"; b.appendChild(hl);
+    game.log.slice(0, 5).forEach(x => { const r = document.createElement("div"); r.style.cssText = "display:flex;justify-content:space-between;font-size:13px;opacity:.75;padding:4px 0"; r.innerHTML = "<span>" + esc(x.a + " · " + x.n) + "</span><span>" + eur(x.e) + "</span>"; b.appendChild(r); });
+  }
+  const rs = document.createElement("button"); rs.className = "smallbtn"; rs.style.marginTop = "18px"; rs.textContent = gReset ? "Sicher? Nochmal tippen" : "Spiel neu starten";
+  rs.onclick = () => { if (!gReset) { gReset = true; rs.textContent = "Sicher? Nochmal tippen"; setTimeout(() => { gReset = false; try { rs.textContent = "Spiel neu starten"; } catch (e) {} }, 4000); return; } gReset = false; gNew(); gCheck = ""; drawGame(b); };
+  b.appendChild(rs);
+  const dn = document.createElement("div"); dn.className = "disc"; dn.textContent = "Das ist ein Spiel mit Spielgeld, keine Anlageberatung. Kurse können verzögert sein. Gewinne im Spiel sagen nichts über echte Ergebnisse, an der Börse sind Verluste möglich.";
+  b.appendChild(dn);
+}
+
 /* ---- Einstiegsfragen ---- */
 const OQ = [
   { k: "age", q: "Wie alt bist du?", multi: false, o: ["unter 14", "14–15", "16–17", "18–24", "25–30", "über 30"] },
@@ -5754,9 +5996,12 @@ function closeOnb(saveIt) {
   save("jarvis_profile", prof);
   document.getElementById("onb").classList.remove("on");
   try { renderTab("chat"); renderTab("search"); renderTab("school"); } catch (e) {}
+  try { document.getElementById("mk").innerHTML = ""; if (cur === "mk") mkEnter(); } catch (e) {}
+  try { fillHome(); } catch (e) {}
 }
 document.getElementById("onbgo").onclick = () => closeOnb(true);
 document.getElementById("onbskip").onclick = () => closeOnb(false);
+try { fillHome(); show("home"); } catch (e) { console.error(e); }
 try { if (!prof || !prof.done) openOnb(); } catch (e) {}
 try { initLock(); } catch (e) {}
 document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") pullSync(); });
